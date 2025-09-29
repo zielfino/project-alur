@@ -1,2 +1,12 @@
-<h1>Welcome to SvelteKit</h1>
-<p>Visit <a href="https://svelte.dev/docs/kit">svelte.dev/docs/kit</a> to read the documentation</p>
+<!-- +page.svelte -->
+<script lang="ts">
+    import Dashboard from '$lib/island/dashboard.svelte';
+    import Landing from '$lib/island/landing.svelte';
+    import { sessionStore } from '$lib/stores/sessionStore';
+</script>
+
+{#if $sessionStore}
+    <Dashboard />
+{:else}
+    <Landing />
+{/if}

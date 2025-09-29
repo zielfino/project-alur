@@ -28,6 +28,5 @@
 </svelte:head>
 
 <section>
-	<p>Layout</p>
 	{@render children?.()}
 </section>

@@ -5,8 +5,10 @@
     import { sessionStore } from '$lib/stores/sessionStore';
 </script>
 
-{#if $sessionStore}
-    <Dashboard />
-{:else}
-    <Landing />
-{/if}
+<main class="min-w-full min-h-[100dvh] overscroll-auto">
+    {#if $sessionStore}
+        <Dashboard />
+    {:else}
+        <Landing />
+    {/if}
+</main>

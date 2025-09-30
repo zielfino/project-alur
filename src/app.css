@@ -34,14 +34,54 @@ body {
     @apply transition-all duration-150 outline-none
 }
 
-button, a {
+button, a.button {
     @apply focus-visible:bg-sky-100 focus-visible:ring-2 focus-visible:ring-sky-500
 }
 
+a.link {
+    @apply hover:underline focus-visible:underline
+}
+
+.agerrcontainer {
+    @apply w-full max-w-[800px]
+}
+
+.agerrlongercontainer {
+    @apply w-full max-w-[1000px]
+}
+
+.agerrlongestcontainer {
+    @apply w-full max-w-[1200px]
+}
+
+.agerrp {
+    @apply tracking-wide text-base
+}
+
+.agerrh2 {
+    @apply text-[32px] font-outfit font-bold leading-none mb-2
+}
+
+.agerrh4 {
+    @apply text-[16px] font-outfit leading-none mb-1 tracking-wide
+}
+
 .agerrbggradient {
-    @apply bg-gradient-to-tr from-sky-400 via-indigo-500 to-purple-400 bg-[length:200%_200%] bg-left hover:bg-right focus-visible:bg-right
+    @apply bg-gradient-to-tr from-sky-400 via-indigo-500 to-purple-400 bg-[length:200%_200%] bg-left hover:bg-right focus-visible:bg-right text-white
 }
 
 .agerrborder {
-    @apply border border-zinc-300 rounded-xl
+    @apply border border-slate-300 rounded-xl
+}
+
+.agerrtablebutton {
+    @apply w-[100px] aspect-5/4 bg-white rounded-lg cursor-pointer border border-slate-300 relative hover:drop-shadow-lg/10 hover:-translate-y-0.25 focus-visible:drop-shadow-lg/10 focus-visible:-translate-y-0.25
+}
+
+.agerrboxfeature {
+    @apply w-full aspect-square bg-white rounded-lg cursor-pointer border border-slate-300 relative hover:drop-shadow-xl/10 hover:-translate-y-1 focus-visible:drop-shadow-xl/10 focus-visible:-translate-y-1 flex flex-col justify-center items-center hover:ring hover:ring-indigo-500
+}
+
+.agerrnonboxfeature {
+    @apply w-full aspect-square bg-white rounded-lg border border-slate-300 relative
 }

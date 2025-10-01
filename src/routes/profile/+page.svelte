@@ -10,15 +10,16 @@
 	let name = $state(data.profile?.name || '');
 
 	let message = $state<string | null>(null);
-	let loading = $state(false);
+	// let loading.name = $state(false);
+	let loading = $state({ name: false, password: false, avatar: false });
 
 	async function handleNameUpdate(event: Event) {
 		event.preventDefault();
-		loading = true;
+		loading.name = true;
 		message = null;
 
 		// 2. Use the special 'fetch' for your API call.
-		const response = await fetch('/api/profile/edit/name', {
+		const response = await fetch('/api/profile/rename', {
 			method: 'POST',
 			headers: { 'Content-Type': 'application/json' },
 			body: JSON.stringify({ name })
@@ -32,8 +33,87 @@
 			const result = await response.json();
 			message = result.error || 'Error updating name.';
 		}
-		loading = false;
+		loading.name = false;
 	}
+
+
+
+
+
+
+
+// async function handleAvatarUpload(event: Event) {
+//     const target = event.target as HTMLInputElement;
+//     const file = target.files?.[0];
+//     if (!file) return;
+
+//     loading.avatar = true;
+//     message = null;
+
+//     const formData = new FormData();
+//     formData.append('avatar', file);
+
+//     try {
+//         // Kirim file langsung ke API SvelteKit Anda
+//         const response = await fetch('/api/profile/upload-avatar', {
+//             method: 'POST',
+//             body: formData
+//         });
+
+//         if (!response.ok) {
+//             const result = await response.json();
+//             throw new Error(result.error || 'Upload failed');
+//         }
+
+//         message = 'Avatar updated successfully!';
+//         await invalidateAll();
+//     } catch (error: any) {
+//         message = 'Error uploading avatar: ' + error.message;
+//     } finally {
+//         loading.avatar = false;
+//     }
+// }
+
+	let previewUrl = $state('');
+
+	async function handleAvatarUpload(event: Event) {
+		const target = event.target as HTMLInputElement;
+		const file = target.files?.[0];
+		if (!file) return;
+
+		// --- BAGIAN BARU: BUAT URL PRATINJAU ---
+		// Buat URL lokal sementara untuk file yang baru dipilih
+		previewUrl = URL.createObjectURL(file);
+		// --- AKHIR BAGIAN BARU ---
+
+		loading.avatar = true;
+		message = null;
+
+		// ... sisa kode upload Anda tetap sama ...
+		const formData = new FormData();
+		formData.append('avatar', file);
+
+		try {
+			const response = await fetch('/api/profile/upload-avatar', {
+				method: 'POST',
+				body: formData
+			});
+
+			if (!response.ok) {
+				const result = await response.json();
+				throw new Error(result.error || 'Upload failed');
+			}
+
+			message = 'Avatar updated successfully!';
+			await invalidateAll(); // Refresh data, yang akan memperbarui data.profile.avatar_url
+		} catch (error: any) {
+			message = 'Error uploading avatar: ' + error.message;
+			previewUrl = ''; // Hapus pratinjau jika upload gagal
+		} finally {
+			loading.avatar = false;
+		}
+	}
+		
 </script>
 
 <h1>Edit Your Profile</h1>
@@ -46,7 +126,19 @@
 	<h2>Change Name</h2>
 	<label for="name">Name:</label>
 	<input id="name" type="text" bind:value={name} />
-	<button disabled={loading}>
-		{#if loading}Saving...{:else}Save Name{/if}
+	<button disabled={loading.name}>
+		{#if loading.name}Saving...{:else}Save Name{/if}
 	</button>
 </form>
+
+
+<hr />
+
+<div>
+	<h2>Change Profile Picture</h2>
+    <img src={previewUrl || data.profile?.avatar_url || '/default-avatar.png'} width="200px" class="rounded-full" alt="">
+	<input type="file" onchange={handleAvatarUpload} accept="image/png, image/jpeg" disabled={loading.avatar} />
+	{#if loading.avatar}
+		<p>Uploading...</p>
+	{/if}
+</div>

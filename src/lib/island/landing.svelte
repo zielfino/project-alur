@@ -1,4 +1,6 @@
 <script lang="ts">
+	import { goto } from '$app/navigation';
+	import LogoutButton from '$lib/component/logoutButton.svelte';
     import MainFooter from '$lib/island/mainFooter.svelte';
     let parentLogin: HTMLElement | null = null;
     let loginButton: HTMLElement | null = null;
@@ -42,9 +44,10 @@
         <div class="flex space-x-2 h-full">
             <a href="https://zielalfino.agerrstudio.com" class="button flex justify-center items-center cursor-pointer px-5 h-full bg-white hover:bg-slate-200 rounded-lg agerrborder">Contact Me</a>
             <div bind:this={parentLogin} class="p-1 flex justify-center items-center agerrborder space-x-1 bg-white">
-                <button bind:this={loginButton} on:mouseenter={addHover} on:mouseleave={removeHover} on:focus={addFocus} on:blur={removeFocus} 
+                <button bind:this={loginButton} on:click={() => goto("/login")} on:mouseenter={addHover} on:mouseleave={removeHover} on:focus={addFocus} on:blur={removeFocus} 
                 class="cursor-pointer px-3 h-full rounded-lg">Log In</button>
                 <button bind:this={signupButton} class="cursor-pointer agerrbggradient px-3 h-full rounded-lg font-bold text-white">Sign Up</button>
+                <!-- <LogoutButton/> -->
             </div>
         </div>
     </nav>

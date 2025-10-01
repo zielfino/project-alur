@@ -1,20 +1,20 @@
-<!-- src\lib\component\logoutButton.svelte -->
 <script lang="ts">
-    import { supabase } from '$lib/supabaseClient';
-    import { goto } from '$app/navigation';
+	import { invalidateAll } from '$app/navigation'; // <-- 1. Impor invalidateAll
 
-    async function handleLogout() {
-        const { error } = await supabase.auth.signOut();
+	async function handleLogout() {
+		// Panggil endpoint API logout kita
+		await fetch('/api/logout', {
+			method: 'POST'
+		});
 
-        if (error) {
-            console.error('Error logging out:', error);
-            return;
-        }
+		// 2. Beri tahu SvelteKit untuk memuat ulang semua datanya
+		await invalidateAll();
 
-        await goto('/');
-        // window.location.href = '/';
-    }
+		// Browser akan diarahkan oleh respons dari server,
+		// tapi invalidateAll memastikan UI langsung update.
+	}
 </script>
-<button on:click={handleLogout}>
-    Logout
+
+<button on:click={handleLogout} class="agerrbggradient agerrborder px-3 py-2">
+	Logout
 </button>

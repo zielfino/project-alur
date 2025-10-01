@@ -1,30 +1,62 @@
-<!-- +layout.svelte -->
+<!-- src/routes/+layout.svelte -->
 <script lang="ts">
-	import '../app.css';
 	import favicon from '$lib/assets/favicon.svg';
-	import { onMount } from 'svelte';
+	import { goto, invalidateAll } from '$app/navigation';
+	import { onMount, onDestroy } from 'svelte';
+	import { page } from '$app/stores';
 	import { supabase } from '$lib/supabaseClient';
-	import { sessionStore } from '$lib/stores/sessionStore';
+	import '../app.css';
 
-	let { children } = $props();
+	// runes pattern
+	let { data, children } = $props();
 
+	// This listener's ONLY job is to detect auth changes and reload the data.
 	onMount(() => {
-		// Get the initial session
-		supabase.auth.getSession().then(({ data: { session } }) => {
-			sessionStore.set(session);
-		});
+		console.log('--- CHECKPOINT 8: Layout mounted. Setting up auth listener... ---');
+		const {
+			data: { subscription }
+		} = supabase.auth.onAuthStateChange(async (event, session) => {
+			console.log('--- CHECKPOINT 9: Auth state changed! Event:', event, '---');
 
-		// Listen for auth changes and update the store
-		const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
-			sessionStore.set(session);
+			if (event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED') {
+				// The user's status has changed. Tell SvelteKit to re-run all `load` functions.
+				await invalidateAll();
+			}
+			if (event === 'SIGNED_OUT') {
+				goto('/login');
+			}
 		});
-
 		return () => subscription.unsubscribe();
+	});
+
+	// This effect's ONLY job is to look at the data and decide where the user should be.
+	$effect(() => {
+		console.log('--- CHECKPOINT 10: Effect is running. Checking data...', {
+			hasSession: !!data.session,
+			hasProfile: !!data.profile,
+			username: data.profile?.username
+		});
+		
+		// This is a special check for a brand new user.
+		if (data.session && !data.profile) {
+			console.log('--- CHECKPOINT 11: Session found but no profile yet. Calling invalidateAll() to refetch... ---');
+			// The server-side callback must have just finished.
+			// The profile just needs a moment to be created by the sync. Let's trigger a reload of data.
+			invalidateAll();
+		}
+
+		// This is the check for an existing user who needs to create a username.
+		if (data.session && data.profile?.username === null && $page.route.id !== '/set-username') {
+			console.log('--- CHECKPOINT 12: Profile found but username is null. Redirecting to /set-username... ---');
+			goto('/set-username');
+		}
 	});
 </script>
 
 <svelte:head>
 	<link rel="icon" href={favicon} />
+	<link rel="preconnect" href="https://fonts.googleapis.com">
+	<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Caveat:wght@400..700&family=Coming+Soon&family=EB+Garamond:ital,wght@0,400..800;1,400..800&family=Open+Sans:ital,wght@0,300..800;1,300..800&family=Outfit:wght@100..900&display=swap" rel="stylesheet">
 </svelte:head>
 
 <section>

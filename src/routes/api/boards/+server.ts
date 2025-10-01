@@ -1,33 +1,24 @@
 import { json } from '@sveltejs/kit';
-import mysql from 'mysql2/promise';
+import { query } from '$lib/server/database'; // <-- Import the correct 'query' function
+import type { RowDataPacket } from 'mysql2';
 
-// Import your secret database credentials from the private environment
-import { DB_HOST, DB_USER, DB_PASSWORD, DB_DATABASE } from '$env/static/private';
+export async function GET({ locals: { getSession } }) {
+	const session = await getSession();
 
-// This function runs when your frontend calls GET /api/boards
-export async function GET() {
-	const connectionConfig = {
-		host: DB_HOST,
-		user: DB_USER,
-		password: DB_PASSWORD,
-		database: DB_DATABASE
-	};
+	if (!session) {
+		return json({ error: 'Unauthorized' }, { status: 401 });
+	}
 
 	try {
-		// Create a connection to the database
-		const connection = await mysql.createConnection(connectionConfig);
-
-		// Run a query to get all boards
-		const [rows] = await connection.execute('SELECT * FROM boards');
-
-		// Close the connection
-		await connection.end();
-
-		// Send the data back to the frontend as JSON
-		return json(rows);
+		// Use the 'query' helper to get all boards owned by the logged-in user
+		const boards = await query(
+			'SELECT * FROM boards WHERE owner_id = ?',
+			[session.user.id]
+		);
+		
+		return json(boards);
 	} catch (error) {
-		console.error('Failed to connect to the database:', error);
-		// Return an error response
+		console.error('Failed to fetch boards:', error);
 		return json({ error: 'Database connection failed' }, { status: 500 });
 	}
 }

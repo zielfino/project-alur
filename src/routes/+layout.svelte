@@ -20,6 +20,7 @@
 
 			if (event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED') {
 				// The user's status has changed. Tell SvelteKit to re-run all `load` functions.
+				console.log('--- INFO: SIGNED_IN detected. Calling invalidateAll()... ---');
 				await invalidateAll();
 			}
 			if (event === 'SIGNED_OUT') {

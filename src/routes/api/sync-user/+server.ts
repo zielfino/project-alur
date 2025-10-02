@@ -24,6 +24,7 @@ export const POST: RequestHandler = async ({ locals }) => {
         const uid = user.id;
         const email = user.email || null;
         const name =
+        user.app_metadata?.name ||
         user.user_metadata?.full_name ||
         user.user_metadata?.name ||
         user.user_metadata?.preferred_username ||

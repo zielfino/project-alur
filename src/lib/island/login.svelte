@@ -2,46 +2,46 @@
 <script lang="ts">
 	import { supabase } from '$lib/supabaseClient';
 
-	let name = '';
-	let email = '';
-	let password = '';
-	let isSigningUp = false
-
-    async function handleGoogleLogin() {
-        const { error } = await supabase.auth.signInWithOAuth({
-            provider: 'google',
-            options: {
-            redirectTo: 'http://localhost:5173/auth/callback'
-            }
-        });
-        if (error) console.error('Error:', error.message);
-    }
+	let name = $state('');
+	let email = $state('');
+	let password = $state('');
+	let isSigningUp = $state(false)
 
 	async function handleEmailLogin() {
-		const { error } = await supabase.auth.signInWithPassword({
-			email: email,
-			password: password
+		const response = await fetch('/api/auth/signin', {
+			method: 'POST',
+			headers: { 'Content-Type': 'application/json' },
+			body: JSON.stringify({ email, password })
 		});
-		if (error) {
-			alert('Error logging in: ' + error.message);
+
+		if (!response.ok) {
+			const result = await response.json();
+			alert('Error logging in: ' + result.message);
 		}
 	}
 
 	async function handleEmailSignup() {
-		const { error } = await supabase.auth.signUp({
-			email: email,
-			password: password,
-			options: {
-				data: {
-					name: name
-				}
-			}
+		// CHECKPOINT SIGNUP 1 (Frontend): Tombol signup diklik.
+		console.log('--- SIGNUP FRONTEND: Signup button clicked. Sending data to API... ---');
+
+		// Mengirim data form ke API endpoint yang baru kita buat.
+		const response = await fetch('/api/auth/signup', {
+			method: 'POST',
+			headers: { 'Content-Type': 'application/json' },
+			body: JSON.stringify({ name, email, password })
 		});
 
-		if (error) {
-			alert('Error signing up: ' + error.message);
+		// Menerima respons dari API.
+		const result = await response.json();
+
+		if (response.ok) {
+			// Jika API mengembalikan sukses, tampilkan pesannya.
+			console.log('--- SIGNUP FRONTEND: SUCCESS - API returned success ---');
+			alert(result.message);
 		} else {
-			alert('Signup successful! Please check your email to verify your account.');
+			// Jika API mengembalikan error, tampilkan pesannya.
+			console.error('--- SIGNUP FRONTEND: FAILED - API returned an error:', result.error, '---');
+			alert('Error signing up: ' + result.error);
 		}
 	}
 </script>
@@ -57,14 +57,14 @@
 <input type="password" bind:value={password} placeholder="Password" />
 
 {#if isSigningUp}
-	<button on:click={handleEmailSignup}>Sign Up</button>
-	<p>Already have an account? <button on:click={() => (isSigningUp = false)}>Sign In</button></p>
+	<button onclick={handleEmailSignup}>Sign Up</button>
+	<p>Already have an account? <button onclick={() => (isSigningUp = false)}>Sign In</button></p>
 {:else}
-	<button on:click={handleEmailLogin}>Sign In</button>
-	<p>Don't have an account? <button on:click={() => (isSigningUp = true)}>Sign Up</button></p>
+	<button onclick={handleEmailLogin}>Sign In</button>
+	<p>Don't have an account? <button onclick={() => (isSigningUp = true)}>Sign Up</button></p>
 {/if}
 
 <hr />
 
 <!-- <button on:click={handleGoogleLogin}>Sign in with Google</button> -->
-<a  href="/login/google">Sign in with Google</a>
+<a  href="/api/google">Sign in with Google</a>

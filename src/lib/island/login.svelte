@@ -1,5 +1,6 @@
 // src\lib\island\login.svelte
 <script lang="ts">
+	import { goto, invalidateAll } from '$app/navigation';
 	import { supabase } from '$lib/supabaseClient';
 
 	let name = $state('');
@@ -8,13 +9,17 @@
 	let isSigningUp = $state(false)
 
 	async function handleEmailLogin() {
+		console.log('--- LOGIN FRONTEND: Login button clicked. Sending data to API... ---');
 		const response = await fetch('/api/auth/signin', {
 			method: 'POST',
 			headers: { 'Content-Type': 'application/json' },
 			body: JSON.stringify({ email, password })
 		});
 
-		if (!response.ok) {
+		if (response.ok) {
+			await invalidateAll();
+			await goto('/');
+		} else {
 			const result = await response.json();
 			alert('Error logging in: ' + result.message);
 		}

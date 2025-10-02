@@ -47,7 +47,7 @@
                 <button bind:this={loginButton} on:click={() => goto("/login")} on:mouseenter={addHover} on:mouseleave={removeHover} on:focus={addFocus} on:blur={removeFocus} 
                 class="cursor-pointer px-3 h-full rounded-lg">Log In</button>
                 <button bind:this={signupButton} class="cursor-pointer agerrbggradient px-3 h-full rounded-lg font-bold text-white">Sign Up</button>
-                <LogoutButton/>
+                <!-- <LogoutButton/> -->
             </div>
         </div>
     </nav>

@@ -1,7 +1,6 @@
 <script lang="ts">
 	import { goto, invalidateAll } from '$app/navigation';
     
-    // Ambil data dari load function di layout server
 	let { data } = $props();
 
 	let username = $state('');
@@ -9,11 +8,10 @@
 	let loading = $state(false);
 
 	async function handleSubmit() {
-        // ... fungsi handleSubmit Anda tetap sama ...
 		loading = true;
 		error = null;
 
-		const response = await fetch('/api/profile', {
+		const response = await fetch('/api/profile/setusername', {
 			method: 'POST',
 			headers: { 'Content-Type': 'application/json' },
 			body: JSON.stringify({ username })

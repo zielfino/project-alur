@@ -1,6 +1,9 @@
 <script lang="ts">
+	import profile from '$lib/assets/profile.png';
+
 	// import { $state } from 'svelte';
 	import { invalidateAll } from '$app/navigation';
+	import { onMount } from 'svelte';
 
 	// 1. Get SvelteKit's special 'fetch' from the props.
 	// This 'fetch' automatically includes your login cookie.
@@ -114,6 +117,9 @@
 		}
 	}
 		
+		onMount(() => {
+			console.log('Current profile data:',  data.profile?.avatar_url);
+		});
 </script>
 
 <h1>Edit Your Profile</h1>
@@ -136,7 +142,7 @@
 
 <div>
 	<h2>Change Profile Picture</h2>
-    <img src={previewUrl || data.profile?.avatar_url || '/default-avatar.png'} width="200px" class="rounded-full" alt="">
+    <img src={ previewUrl || profile} width="200px" height="20px" class="rounded-full" alt="">
 	<input type="file" onchange={handleAvatarUpload} accept="image/png, image/jpeg" disabled={loading.avatar} />
 	{#if loading.avatar}
 		<p>Uploading...</p>

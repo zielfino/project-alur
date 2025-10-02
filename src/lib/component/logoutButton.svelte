@@ -3,7 +3,7 @@
 
 	async function handleLogout() {
 		// Panggil endpoint API logout kita
-		const response = await fetch('/api/logout', {
+		const response = await fetch('/api/auth/logout', {
 			method: 'POST'
 		});
 

@@ -53,8 +53,8 @@ export async function GET({ url, locals: { supabase } }) {
 					 VALUES (?, ?, ?, ?)
 					 ON DUPLICATE KEY UPDATE
 						 email = VALUES(email),
-						 name = VALUES(name),
-						 avatar_url = VALUES(avatar_url),
+						 name = COALESCE(users.name, VALUES(name)),
+						 avatar_url = COALESCE(users.avatar_url, VALUES(avatar_url)),
 						 updated_at = CURRENT_TIMESTAMP`,
 					[user.id, user.email, name, avatar_url] // Menggunakan 'id' bukan 'uid'
 				);

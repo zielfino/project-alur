@@ -42,8 +42,8 @@ export const POST: RequestHandler = async ({ locals }) => {
         VALUES (?, ?, ?, ?)
         ON DUPLICATE KEY UPDATE
             email = VALUES(email),
-            name = VALUES(name),
-            avatar_url = VALUES(avatar_url),
+            name = COALESCE(users.name, VALUES(name)),
+            avatar_url = COALESCE(users.avatar_url, VALUES(avatar_url)),
             updated_at = CURRENT_TIMESTAMP`,
         [uid, email, name, avatar_url]
         );

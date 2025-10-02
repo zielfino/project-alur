@@ -8,7 +8,7 @@
 
 <main class="min-w-full min-h-[100dvh] overscroll-auto">
 	{#if data.profile}
-		<Dashboard />
+		<Dashboard data={data} />
 	{:else}
 		<Landing />
 	{/if}

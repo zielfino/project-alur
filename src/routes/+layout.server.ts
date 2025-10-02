@@ -58,7 +58,7 @@ export const load: LayoutServerLoad = async ({ locals: { getSession } }) => {
 		try {
 			const pool = getPool();
 			const [rows] = await pool.execute(
-				'SELECT uid, username, name, email, avatar_url FROM users WHERE uid = ?',
+				'SELECT uid, username, name, email, avatar_url, has_password FROM users WHERE uid = ?',
 				[session.user.id]
 			);
 			profile = (rows as any)[0] || null;

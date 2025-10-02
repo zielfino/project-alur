@@ -2,7 +2,7 @@
 	import profile from '$lib/assets/profile.png';
 
 	// import { $state } from 'svelte';
-	import { invalidateAll } from '$app/navigation';
+	import { goto, invalidateAll } from '$app/navigation';
 	import { onMount } from 'svelte';
 
 	// 1. Get SvelteKit's special 'fetch' from the props.
@@ -120,6 +120,89 @@
 		onMount(() => {
 			console.log('Current profile data:',  data.profile?.avatar_url);
 		});
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+	import { supabase } from '$lib/supabaseClient';
+	// State untuk semua form di halaman ini
+	let oldPassword = $state('');
+	let newPassword = $state('');
+	let confirmPassword = $state('');
+
+	// --- Fungsi untuk pengguna EMAIL (mengubah password) ---
+	async function handlePasswordUpdate() {
+		loading.password = true;
+		message = null;
+
+		// Validasi Anda tetap di sini
+		if (newPassword !== confirmPassword) { /* ... */ }
+		// ... (verifikasi password lama Anda juga tetap di sini) ...
+
+		// Panggil API di sisi server untuk mengubah password
+		const response = await fetch('/api/profile/password', {
+			method: 'POST',
+			headers: { 'Content-Type': 'application/json' },
+			body: JSON.stringify({ newPassword })
+		});
+
+		if (response.ok) {
+			message = 'Password updated successfully!';
+			oldPassword = '';
+			newPassword = '';
+			confirmPassword = '';
+		} else {
+			const result = await response.json();
+			message = 'Error updating password: ' + (result.message || 'Please try again.');
+		}
+		loading.password = false;
+	}
+
+	// --- Fungsi untuk pengguna GOOGLE (membuat password) ---
+	async function handlePasswordCreate() {
+		loading.password = true;
+		message = null;
+
+		if (newPassword !== confirmPassword) {
+			message = 'Error: Passwords do not match.';
+			loading.password = false;
+			return;
+		}
+
+		// Panggil endpoint API yang sama dengan yang digunakan untuk 'change password'
+		const response = await fetch('/api/profile/password', {
+			method: 'POST',
+			headers: { 'Content-Type': 'application/json' },
+			body: JSON.stringify({ newPassword })
+		});
+
+		const result = await response.json();
+
+		if (response.ok) {
+			message = 'Password created successfully! You can now log in with your email.';
+			newPassword = '';
+			confirmPassword = '';
+			await invalidateAll();
+		} else {
+			message = 'Error creating password: ' + (result.message || 'Please try again.');
+		}
+		loading.password = false;
+	}
 </script>
 
 <h1>Edit Your Profile</h1>
@@ -142,9 +225,38 @@
 
 <div>
 	<h2>Change Profile Picture</h2>
-    <img src={ previewUrl || profile} width="200px" height="20px" class="rounded-full" alt="">
+    <img src={ previewUrl || data.profile?.avatar_url || profile} width="200px" height="20px" class="rounded-full" alt="">
 	<input type="file" onchange={handleAvatarUpload} accept="image/png, image/jpeg" disabled={loading.avatar} />
 	{#if loading.avatar}
 		<p>Uploading...</p>
 	{/if}
 </div>
+
+<hr />
+
+{#if data.session?.user?.app_metadata?.providers.includes('email') || data.profile?.has_password}
+	<form onsubmit={handlePasswordUpdate}>
+		<h2>Change Password</h2>
+		
+		{#if data.session?.user?.app_metadata?.providers.includes('email')}
+			<input type="password" bind:value={oldPassword} placeholder="Current Password" required />
+		{/if}
+		<input type="password" bind:value={newPassword} placeholder="New Password" required minlength="6" />
+		<input type="password" bind:value={confirmPassword} placeholder="Confirm New Password" required />
+		<button type="submit" disabled={loading.password}>
+			{#if loading.password}Saving...{:else}Change Password{/if}
+		</button>
+	</form>
+{:else}
+	<form onsubmit={handlePasswordCreate}>
+		<h2>Create a Password</h2>
+		<p>You currently log in with Google. Create a password to also be able to log in with your email.</p>
+		<input type="password" bind:value={newPassword} placeholder="New Password" required minlength="6" />
+		<input type="password" bind:value={confirmPassword} placeholder="Confirm New Password" required />
+		<button type="submit" disabled={loading.password}>
+			{#if loading.password}Saving...{:else}Create Password{/if}
+		</button>
+	</form>
+{/if}
+
+<button onclick={() => goto('/')}>Dashboard</button>

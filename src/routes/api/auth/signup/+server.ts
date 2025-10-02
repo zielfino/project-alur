@@ -24,7 +24,8 @@ export const POST: RequestHandler = async ({ request, locals: { supabase } }) =>
 			data: {
 				// Meneruskan 'name' agar bisa dibaca oleh trigger database kita.
                 emailRedirectTo: 'http://localhost:5173/auth/callback',
-				name: name
+				name: name,
+            	has_password: true
 			}
 		}
 	});

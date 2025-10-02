@@ -18,7 +18,7 @@
 		} = supabase.auth.onAuthStateChange(async (event, session) => {
 			console.log('--- CHECKPOINT 9: Auth state changed! Event:', event, '---');
 
-			if (event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED') {
+        	if (event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED' || event === 'USER_UPDATED') {
 				// The user's status has changed. Tell SvelteKit to re-run all `load` functions.
 				console.log('--- INFO: SIGNED_IN detected. Calling invalidateAll()... ---');
 				await invalidateAll();

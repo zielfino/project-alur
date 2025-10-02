@@ -73,3 +73,4 @@
 
 <!-- <button on:click={handleGoogleLogin}>Sign in with Google</button> -->
 <a  href="/api/google">Sign in with Google</a>
+<button onclick={() => goto('/')}>landing</button>

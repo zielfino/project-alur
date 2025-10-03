@@ -52,6 +52,16 @@
 			goto('/set-username');
 		}
 	});
+
+	function lockScroll() {
+		document.body.style.overflow = 'hidden';
+		document.body.style.touchAction = 'none';
+    }
+
+    function unlockScroll() {
+		document.body.style.overflow = '';
+		document.body.style.touchAction = '';
+    }
 </script>
 
 <svelte:head>

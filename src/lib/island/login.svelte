@@ -55,12 +55,12 @@
 
 	
     let passwordInput: HTMLElement | null = $state(null);
-    let emailInput: HTMLElement | null = $state(null);
-    let nameInput: HTMLElement | null = $state(null);
+    let emailInput: HTMLInputElement | null = $state(null);
+    let nameInput: HTMLInputElement | null = $state(null);
 </script>
 
-<section class="w-[800px] bg-white h-[500px] agerrborder grid grid-cols-2 overflow-hidden {$page.url.pathname === '/login' ? 'w-full h-full' : ''}">
-	<div class="p-4 pr-0 bg-white text-slate-900 flex flex-col items-center">
+<section class="w-[800px] bg-white h-[500px] agerrborder overflow-hidden {$page.url.pathname === '/login' ? 'w-full h-full flex' : 'grid grid-cols-5'}">
+	<div class="p-4 pr-0 bg-white text-slate-900 flex flex-col items-center {$page.url.pathname === '/login' ? 'w-[500px]' : 'col-span-2'}">
 		<div class="grid grid-cols-2 gap-2 items-center mb-4 relative w-full">
 			<div class="absolute h-[50px] w-[calc(50%-0.25rem)] agerrbggradient	 rounded-lg duration-200 ease-in-out {$isSigningUpMode ? 'translate-x-[calc(100%+0.5rem)]' : ''}"></div>
 			<button disabled={!$isSigningUpMode} class="z-1 font-semibold font-outfit tracking-wider h-[50px] rounded-lg {!$isSigningUpMode ? 'text-white' : 'cursor-pointer text-slate-900 hover:underline focus-visible:underline'}" onclick={() => (isSigningUpMode.set(false))}>Login</button>
@@ -78,31 +78,31 @@
 						<input type="text" bind:value={email} placeholder="Email" />
 					</div>
 				</div> -->
-				<div onclick={() => nameInput.focus()} class="relative group">
+				<button tabindex="-1" onclick={() => { if (nameInput) nameInput.focus(); }} class="relative group">
 					<h5 class="agerrh5 absolute top-0.5 left-1 duration-300 ease-in-out
 					{name !== '' ? '' : ' lableinput'}">Name</h5>
 					<div class="button bg-slate-200 py-2 px-3 rounded-lg w-full flex items-center gap-2 mt-5">
 						<Icon icon="fa7-solid:user" class="" />
 						<input type="text" bind:this={nameInput} bind:value={name} class="w-full h-full" />
 					</div>
-				</div>
+				</button>
 			{/if}
-			<div onclick={() => emailInput.focus()} class="relative group">
+			<button tabindex="-1"  onclick={() => { if (emailInput) emailInput.focus(); }} class="relative group">
 				<h5 class="agerrh5 absolute top-0.5 left-1 duration-300 ease-in-out
 				{email !== '' ? '' : ' lableinput'}">Email</h5>
 				<div class="button bg-slate-200 py-2 px-3 rounded-lg w-full flex items-center gap-2 mt-5">
 					<Icon icon="fa7-solid:user" class="" />
 					<input type="text" bind:this={emailInput} bind:value={email} class="w-full h-full" />
 				</div>
-			</div>
-			<div onclick={() => passwordInput.focus()} class="relative group">
+			</button>
+			<button tabindex="-1" onclick={() => { if (passwordInput) passwordInput.focus(); }} class="relative group">
 				<h5 class="agerrh5 absolute top-0.5 left-1 duration-300 ease-in-out
 				{password !== '' ? '' : ' lableinput'}">Password</h5>
 				<div class="button bg-slate-200 py-2 px-3 rounded-lg w-full flex items-center gap-2 mt-5">
 					<Icon icon="fa7-solid:key" class="" />
 					<input type="text" bind:this={passwordInput} bind:value={password} class="w-full h-full" />
 				</div>
-			</div>
+			</button>
 
 		<div class="h-full my-0 {$page.url.pathname === '/login' ? 'hidden' : ''}"></div>
 		
@@ -116,9 +116,9 @@
 		</form>
 		<div class="w-full">
 			<div class="w-full flex justify-center items-center my-6">
-				<div class=" flex justify-center items-center {$page.url.pathname === '/login' ? 'w-[40%] space-x-4' : 'w-[80%] space-x-2'}">
+				<div class=" flex justify-center items-center w-[80%] space-x-2">
 					<div class="border-t-2 border-slate-300 w-full"></div>
-					<div class="whitespace-nowrap font-outfit font-semibold tracking-widest text-slate-500">or login with</div>
+					<div class="whitespace-nowrap font-outfit font-semibold tracking-widest text-slate-500">or { $isSigningUpMode ? 'Sign Up' : 'Login' } with</div>
 					<div class="border-t-2 border-slate-300 w-full"></div>
 				</div>
 			</div>
@@ -132,7 +132,7 @@
 			{/if}
 		</div>
 	</div>
-	<div class="relative agerrbggradient rounded-lg m-4">
+	<div class="relative agerrbggradient rounded-lg m-4 {$page.url.pathname === '/login' ? 'w-full' : 'col-span-3'}">
 		{#if $page.url.pathname === '/'}
 			<button onclick={() => isLoginModalOpen.set(false)} class="cursor-pointer text-2xl absolute top-3.5 right-4 text-white duration-300 hover:rotate-90 ease-out aspect-square w-8 flex justify-center items-center rounded-full"><Icon icon="fa7-solid:close" class="" /></button>
 		{/if}

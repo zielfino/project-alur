@@ -101,3 +101,15 @@ a.link {
 .lableinput {
     @apply text-slate-400 translate-y-[calc(2.2em-2px)] translate-x-[2em]
 }
+
+
+    
+.overflow-scroll-hidden {
+    overflow: auto;
+    scrollbar-width: none;       /* Firefox */
+    -ms-overflow-style: none;    /* Internet Explorer 10+ */
+}
+
+.overflow-scroll-hidden::-webkit-scrollbar {
+    display: none;               /* Safari & Chrome */
+}

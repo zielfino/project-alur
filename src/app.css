@@ -27,19 +27,23 @@
 }
 
 body {
-    @apply text-sm font-open-sans
+    @apply text-sm font-open-sans text-slate-900 duration-150
 }
 
 * {
-    @apply transition-all duration-150 outline-none
+    @apply transition-all outline-none
 }
 
-button, a.button {
+.button {
     @apply focus-visible:bg-sky-100 focus-visible:ring-2 focus-visible:ring-sky-500
 }
 
 a.link {
     @apply hover:underline focus-visible:underline
+}
+
+.agerrbackblur {
+    @apply fixed w-full h-[100dvh] top-0 bg-slate-900/60 backdrop-blur-xs z-50  justify-center items-center
 }
 
 .agerrcontainer {
@@ -62,12 +66,20 @@ a.link {
     @apply text-[32px] font-outfit font-bold leading-none mb-2
 }
 
+.agerrh3 {
+    @apply text-[18px] font-outfit leading-none mb-1 tracking-wide font-semibold
+}
+
 .agerrh4 {
     @apply text-[16px] font-outfit leading-none mb-1 tracking-wide
 }
 
+.agerrh5 {
+    @apply text-[14px] font-outfit leading-none mb-1 tracking-wide font-semibold
+}
+
 .agerrbggradient {
-    @apply bg-gradient-to-tr from-sky-400 via-indigo-500 to-purple-400 bg-[length:200%_200%] bg-left hover:bg-right focus-visible:bg-right text-white
+    @apply bg-gradient-to-tr from-sky-400 via-indigo-500 to-purple-400 bg-[length:200%_200%] bg-left hover:bg-right focus-visible:bg-right text-white group-hover:text-sky-100 group-focus-visible:text-sky-100
 }
 
 .agerrborder {
@@ -79,9 +91,13 @@ a.link {
 }
 
 .agerrboxfeature {
-    @apply w-full aspect-square bg-white rounded-lg cursor-pointer border border-slate-300 relative hover:drop-shadow-xl/10 hover:-translate-y-1 focus-visible:drop-shadow-xl/10 focus-visible:-translate-y-1 flex flex-col justify-center items-center hover:ring hover:ring-indigo-500
+    @apply w-full aspect-square bg-white rounded-lg cursor-pointer border border-slate-300 relative hover:drop-shadow-xl/10 hover:-translate-y-1 focus-visible:drop-shadow-xl/10 focus-visible:-translate-y-1 flex flex-col justify-center items-center hover:ring hover:ring-indigo-500 focus-visible:ring focus-visible:ring-indigo-500
 }
 
 .agerrnonboxfeature {
     @apply w-full aspect-square bg-white rounded-lg border border-slate-300 relative
+}
+
+.lableinput {
+    @apply text-slate-400 translate-y-[calc(2.2em-2px)] translate-x-[2em]
 }

@@ -2,6 +2,7 @@
 	import { goto } from '$app/navigation';
 	import LogoutButton from '$lib/component/logoutButton.svelte';
     import MainFooter from '$lib/island/mainFooter.svelte';
+	import Login from './login.svelte';
     let parentLogin: HTMLElement | null = null;
     let loginButton: HTMLElement | null = null;
     let signupButton: HTMLElement | null = null;
@@ -21,6 +22,8 @@
 
     function addFocus() {
         parentLogin?.classList.add('bg-sky-100');
+        parentLogin?.classList.add('ring-2');
+        parentLogin?.classList.add('ring-sky-500');
         signupButton?.classList.add('text-sky-100');
         parentLogin?.classList.remove('bg-white');
         signupButton?.classList.remove('text-white');
@@ -29,7 +32,22 @@
         parentLogin?.classList.add('bg-white');
         signupButton?.classList.add('text-white');
         parentLogin?.classList.remove('bg-sky-100');
+        parentLogin?.classList.remove('ring-2');
+        parentLogin?.classList.remove('ring-sky-500');
         signupButton?.classList.remove('text-sky-100');
+    }
+
+    import { isLoginModalOpen, isSigningUpMode } from '$lib/stores/uiStore';
+	import { fade } from 'svelte/transition';
+    import { quadOut } from 'svelte/easing';
+
+    function openLoginModal() {
+        isLoginModalOpen.set(true); 
+        isSigningUpMode.set(false);
+    }
+    function openSigninModal() {
+        isLoginModalOpen.set(true); 
+        isSigningUpMode.set(true); 
     }
 </script>
 
@@ -43,25 +61,33 @@
         </a>
         <div class="flex space-x-2 h-full">
             <a href="https://zielalfino.agerrstudio.com" class="button flex justify-center items-center cursor-pointer px-5 h-full bg-white hover:bg-slate-200 rounded-lg agerrborder">Contact Me</a>
-            <div bind:this={parentLogin} class="p-1 flex justify-center items-center agerrborder space-x-1 bg-white">
-                <button bind:this={loginButton} on:click={() => goto("/login")} on:mouseenter={addHover} on:mouseleave={removeHover} on:focus={addFocus} on:blur={removeFocus} 
+            <div bind:this={parentLogin} class="group p-1 flex justify-center items-center agerrborder space-x-1 bg-white">
+                <button bind:this={loginButton} onclick={openLoginModal} onmouseenter={addHover} onmouseleave={removeHover} onfocus={addFocus} onblur={removeFocus} 
                 class="cursor-pointer px-3 h-full rounded-lg">Log In</button>
-                <button bind:this={signupButton} class="cursor-pointer agerrbggradient px-3 h-full rounded-lg font-bold text-white">Sign Up</button>
+                <button bind:this={signupButton} onclick={openSigninModal} class="cursor-pointer button agerrbggradient px-3 h-full rounded-lg font-bold text-white">Sign Up</button>
                 <!-- <LogoutButton/> -->
             </div>
         </div>
     </nav>
-    <!-- Toper Background Image -->
+    
+    <!-- TOPER BACKGROUND -->
     <div class="absolute top-0 w-full bg-[url('/img/landingbackground.jpg')]
     h-[200px] bg-cover bg-[center_60%]
     mask-radial-farthest-corner mask-b-from-70% mask-radial-at-[50%_0%] mask-radial-from-30% mask-radial-to-80%"></div>
+
+    {#if $isLoginModalOpen}
+        <div transition:fade={{ duration: 150, easing: quadOut }} class="agerrbackblur flex">    
+            <Login />
+        </div>
+    {/if}
+
 
     <!-- HERO SECTION -->
     <main class="agerrcontainer z-1 select-none">
         <section class="flex flex-col justify-center items-center mt-[150px]">
             <h1 class="text-[76px] font-outfit font-bold tracking-tight leading-none mb-1">Find Your Flow.</h1>
             <p class="agerrp text-slate-700 text-center">See all your tasks at a glance with <b>simple</b>, and <b>clean</b> Kanban boards. <br> No more guessing what's next.</p>
-            <button class="mt-6 mb-3 agerrbggradient text-2xl font-outfit font-semibold tracking-wide px-8 py-4 text-white cursor-pointer rounded-xl">Try now it's FREE!</button>
+            <button class="button mt-6 mb-3 agerrbggradient text-2xl font-outfit font-semibold tracking-wide px-8 py-4 text-white cursor-pointer rounded-xl" onclick={openSigninModal}>Try now it's FREE!</button>
             <a href="https://zielalfino.com" tabindex="-1" class="text-xs text-slate-500 font-semibold hover:underline">It is Porfolio BTW.</a>
         </section>
     </main>
@@ -130,7 +156,7 @@
                         <div>test</div>
                     </button>
                 </div>
-                <button class="agerrbggradient border border-slate-300 rounded-lg py-4 w-full text-center text-base font-outfit font-semibold tracking-wide text-white cursor-pointer">
+                <button onclick={openSigninModal} class="agerrbggradient button border border-slate-300 rounded-lg py-4 w-full text-center text-base font-outfit font-semibold tracking-wide text-white cursor-pointer">
                     Lets Start
                 </button>
             </div>
@@ -172,7 +198,7 @@
                 <h2 class="agerrh2 text-white">Let's Organize It</h2>
                 <p class="agerrp text-slate-300 leading-normal align-middle">With this website, let me help <br>you to organize your thing</p>
                 <div class="flex items-center space-x-2 mt-6">
-                    <button class="agerrbggradient rounded-lg py-2 px-3 text-base font-outfit font-semibold cursor-pointer">
+                    <button onclick={openSigninModal} class="agerrbggradient button rounded-lg py-2 px-3 text-base font-outfit font-semibold cursor-pointer">
                         Try it now it' free!
                     </button>
                     <div class="text-white text-xs">converge over 50+ <br> different apps</div>
@@ -187,7 +213,7 @@
                 <p class="agerrh4 text-[16px] text-center z-5 text-slate-500">Features</p>
                 <h2 class="text-[32px] font-outfit font-bold tracking-tight leading-none mb-4 text-center">For now i dont think to make complex feature <br> beacuse its just FrontEnd portfolio</h2>
                 <p class="agerrp text-slate-700 text-center">but who knows, idk tho if ill make feature in the future. but not for now.</p>
-                <button class="my-4 agerrbggradient text-lg font-bebas font-semibold px-3 py-2 text-white cursor-pointer rounded-lg">Please try it :<div class="inline-block translate-y-[0.07em] ml-[0.025em] font-[600]">D</div></button>
+                <button onclick={openSigninModal} class="my-4 button agerrbggradient text-lg font-outfit px-3 py-2 font-semibold text-white cursor-pointer rounded-lg">Please try it :<div class="inline-block translate-y-[0.07em] ml-[0.025em] font-bebas font-medium">D</div></button>
             </section>
         </section>
 

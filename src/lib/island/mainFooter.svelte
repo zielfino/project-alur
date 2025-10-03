@@ -4,10 +4,10 @@
             Alurr | Organize all your project, find a flow.
         </div>
     </section>
-    <section class="agerrcontainer">
+    <section class="agerrcontainer pt-8">
         <div class="grid grid-cols-12">
-            <div class="col-span-3 my-4">
-                <h4 class="mb-4 text-base font-bold text-slate-700">Other Projects</h4>
+            <div class="col-span-2 my-4">
+                <h4 class="mb-4 text-base font-bold text-slate-700">Projects</h4>
                 <ul class="text-slate-400/80 font-semibold text-xs tracking-wide [&>*]:my-1.5 [&_a]:hover:underline [&_a]:focus-visible:decoration-sky-400 [&_a]:focus-visible:underline [&_a]:focus-visible:decoration-2 [&_a]:text-slate-500">
                     <li><a href="https://kasatara.agerrstudio.com">KASATARA</a></li>
                     <li>NECOFE</li>
@@ -15,11 +15,17 @@
                     <li>Uangku</li>
                     <li>CatetAja</li>
                     <li>JagaMakan</li>
+                </ul>
+            </div>
+            <div class="col-span-2 my-4">
+                <h4 class="mb-4 text-base font-bold text-slate-700">Portfolio</h4>
+                <ul class="text-slate-400/80 font-semibold text-xs tracking-wide [&>*]:my-1.5 [&_a]:hover:underline [&_a]:focus-visible:decoration-sky-400 [&_a]:focus-visible:underline [&_a]:focus-visible:decoration-2 [&_a]:text-slate-500">
                     <li><a href="https://resume.zielalfino.com">My Resume</a></li>
                     <li><a href="https://portfolio.zielalfino.com">My Portfolio</a></li>
                 </ul>
             </div>
-            <div class="col-span-3 my-4">
+            <div class="col-span-4"></div>
+            <div class="col-span-2 my-4">
                 <h4 class="mb-4 text-base font-bold text-slate-700">My Links</h4>
                 <ul class="text-slate-400/80 font-semibold text-xs tracking-wide [&>*]:my-1.5 [&_a]:hover:underline [&_a]:focus-visible:decoration-sky-400 [&_a]:focus-visible:underline [&_a]:focus-visible:decoration-2 [&_a]:text-slate-500">
                     <li><a href="https://github.com/zielfino">Github</a></li>
@@ -28,7 +34,6 @@
                     <li><a href="https://www.behance.net/zielfino">Behance</a></li>
                 </ul>
             </div>
-            <div class="col-span-4"></div>
             <div class="col-span-2 my-4">
                 <h4 class="mb-4 text-base font-bold text-slate-700">agerr site</h4>
                 <ul class="text-slate-400/80 font-semibold text-xs tracking-wide [&>*]:my-1.5 [&_a]:hover:underline [&_a]:focus-visible:decoration-sky-400 [&_a]:focus-visible:underline [&_a]:focus-visible:decoration-2 [&_a]:text-slate-500">
@@ -38,8 +43,8 @@
                 </ul>
             </div>
         </div>
-        <div class="font-bold text-slate-700 text-base tracking-wide">
-            © 2025 <span class="font-outfit tracking-normal font-semibold">agerr.studio</span>
+        <div class="text-slate-700 text-base tracking-wide">
+            <span class="font-outfit tracking-normal font-[600]">©</span><span class="text-sm font-[700]">2025</span> <span class="font-outfit tracking-normal font-[600]">agerr.studio</span>
         </div>
         <div class="text-center tracking-wider font-semibold text-xs text-slate-500 mb-2 mt-12">
             landing reference: ClickUp & Contenful

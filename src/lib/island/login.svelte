@@ -78,31 +78,31 @@
 						<input type="text" bind:value={email} placeholder="Email" />
 					</div>
 				</div> -->
-				<button tabindex="-1" onclick={() => { if (nameInput) nameInput.focus(); }} class="relative group">
-					<h5 class="agerrh5 absolute top-0.5 left-1 duration-300 ease-in-out
-					{name !== '' ? '' : ' lableinput'}">Name</h5>
+				<div class="relative group">
+					<button tabindex="-1" onclick={() => { if (nameInput) nameInput.focus(); }} class="agerrh5 absolute top-0.5 left-1 duration-300 ease-in-out
+					{name !== '' ? '' : ' lableinput'}">Name</button>
 					<div class="button bg-slate-200 py-2 px-3 rounded-lg w-full flex items-center gap-2 mt-5">
 						<Icon icon="fa7-solid:user" class="" />
 						<input type="text" bind:this={nameInput} bind:value={name} class="w-full h-full" />
 					</div>
-				</button>
+				</div>
 			{/if}
-			<button tabindex="-1"  onclick={() => { if (emailInput) emailInput.focus(); }} class="relative group">
-				<h5 class="agerrh5 absolute top-0.5 left-1 duration-300 ease-in-out
-				{email !== '' ? '' : ' lableinput'}">Email</h5>
+			<div class="relative group">
+				<button tabindex="-1"  onclick={() => { if (emailInput) emailInput.focus(); }} class="agerrh5 absolute top-0.5 left-1 duration-300 ease-in-out
+				{email !== '' ? '' : ' lableinput'}">Email</button>
 				<div class="button bg-slate-200 py-2 px-3 rounded-lg w-full flex items-center gap-2 mt-5">
-					<Icon icon="fa7-solid:user" class="" />
+					<Icon icon="fa7-solid:envelope" class="" />
 					<input type="text" bind:this={emailInput} bind:value={email} class="w-full h-full" />
 				</div>
-			</button>
-			<button tabindex="-1" onclick={() => { if (passwordInput) passwordInput.focus(); }} class="relative group">
-				<h5 class="agerrh5 absolute top-0.5 left-1 duration-300 ease-in-out
-				{password !== '' ? '' : ' lableinput'}">Password</h5>
+			</div>
+			<div class="relative group">
+				<button tabindex="-1" onclick={() => { if (passwordInput) passwordInput.focus(); }} class="agerrh5 absolute top-0.5 left-1 duration-300 ease-in-out
+				{password !== '' ? '' : ' lableinput'}">Password</button>
 				<div class="button bg-slate-200 py-2 px-3 rounded-lg w-full flex items-center gap-2 mt-5">
 					<Icon icon="fa7-solid:key" class="" />
 					<input type="text" bind:this={passwordInput} bind:value={password} class="w-full h-full" />
 				</div>
-			</button>
+			</div>
 
 		<div class="h-full my-0 {$page.url.pathname === '/login' ? 'hidden' : ''}"></div>
 		
@@ -132,7 +132,7 @@
 			{/if}
 		</div>
 	</div>
-	<div class="relative agerrbggradient rounded-lg m-4 {$page.url.pathname === '/login' ? 'w-full' : 'col-span-3'}">
+	<div class="relative agerrbggradient rounded-lg m-4 duration-1000 ease-in-out {$page.url.pathname === '/login' ? 'w-full' : 'col-span-3'}">
 		{#if $page.url.pathname === '/'}
 			<button onclick={() => isLoginModalOpen.set(false)} class="cursor-pointer text-2xl absolute top-3.5 right-4 text-white duration-300 hover:rotate-90 ease-out aspect-square w-8 flex justify-center items-center rounded-full"><Icon icon="fa7-solid:close" class="" /></button>
 		{/if}

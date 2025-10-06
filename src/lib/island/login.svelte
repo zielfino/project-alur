@@ -124,8 +124,8 @@
 			</div>
 			<div class="gap-2 flex space-x-2 w-full justify-center my-6">
 				<a  href="/api/google" class="aspect-square h-[46px] focus-visible:bg-slate-300 hover:bg-slate-300 border border-slate-300 p-2 text-[22px] rounded-full flex items-center justify-center"><Icon icon="logos:google-icon"/></a>
-				<a  href="/api/google" class="aspect-square h-[46px] focus-visible:bg-slate-300 hover:bg-slate-300 border border-slate-300 p-2 text-[22px] rounded-full flex items-center justify-center"><Icon icon="logos:linkedin-icon"/></a>
-				<a  href="/api/google" class="aspect-square h-[46px] focus-visible:bg-slate-300 hover:bg-slate-300 border border-slate-300 p-2 text-[22px] rounded-full flex items-center justify-center"><Icon icon="logos:discord-icon"/></a>
+				<a  href="/api/linkedin" class="aspect-square h-[46px] focus-visible:bg-slate-300 hover:bg-slate-300 border border-slate-300 p-2 text-[22px] rounded-full flex items-center justify-center"><Icon icon="logos:linkedin-icon"/></a>
+				<a  href="/api/discord" class="aspect-square h-[46px] focus-visible:bg-slate-300 hover:bg-slate-300 border border-slate-300 p-2 text-[22px] rounded-full flex items-center justify-center"><Icon icon="logos:discord-icon"/></a>
 			</div>
 			{#if $page.url.pathname === '/login'}
 				<button onclick={() => goto('/')} class="agerrborder shadow-md bg-slate-900 w-full rounded-xl hover:bg-slate-600 focus-visible:bg-slate-600 py-4 text-base text-white font-semibold font-outfit tracking-wider cursor-pointer">Back to Landing</button>

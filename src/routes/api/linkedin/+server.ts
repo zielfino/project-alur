@@ -2,7 +2,7 @@ import { redirect } from '@sveltejs/kit';
 
 export async function GET({ locals: { supabase } }) {
     const { data, error } = await supabase.auth.signInWithOAuth({
-        provider: 'google',
+        provider: 'linkedin_oidc',
         options: {
             redirectTo: 'http://localhost:5173/auth/callback'
         }

@@ -203,6 +203,49 @@
 		}
 		loading.password = false;
 	}
+
+
+
+
+
+
+
+
+
+    // import { $state } from 'svelte';
+	// import { goto } from '$app/navigation';
+    
+    let showDeleteModal = $state(false);
+    let confirmUsername = $state('');
+
+	async function handleDeleteAccount() {
+		// Panggil API delete Anda
+		const response = await fetch('/api/auth/delete', {
+			method: 'POST',
+			headers: { 'Content-Type': 'application/json' },
+			body: JSON.stringify({ confirmUsername })
+		});
+
+		if (response.ok) {
+			alert('Your account has been successfully deleted.');
+
+			try {
+				// Coba untuk membersihkan sesi di klien.
+				// Kita tahu ini kemungkinan akan gagal, dan itu tidak masalah.
+				await supabase.auth.signOut();
+			} catch (error) {
+				// Abaikan saja error dari signOut, karena kita memang mengharapkan ini terjadi.
+				console.warn('Expected signOut error after user deletion:', error);
+			} finally {
+				// BAGIAN INI AKAN SELALU DIJALANKAN
+				// Pastikan pengguna selalu diarahkan ke halaman login.
+				await invalidateAll(); // Refresh data untuk memastikan semuanya bersih
+				await goto('/');
+			}
+		} else {
+			// ... (kode error handling Anda)
+		}
+	}
 </script>
 
 <h1>Edit Your Profile</h1>
@@ -258,5 +301,35 @@
 		</button>
 	</form>
 {/if}
+<hr />
 
+<div class="danger-zone">
+    <h2>Danger Zone</h2>
+    <p>Deleting your account is permanent and cannot be undone.</p>
+    <button class="delete-button" onclick={() => showDeleteModal = true}>
+        Delete My Account
+    </button>
+</div>
+
+{#if showDeleteModal}
+    <div class="modal-backdrop">
+        <div class="modal-content">
+            <h2>Are you absolutely sure?</h2>
+            <p>This action is irreversible. To confirm, please type your username: <strong>{data.profile?.username}</strong></p>
+
+            <input type="text" bind:value={confirmUsername} />
+            
+            <button
+                class="confirm-delete-button"
+                disabled={confirmUsername !== data.profile?.username}
+                onclick={handleDeleteAccount}
+            >
+                I understand, delete my account
+            </button>
+            <button onclick={() => showDeleteModal = false}>Cancel</button>
+        </div>
+    </div>
+{/if}
+
+<hr>
 <button onclick={() => goto('/')}>Dashboard</button>

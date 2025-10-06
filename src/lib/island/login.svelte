@@ -68,16 +68,6 @@
 		</div>
 		<form class="flex flex-col gap-2.5 text-slate-800 w-[300px] h-full {$page.url.pathname === '/login' ? 'justify-center' : ''}">
 			{#if $isSigningUpMode}
-				<!-- <div class="flex gap-2 w-full">
-					<div class="button bg-slate-200 py-2 px-3 rounded-lg w-full flex gap-2">
-						<Icon icon="fa7-solid:user-large" class="inline-block" />
-						<input type="text" bind:value={name} placeholder="Your Name" />
-					</div>
-					<div class="button bg-slate-200 py-2 px-3 rounded-lg w-full flex gap-2">
-						<Icon icon="fa7-solid:user-large" class="inline-block" />
-						<input type="text" bind:value={email} placeholder="Email" />
-					</div>
-				</div> -->
 				<div class="relative group">
 					<button tabindex="-1" onclick={() => { if (nameInput) nameInput.focus(); }} class="agerrh5 absolute top-0.5 left-1 duration-300 ease-in-out
 					{name !== '' ? '' : ' lableinput'}">Name</button>

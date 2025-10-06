@@ -1,6 +1,7 @@
 import { redirect } from '@sveltejs/kit';
 
 export async function GET({ locals: { supabase } }) {
+    await supabase.auth.signOut();
     const { data, error } = await supabase.auth.signInWithOAuth({
         provider: 'linkedin_oidc',
         options: {

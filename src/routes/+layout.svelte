@@ -32,6 +32,26 @@
 
 	// This effect's ONLY job is to look at the data and decide where the user should be.
 	$effect(() => {
+        console.log('--- EFFECT: Running check...', { hasSession: !!data.session, hasProfile: !!data.profile });
+
+		if (data.session && !data.profile) {
+			console.log('--- EFFECT: Session exists, but no profile. Calling /api/sync-user... ---');
+			fetch('/api/sync-user', { method: 'POST' })
+				.then(res => {
+					console.log('--- SYNC API RESPONSE STATUS:', res.status, '---');
+					if (res.ok) {
+						// Sync berhasil, sekarang muat ulang semua data untuk mendapatkan profil baru
+						console.log('--- SYNC API SUCCESS: Reloading data with invalidateAll()... ---');
+						invalidateAll();
+					} else {
+                        console.error('--- SYNC API FAILED: API returned an error. ---');
+                    }
+				})
+				.catch(err => {
+					console.error('--- SYNC API FETCH FAILED:', err, '---');
+				});
+		}
+		
 		console.log('--- CHECKPOINT 10: Effect is running. Checking data...', {
 			hasSession: !!data.session,
 			hasProfile: !!data.profile,

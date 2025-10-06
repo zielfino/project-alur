@@ -21,7 +21,10 @@ export async function POST({ request, locals: { getSession } }) {
 
 	// Langkah 3: Validasi input.
 	// Pastikan nama yang dikirim tidak kosong dan minimal 5 karakter.
-	if (!name || name.length < 5) {
+	if (!name || name.length === 0) {
+		console.log('CHECKPOINT EDIT PROFILE: FAILED - Validation error (name is less than 5 chars).');
+		return json({ error: 'Input Please' }, { status: 400 });
+	} else if (!name || name.length < 5) {
 		console.log('CHECKPOINT EDIT PROFILE: FAILED - Validation error (name is less than 5 chars).');
 		return json({ error: 'Name must be at least 5 characters long' }, { status: 400 });
 	} else if (name.length > 30) {

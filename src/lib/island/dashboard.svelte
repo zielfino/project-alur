@@ -5,7 +5,9 @@
 
 <main class="flex">
     <Sidebar data={data} />
-    <section>
-        <h1>Welcome to your Dashboard</h1>
+    <section class="p-4 w-full">
+        <div class="bg-red-400 w-full h-full rounded-xl">
+            <h1>Welcome to your Dashboard</h1>
+        </div>
     </section>
 </main>

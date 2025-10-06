@@ -8,6 +8,7 @@ export const POST: RequestHandler = async ({ request, locals: { supabase } }) =>
 	if (!email || !password) {
 		throw error(400, 'Email and password are required.');
 	}
+    await supabase.auth.signOut();
 
 	// Panggil signInWithPassword dari sisi server
 	const { error: signInError } = await supabase.auth.signInWithPassword({

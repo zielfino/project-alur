@@ -50,7 +50,7 @@
             {$sidebar || $isHovered ? 'gap-2' : 'gap-4'}">
                 <img src={data.profile?.avatar_url || profile} width="40px" height="40px" class="rounded-full" alt="">
                 <div>
-                    <div class=" line-clamp-1 font-medium text-slate-900 font-outfit leading-none text-base {$sidebar || $isHovered ? 'opacity-100' : 'opacity-0'}">{ data.profile?.name || 'User'   }</div>
+                    <div class=" line-clamp-1 font-medium text-slate-900 font-outfit leading-5 text-base {$sidebar || $isHovered ? 'opacity-100' : 'opacity-0'}">{ data.profile?.name || 'User'   }</div>
                     <div class="agerrh5 text-slate-400">@{data.profile?.username || 'username'}</div>
                 </div>
 

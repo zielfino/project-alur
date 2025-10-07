@@ -20,3 +20,7 @@ export async function query(sql: string, params?: any[]) {
 export function getPool() {
   return pool;
 }
+
+export async function getDbConnection() {
+	return pool.getConnection();
+}

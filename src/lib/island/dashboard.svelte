@@ -79,11 +79,11 @@
 	let selectedBoard = $state<Board | null>(null);
 	let editingBoardName = $state('');
 
-	function openEditBoardModal(board: Board) {
-		selectedBoard = board;
-		editingBoardName = board.name;
-		showEditBoardModal = true;
-	}
+	// function openEditBoardModal(board: Board) {
+	// 	selectedBoard = board;
+	// 	editingBoardName = board.name;
+	// 	showEditBoardModal = true;
+	// }
 
 	async function handleUpdateBoard() {
 		if (!selectedBoard || !editingBoardName) return;
@@ -122,6 +122,74 @@
 		}
 	}
     
+	type Member = { user_uid: string; username: string; avatar_url: string; role: number };
+	
+	// --- BARU: State untuk manajemen anggota ---
+	let members = $state<Member[]>([]);
+	let newMemberUsername = $state('');
+	let newMemberRole = $state(1); 
+
+	async function openEditBoardModal(board: Board) {
+		selectedBoard = board;
+		editingBoardName = board.name;
+		showEditBoardModal = true;
+		members = []; // Kosongkan daftar anggota lama
+
+		// Ambil daftar anggota saat modal dibuka
+		const response = await fetch(`/api/boards/members?board_id=${board.id}`);
+		if (response.ok) {
+			members = await response.json();
+		}
+	}
+
+	// --- BARU: Fungsi untuk mengundang anggota ---
+	async function handleInviteMember() {
+		if (!newMemberUsername || !selectedBoard) return;
+		
+		if (newMemberUsername === data.profile?.username) {
+			alert("You can't invite yourself.");
+			return;
+		}
+
+		const response = await fetch('/api/boards/members', {
+			method: 'POST',
+			body: JSON.stringify({
+				usernameToInvite: newMemberUsername,
+				board_id: selectedBoard.id,
+				role: newMemberRole
+			})
+		});
+
+		if (response.ok) {
+			// Untuk simplicity, kita fetch ulang daftar anggota untuk menampilkan yang baru
+			const res = await fetch(`/api/boards/members?board_id=${selectedBoard.id}`);
+			members = await res.json();
+			newMemberUsername = '';
+		} else {
+			const result = await response.json();
+			alert(`Error Invite: ${result.error}`);
+		}
+	}
+
+	async function handleRemoveMember(userUidToRemove: string) {
+		if (!selectedBoard) return;
+		if (!confirm(`Are you sure you want to remove this member?`)) return;
+
+		const response = await fetch('/api/boards/members', {
+			method: 'DELETE',
+			body: JSON.stringify({
+				board_id: selectedBoard.id,
+				user_uid_to_remove: userUidToRemove
+			})
+		});
+		console.log('test:',members)
+
+		if (response.ok) {
+			members = members.filter(m => m.user_uid !== userUidToRemove);
+		} else {
+			alert('Failed to remove member.');
+		}
+	}
 </script>
 
 <main class="flex">
@@ -194,6 +262,30 @@
 				<label for="board-name">Board Name</label>
 				<input id="board-name" type="text" bind:value={editingBoardName} required />
 				<button type="submit">Save Changes</button>
+			</form>
+			<hr class="my-4" />
+
+			<h3>Members</h3>
+			
+			<div class="member-list">
+				{#each members as member}
+					<div class="member-item">
+						<span>@{member.username} (Role: {member.role})</span>
+						<button class="remove-button" onclick={() => handleRemoveMember(member.user_uid)}>
+							Remove {member.user_uid}
+						</button>
+					</div>
+				{/each}
+			</div>
+
+			<form onsubmit={handleInviteMember} class="invite-form">
+				<input type="text" bind:value={newMemberUsername} placeholder="Enter username to invite" />
+				<select bind:value={newMemberRole}>
+					<option value={1}>Viewer (Read-only)</option>
+					<option value={2}>Editor (Read/Edit)</option>
+					<option value={3}>Admin (Read/Edit/Delete)</option>
+				</select>
+				<button type="submit">Invite</button>
 			</form>
 			<hr class="my-4" />
 			<div class="danger-zone">

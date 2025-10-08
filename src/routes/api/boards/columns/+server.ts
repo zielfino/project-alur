@@ -19,6 +19,26 @@ export const POST: RequestHandler = async ({ request, locals: { getSession } }) 
 	const connection = await getDbConnection();
 
 	try {
+        // --- PEMERIKSAAN IZIN BARU ---
+		const permissionRows = (await query(
+			`SELECT b.owner_uid, bm.role FROM boards b
+			 LEFT JOIN board_members bm ON b.id = bm.board_id AND bm.user_uid = ?
+			 WHERE b.id = ?`,
+			[session.user.id, board_id]
+		)) as RowDataPacket[];
+
+		const permissions = permissionRows[0];
+		if (!permissions) throw error(404, 'Board not found.');
+
+		const isOwner = permissions.owner_uid === session.user.id;
+		const userRole = permissions.role;
+
+		// Periksa izin: harus pemilik ATAU role 3
+		if (!isOwner && (!userRole || userRole < 3)) {
+			throw error(403, 'You do not have permission to add columns to this board.');
+		}
+        // --- AKHIR PEMERIKSAAN IZIN ---
+		
 		// Batas maksimal 8 kolom
 		const [countRows] = (await connection.execute(
 			'SELECT COUNT(id) as column_count FROM columns WHERE board_id = ?',
@@ -84,6 +104,7 @@ export const POST: RequestHandler = async ({ request, locals: { getSession } }) 
 	}
 };
 
+
 // --- FUNGSI BARU UNTUK UPDATE/EDIT NAMA KOLOM ---
 export const PUT: RequestHandler = async ({ request, locals: { getSession } }) => {
 	const session = await getSession();
@@ -95,6 +116,26 @@ export const PUT: RequestHandler = async ({ request, locals: { getSession } }) =
 	}
 
 	try {
+        // --- PEMERIKSAAN IZIN BARU ---
+		const permissionRows = (await query(
+			`SELECT b.owner_uid, bm.role FROM columns c
+			 JOIN boards b ON c.board_id = b.id
+			 LEFT JOIN board_members bm ON b.id = bm.board_id AND bm.user_uid = ?
+			 WHERE c.id = ?`,
+			[session.user.id, column_id]
+		)) as RowDataPacket[];
+
+		const permissions = permissionRows[0];
+		if (!permissions) throw error(404, 'Column not found.');
+
+		const isOwner = permissions.owner_uid === session.user.id;
+		const userRole = permissions.role;
+
+		if (!isOwner && (!userRole || userRole < 3)) {
+			throw error(403, 'You do not have permission to edit this column.');
+		}
+        // --- AKHIR PEMERIKSAAN IZIN ---
+
 		await query('UPDATE columns SET name = ? WHERE id = ?', [name, column_id]);
 		return json({ success: true });
 	} catch (err) {
@@ -113,6 +154,29 @@ export const DELETE: RequestHandler = async ({ request, locals: { getSession } }
 	}
 
 	try {
+        // --- PEMERIKSAAN IZIN BARU ---
+		const permissionRows = (await query(
+			`SELECT b.owner_uid, bm.role FROM columns c
+			 JOIN boards b ON c.board_id = b.id
+			 LEFT JOIN board_members bm ON b.id = bm.board_id AND bm.user_uid = ?
+			 WHERE c.id = ?`,
+			[session.user.id, column_id]
+		)) as RowDataPacket[];
+
+		const permissions = permissionRows[0];
+		if (!permissions) throw error(404, 'Column not found.');
+
+		console.log('test:', permissions)
+		const isOwner = permissions.owner_uid === session.user.id;
+		const userRole = permissions.role;
+
+		console.log('test:', isOwner)
+
+		if (!isOwner && (!userRole || userRole < 3)) {
+			throw error(403, 'You do not have permission to edit this column.');
+		}
+        // --- AKHIR PEMERIKSAAN IZIN ---
+
 		// Karena Anda sudah mengatur ON DELETE CASCADE,
 		// menghapus kolom akan otomatis menghapus semua kartu di dalamnya.
 		await query('DELETE FROM columns WHERE id = ?', [column_id]);

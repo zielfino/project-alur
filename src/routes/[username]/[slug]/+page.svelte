@@ -111,7 +111,7 @@
 	
 	async function handleAddCard() {
 		if (!newCardTitle || !activeColumnId || !board) return;
-		const response = await fetch('/api/cards', {
+		const response = await fetch('/api/boards/cards', {
 			method: 'POST',
 			body: JSON.stringify({
 				title: newCardTitle,
@@ -140,7 +140,7 @@
 
 	async function handleUpdateCard() {
 		if (!selectedCard || !board) return;
-		const response = await fetch('/api/cards', { method: 'PUT', body: JSON.stringify(selectedCard) });
+		const response = await fetch('/api/boards/cards', { method: 'PUT', body: JSON.stringify(selectedCard) });
 		if (response.ok) {
 			board.columns = board.columns.map((col) => ({
 				...col,
@@ -155,7 +155,7 @@
 	async function handleDeleteCard() {
 		if (!selectedCard || !board) return;
 		if (!confirm('Are you sure you want to delete this card?')) return;
-		const response = await fetch('/api/cards', {
+		const response = await fetch('/api/boards/cards', {
 			method: 'DELETE',
 			body: JSON.stringify({ id: selectedCard.id })
 		});

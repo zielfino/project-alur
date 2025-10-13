@@ -1,5 +1,7 @@
 <script lang="ts">
 	import Icon from '@iconify/svelte';
+	import { dndzone } from 'svelte-dnd-action';
+	import { flip } from 'svelte/animate';
 	// Definisikan tipe data Anda di satu tempat agar bersih
 	type Card = { id: number; title: string; description: string; deadline: string; priority: number; column_id: number };
 	type Column = { id: number; name: string; state: number; position: number; cards: Card[] };

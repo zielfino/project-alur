@@ -1,25 +1,47 @@
 <script lang="ts">
 	import { flip } from 'svelte/animate';
-    import { dndzone, TRIGGERS } from 'svelte-dnd-action';
+	import { dndzone, TRIGGERS } from 'svelte-dnd-action';
 	import Card from "$lib/Kanban/Card.svelte";
 	
 	const flipDurationMs = 150;
-	let { name, items, onDrop } = $props();
+	// let { id, name, items, onDrop } = $props();
+	// export let id: number;
+	export let name: string;
+	export let items: any[] = [];
+	export let onDrop: (payload: any) => void;
+
+	// let currentDragSourceId: number | null = null;
 
 	function handleDndConsiderCards(e: CustomEvent) {
-		const { items: newItems, info: { id, trigger } } = e.detail;
-        console.warn("got consider", name); 
-		if (trigger == TRIGGERS.DRAG_STARTED) {
-			const itemIdx = items.findIndex((item: { id: number }) => item.id === id);
-			console.log(`Dragging card at index: ${itemIdx} from column: "${name}"`);
-		}
+		// const { items: newItems, info } = e.detail;
+
+		// if (info.trigger === 'dragStart') {
+		// 	currentDragSourceId = id;
+		// }
+
+    	const { items: newItems } = e.detail;
 		items = newItems;
-    }
+	}
 
 	function handleDndFinalizeCards(e: CustomEvent) {
-		onDrop(e.detail.items);
+		// const { items, info } = e.detail;
+
+		// const enrichedInfo = {
+		// 	...info,
+		// 	trigger: info.trigger, // tetap kirim trigger
+		// 	oldColumnId: currentDragSourceId ?? id,
+		// 	newColumnId: id,
+		// 	cardId: info.id,
+		// 	type: 'card'
+		// };
+
+		// currentDragSourceId = null;
+		// onDrop({ items, info: enrichedInfo });
+    	onDrop({ items: e.detail.items, info: e.detail.info });
 	}
 </script>
+
+
 <style>
 	.wrapper {
 		height: 100%;

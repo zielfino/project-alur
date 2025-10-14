@@ -7,21 +7,26 @@ export const POST: RequestHandler = async ({ request, locals: { getSession } }) 
     if (!session) throw error(401, 'Unauthorized');
 
     const { items } = await request.json(); // Menerima array ID kolom
-    if (!items) throw error(400, 'Invalid data for moving columns.');
+	if (!Array.isArray(items)) throw error(400, 'Invalid data for moving columns.');
 
     const pool = getPool();
     const connection = await pool.getConnection();
+
     try {
         await connection.beginTransaction();
-        for (let i = 0; i < items.length; i++) {
-            await connection.execute('UPDATE columns SET position = ? WHERE id = ?', [i, items[i]]);
-        }
+        
+		const updates = items.map((id, index) =>
+			connection.execute('UPDATE columns SET position = ? WHERE id = ?', [index, id])
+		);
+		await Promise.all(updates);
+        
         await connection.commit();
         return json({ success: true });
     } catch (err) {
         await connection.rollback();
+		console.error('Failed to move columns:', err);
         throw error(500, 'Failed to move columns.');
     } finally {
-        if (connection) connection.release();
+		connection.release();
     }
 };

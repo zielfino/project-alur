@@ -6,8 +6,8 @@ export const POST: RequestHandler = async ({ request, locals: { getSession } }) 
     const session = await getSession();
     if (!session) throw error(401, 'Unauthorized');
 
-    const { card_id, new_column_id, items_in_new_column } = await request.json();
-    if (!card_id || !new_column_id || !items_in_new_column) {
+    const { card_id, new_column_id, items_in_new_column, items_in_old_column } = await request.json();
+    if (!card_id || !new_column_id || !Array.isArray(items_in_new_column)) {
         throw error(400, 'Invalid data for moving card.');
     }
 
@@ -16,13 +16,22 @@ export const POST: RequestHandler = async ({ request, locals: { getSession } }) 
     try {
         await connection.beginTransaction();
 
-        // Pindahkan kartu ke kolom baru
-        await connection.execute('UPDATE cards SET column_id = ? WHERE id = ?', [new_column_id, card_id]);
+		// 1️⃣ Pindahkan kartu ke kolom baru
+		await connection.execute('UPDATE cards SET column_id = ? WHERE id = ?', [new_column_id, card_id]);
 
-        // Update posisi semua kartu di kolom tujuan
-        for (let i = 0; i < items_in_new_column.length; i++) {
-            await connection.execute('UPDATE cards SET position = ? WHERE id = ?', [i, items_in_new_column[i]]);
-        }
+		// 2️⃣ Update posisi di kolom asal (jika ada)
+		if (Array.isArray(items_in_old_column)) {
+			const updates = items_in_old_column.map((id, index) =>
+				connection.execute('UPDATE cards SET position = ? WHERE id = ?', [index, id])
+			);
+			await Promise.all(updates);
+		}
+
+		// 3️⃣ Update posisi di kolom tujuan
+		const updates = items_in_new_column.map((id, index) =>
+			connection.execute('UPDATE cards SET position = ? WHERE id = ?', [index, id])
+		);
+		await Promise.all(updates);
 
         await connection.commit();
         return json({ success: true });

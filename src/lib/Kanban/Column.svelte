@@ -3,6 +3,7 @@
 	import { dndzone, TRIGGERS } from 'svelte-dnd-action';
 	import Card from "$lib/Kanban/Card.svelte";
 	import { createEventDispatcher } from "svelte";
+	import { showEditCardModal } from '$lib/stores/uiStore';
 
 	const dispatch = createEventDispatcher();
 	const flipDurationMs = 150;

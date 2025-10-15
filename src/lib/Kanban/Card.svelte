@@ -1,6 +1,8 @@
 <script lang="ts">
 	import Icon from "@iconify/svelte";
+	import { createEventDispatcher } from "svelte";
 
+	const dispatch = createEventDispatcher();
 	let { card } = $props();
 
 	type Card = { id: number; title: string; description: string; deadline: string; priority: number; column_id: number };
@@ -14,6 +16,19 @@
 	function openEditCardModal(card: Card) {
 		selectedCard = { ...card };
 		showEditCardModal = true;
+	}
+
+
+
+	// API
+	function handleUpdateCard() {
+		if (!selectedCard) return;
+		dispatch("update", { updatedCard: selectedCard });
+		showEditCardModal = false;
+	}
+
+	function handleDeleteCard(id: number) {
+		dispatch("delete", { id });
 	}
 </script>
 
@@ -41,3 +56,43 @@
 		</div>
 	</button>
 </div>
+
+{#if showEditCardModal && selectedCard}
+    <div class="absolute w-1/2 h-1/2 top-0 right-0 bg-red-50">
+        <div class="bg-red-400">
+			<h2>Edit Card</h2>
+			<form onsubmit={handleUpdateCard} class="flex flex-col gap-4">
+				<div>
+					<div>Title</div>
+					<input type="text" bind:value={selectedCard.title} required class="w-full border rounded p-2" />
+				</div>
+				<div>
+					<div>Description</div>
+					<textarea bind:value={selectedCard.description} class="w-full border rounded p-2"></textarea>
+				</div>
+				<div>
+					<div>Deadline</div>
+					<input type="date" bind:value={selectedCard.deadline} class="w-full border rounded p-2" />
+				</div>
+				<div>
+					<div>Priority</div>
+					<select bind:value={selectedCard.priority} class="w-full border rounded p-2">
+						<option value={1}>1 (Low)</option>
+						<option value={2}>2</option>
+						<option value={3}>3 (Medium)</option>
+						<option value={4}>4</option>
+						<option value={5}>5 (High)</option>
+					</select>
+				</div>
+				
+				<div class="flex justify-between items-center mt-4">
+					<button type="button" class="text-red-500 hover:underline" onclick={() => handleDeleteCard(card.id)}>
+						Delete Card
+					</button>
+					
+					<button type="submit" class="bg-blue-500 text-white rounded p-2">Save Changes</button>
+				</div>
+			</form>
+		</div>
+	</div>
+{/if}

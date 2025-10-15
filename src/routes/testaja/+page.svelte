@@ -1,6 +1,8 @@
 <script lang="ts">
     import Board from "$lib/Kanban/Board.svelte";
-	
+	import { createEventDispatcher } from "svelte";
+
+	const dispatch = createEventDispatcher();
 	type Column = { id: number; name: string; cards: any[]; };
 
     let { data } = $props();
@@ -77,7 +79,49 @@
             }
         }
     }
+
+
+    
+	type Card = { id: number; title: string; description: string; deadline: string; priority: number; column_id: number };
+	async function handleUpdateCard(updatedCard: Card) {
+		if (!board) return;
+		const response = await fetch('/api/boards/cards', {
+			method: 'PUT',
+			body: JSON.stringify(updatedCard),
+		});
+
+		if (response.ok) {
+			board.columns = board.columns.map((col) => ({
+				...col,
+				cards: col.cards.map((c) => (c.id === updatedCard.id ? updatedCard : c)),
+			}));
+		} else {
+			alert('Failed to update card.');
+		}
+	}
+
+	async function handleDeleteCard(cardId: number) {
+		if (!board) return;
+		if (!confirm('Are you sure you want to delete this card?')) return;
+
+		const response = await fetch('/api/boards/cards', {
+			method: 'DELETE',
+			body: JSON.stringify({ id: cardId }),
+		});
+
+		if (response.ok) {
+			board.columns = board.columns.map((col) => ({
+				...col,
+				cards: col.cards.filter((c) => c.id !== cardId),
+			}));
+		} else {
+			alert('Failed to delete card.');
+		}
+	}
 </script>
 <section>
-    <Board columns={board.columns} onFinalUpdate={handleBoardUpdated}/>
+    <Board columns={board.columns} onFinalUpdate={handleBoardUpdated}
+	on:update={(e) => handleUpdateCard(e.detail.updatedCard)}
+	on:delete={(e) => handleDeleteCard(e.detail.id)}
+    />
 </section>

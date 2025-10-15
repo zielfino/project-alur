@@ -2,7 +2,9 @@
 	import { flip } from 'svelte/animate';
 	import { dndzone } from 'svelte-dnd-action';
 	import Column from "$lib/Kanban/Column.svelte";
-	
+	import { createEventDispatcher } from "svelte";
+
+	const dispatch = createEventDispatcher();
 	const flipDurationMs = 300;
 	// let { columns, onFinalUpdate } = $props();
     export let columns: any[] = [];
@@ -89,6 +91,13 @@
             newColumnId
         });
     }
+	function handleCardUpdateCard(e: CustomEvent<{ updatedCard: Card }>) {
+		dispatch("update", e.detail);
+	}
+
+	function handleCardDeleteCard(e: CustomEvent<{ id: number }>) {
+		dispatch("delete", e.detail);
+	}
 </script>
 <style>
     .board {
@@ -117,7 +126,10 @@ onfinalize={handleDndFinalizeColumns}>
             <Column 
             name={column.name} 
             items={column.cards} 
-            onDrop={(event) => handleItemFinalize(idx, event.items, event.info)} />
+            onDrop={(event) => handleItemFinalize(idx, event.items, event.info)} 
+			on:update={handleCardUpdateCard}
+			on:delete={handleCardDeleteCard}
+            />
         </div>
     {/each}
 </section>

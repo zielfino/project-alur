@@ -140,37 +140,37 @@
 		}
 	}
 
-	async function handleUpdateCard() {
-		if (!selectedCard || !board) return;
-		const response = await fetch('/api/boards/cards', { method: 'PUT', body: JSON.stringify(selectedCard) });
-		if (response.ok) {
-			board.columns = board.columns.map((col) => ({
-				...col,
-				cards: col.cards.map((c) => (c.id === selectedCard!.id ? selectedCard! : c))
-			}));
-			showEditCardModal = false;
-		} else {
-			alert('Failed to update card.');
-		}
-	}
+	// async function handleUpdateCard() {
+	// 	if (!selectedCard || !board) return;
+	// 	const response = await fetch('/api/boards/cards', { method: 'PUT', body: JSON.stringify(selectedCard) });
+	// 	if (response.ok) {
+	// 		board.columns = board.columns.map((col) => ({
+	// 			...col,
+	// 			cards: col.cards.map((c) => (c.id === selectedCard!.id ? selectedCard! : c))
+	// 		}));
+	// 		showEditCardModal = false;
+	// 	} else {
+	// 		alert('Failed to update card.');
+	// 	}
+	// }
 
-	async function handleDeleteCard() {
-		if (!selectedCard || !board) return;
-		if (!confirm('Are you sure you want to delete this card?')) return;
-		const response = await fetch('/api/boards/cards', {
-			method: 'DELETE',
-			body: JSON.stringify({ id: selectedCard.id })
-		});
-		if (response.ok) {
-			board.columns = board.columns.map((col) => ({
-				...col,
-				cards: col.cards.filter((c) => c.id !== selectedCard!.id)
-			}));
-			showEditCardModal = false;
-		} else {
-			alert('Failed to delete card.');
-		}
-	}
+	// async function handleDeleteCard() {
+	// 	if (!selectedCard || !board) return;
+	// 	if (!confirm('Are you sure you want to delete this card?')) return;
+	// 	const response = await fetch('/api/boards/cards', {
+	// 		method: 'DELETE',
+	// 		body: JSON.stringify({ id: selectedCard.id })
+	// 	});
+	// 	if (response.ok) {
+	// 		board.columns = board.columns.map((col) => ({
+	// 			...col,
+	// 			cards: col.cards.filter((c) => c.id !== selectedCard!.id)
+	// 		}));
+	// 		showEditCardModal = false;
+	// 	} else {
+	// 		alert('Failed to delete card.');
+	// 	}
+	// }
 </script>
 
 <div class="p-4 md:p-8 h-screen flex flex-col bg-slate-50">

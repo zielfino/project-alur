@@ -72,7 +72,7 @@
     onfinalize={handleDndFinalizeCards}>
         {#each items as item (item.id)}
            <div animate:flip="{{duration: flipDurationMs}}" >
-                <Card title={item.title} />
+                <Card card={item} />
             </div>
         {/each}
     </div>

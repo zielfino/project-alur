@@ -82,11 +82,25 @@
 
 
     
-	type Card = { id: number; title: string; description: string; deadline: string; priority: number; column_id: number };
-	async function handleUpdateCard(updatedCard: Card) {
-		if (!board) return;
-		const response = await fetch('/api/boards/cards', {
-			method: 'PUT',
+import { isLoading } from "$lib/stores/loading";
+
+type Card = {
+	id: number;
+	title: string;
+	description: string;
+	deadline: string;
+	priority: number;
+	column_id: number;
+};
+
+async function handleUpdateCard(updatedCard: Card) {
+	if (!board) return;
+    
+	isLoading.start("CardEdit", updatedCard.id);
+
+	try {
+		const response = await fetch("/api/boards/cards", {
+			method: "PUT",
 			body: JSON.stringify(updatedCard),
 		});
 
@@ -96,16 +110,25 @@
 				cards: col.cards.map((c) => (c.id === updatedCard.id ? updatedCard : c)),
 			}));
 		} else {
-			alert('Failed to update card.');
+			alert("Failed to update card");
 		}
+	} catch (err) {
+		console.error(err);
+		alert("Failed to update card");
+	} finally {
+	    isLoading.stop("CardEdit", updatedCard.id);
 	}
+}
 
-	async function handleDeleteCard(cardId: number) {
-		if (!board) return;
-		if (!confirm('Are you sure you want to delete this card?')) return;
+async function handleDeleteCard(cardId: number) {
+	if (!board) return;
+	if (!confirm("Are you sure you want to delete this card?")) return;
 
-		const response = await fetch('/api/boards/cards', {
-			method: 'DELETE',
+	isLoading.start("CardRemove", cardId);
+
+	try {
+		const response = await fetch("/api/boards/cards", {
+			method: "DELETE",
 			body: JSON.stringify({ id: cardId }),
 		});
 
@@ -115,12 +138,22 @@
 				cards: col.cards.filter((c) => c.id !== cardId),
 			}));
 		} else {
-			alert('Failed to delete card.');
+			alert("Failed to delete card");
 		}
+	} catch (err) {
+		console.error(err);
+		alert("Failed to delete card");
+	} finally {
+		isLoading.stop("CardRemove", cardId); 
 	}
+}
+
+
 </script>
 <section>
-    <Board columns={board.columns} onFinalUpdate={handleBoardUpdated}
+    <Board
+    columns={board.columns} 
+    onFinalUpdate={handleBoardUpdated}
 	on:update={(e) => handleUpdateCard(e.detail.updatedCard)}
 	on:delete={(e) => handleDeleteCard(e.detail.id)}
     />

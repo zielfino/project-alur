@@ -1,32 +1,41 @@
 <script lang="ts">
 	import Icon from "@iconify/svelte";
 	import { createEventDispatcher } from "svelte";
+	import { isLoading } from "$lib/stores/loading";
+
+	type Card = { id: number; title: string; description: string; deadline: string; priority: number; column_id: number };
 
 	const dispatch = createEventDispatcher();
 	let { card } = $props();
 
-	type Card = { id: number; title: string; description: string; deadline: string; priority: number; column_id: number };
+
+	// ===============
+	// 		MODAL
+	// ===============
 
 	let showEditCardModal = $state(false);
 	let selectedCard = $state<Card | null>(null);
 
+		
+		
+	// ====================
+	// 		FUNCTION
+	// ====================	
 
-
-	// MODAL
+	// Modal Show
 	function openEditCardModal(card: Card) {
 		selectedCard = { ...card };
 		showEditCardModal = true;
 	}
 
-
-
-	// API
+	// Update Card Dispatch
 	function handleUpdateCard() {
-		if (!selectedCard) return;
 		dispatch("update", { updatedCard: selectedCard });
 		showEditCardModal = false;
+		console.log($isLoading.CardEdit)
 	}
 
+	// Delete Card Dispatch
 	function handleDeleteCard(id: number) {
 		dispatch("delete", { id });
 	}
@@ -34,7 +43,7 @@
 
 <div class="card">
 	<button onclick={() => openEditCardModal(card)} class="w-full bg-white rounded-md shadow p-3 text-left hover:bg-slate-50 text-sm">
-		<p class="font-medium text-slate-800">{card.title}</p>
+		<p class="font-medium text-slate-800">{$isLoading.CardEdit[card.id] ? 'Saving...' : card.title}</p>
 		
 		{#if card.description}
 			<p class="mt-1 text-slate-600">{card.description}</p>
@@ -87,10 +96,10 @@
 				
 				<div class="flex justify-between items-center mt-4">
 					<button type="button" class="text-red-500 hover:underline" onclick={() => handleDeleteCard(card.id)}>
-						Delete Card
+						{$isLoading.CardRemove[card.id] ? 'Saving...' : 'Delete Card'}
 					</button>
 					
-					<button type="submit" class="bg-blue-500 text-white rounded p-2">Save Changes</button>
+					<button type="submit" class="bg-blue-500 text-white rounded p-2">{$isLoading.CardEdit[card.id] ? 'Saving...' : 'Save Changes'}</button>
 				</div>
 			</form>
 		</div>

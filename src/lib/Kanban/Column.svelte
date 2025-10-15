@@ -63,9 +63,10 @@
 	>
         {#each items as item (item.id)}
            <div animate:flip="{{duration: flipDurationMs}}" >
-                <Card card={item} 
-			on:update={handleCardUpdateCard}
-			on:delete={handleCardDeleteCard}
+                <Card
+				card={item} 
+				on:update={handleCardUpdateCard}
+				on:delete={handleCardDeleteCard}
 				/>
             </div>
         {/each}

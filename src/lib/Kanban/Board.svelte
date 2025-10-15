@@ -99,23 +99,6 @@
 		dispatch("delete", e.detail);
 	}
 </script>
-<style>
-    .board {
-        height: 90vh;
-        width: 100%;
-        padding: 0.5em;
-        margin-bottom: 40px;
-    }
-    .column {
-        height: 100%;
-        width: 250px;
-        padding: 0.5em;
-        margin: 1em;
-        float: left;
-        border: 1px solid #333333;
-        background-color: white;
-    }
-</style>
 
 <section class="board" 
 use:dndzone={{ items: columns, flipDurationMs, type: 'column' }} 

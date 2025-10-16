@@ -91,13 +91,13 @@
             newColumnId
         });
     }
-	function handleCardUpdateCard(e: CustomEvent<{ updatedCard: Card }>) {
-		dispatch("update", e.detail);
-	}
+	// function handleCardUpdateCard(e: CustomEvent<{ updatedCard: Card }>) {
+	// 	dispatch("update", e.detail);
+	// }
 
-	function handleCardDeleteCard(e: CustomEvent<{ id: number }>) {
-		dispatch("delete", e.detail);
-	}
+	// function handleCardDeleteCard(e: CustomEvent<{ id: number }>) {
+	// 	dispatch("delete", e.detail);
+	// }
 </script>
 
 <section class="board" 
@@ -110,8 +110,6 @@ onfinalize={handleDndFinalizeColumns}>
             name={column.name} 
             items={column.cards} 
             onDrop={(event) => handleItemFinalize(idx, event.items, event.info)} 
-			on:update={handleCardUpdateCard}
-			on:delete={handleCardDeleteCard}
             />
         </div>
     {/each}

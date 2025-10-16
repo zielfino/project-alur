@@ -44,13 +44,13 @@
 	}
 
 	
-	function handleCardUpdateCard(e: CustomEvent<{ updatedCard: Card }>) {
-		dispatch("update", e.detail);
-	}
+	// function handleCardUpdateCard(e: CustomEvent<{ updatedCard: Card }>) {
+	// 	dispatch("update", e.detail);
+	// }
 
-	function handleCardDeleteCard(e: CustomEvent<{ id: number }>) {
-		dispatch("delete", e.detail);
-	}
+	// function handleCardDeleteCard(e: CustomEvent<{ id: number }>) {
+	// 	dispatch("delete", e.detail);
+	// }
 </script>
 
 <div class='wrapper'>
@@ -66,8 +66,6 @@
            <div animate:flip="{{duration: flipDurationMs}}" >
                 <Card
 				card={item} 
-				on:update={handleCardUpdateCard}
-				on:delete={handleCardDeleteCard}
 				/>
             </div>
         {/each}

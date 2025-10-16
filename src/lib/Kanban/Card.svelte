@@ -32,17 +32,17 @@
 		$isEdit = false
 	}
 
-	// Update Card Dispatch
-	function handleUpdateCard() {
-		dispatch("update", { updatedCard: $selectedCard });
-		$showEditCardModal = false;
-		console.log($isLoading.CardEdit)
-	}
+	// // Update Card Dispatch
+	// function handleUpdateCard() {
+	// 	dispatch("update", { updatedCard: $selectedCard });
+	// 	$showEditCardModal = false;
+	// 	console.log($isLoading.CardEdit)
+	// }
 
-	// Delete Card Dispatch
-	function handleDeleteCard(id: number) {
-		dispatch("delete", { id });
-	}
+	// // Delete Card Dispatch
+	// function handleDeleteCard(id: number) {
+	// 	dispatch("delete", { id });
+	// }
 </script>
 
 <div class="card">

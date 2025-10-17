@@ -23,7 +23,9 @@ export const load: PageServerLoad = async () => {
 		// Mengambil semua kolom dan kartu yang terkait
 		const columns = await query('SELECT * FROM columns WHERE board_id = ? ORDER BY position ASC', [board.id]);
 		const cards = await query(`SELECT c.* FROM cards c JOIN columns col ON c.column_id = col.id WHERE col.board_id = ? ORDER BY c.position ASC`, [board.id]);
-
+		// console.log('=============================')
+		// console.log('KARTU NIH BOS :',cards[0]);
+		// console.log('=============================')
 		// Menggabungkan data
 		const columnsWithCards = (columns as any[]).map((column: any) => ({
 			...column,

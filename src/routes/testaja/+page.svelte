@@ -41,17 +41,6 @@
             }
 
             console.log("ACTION: Update card order:", { cardId, newColumnId, oldColumnId });
-            
-            // await fetch('/api/boards/cards/move', {
-            //     method: 'POST',
-            //     headers: { 'Content-Type': 'application/json' },
-            //     body: JSON.stringify({
-            //         card_id,
-            //         new_column_id,
-            //         items_in_new_column: newColumn.cards.map(c => c.id),
-            //         items_in_old_column: oldColumn.cards.map(c => c.id)
-            //     })
-            // });
 
             try {
                 console.log('NEW OLD NEWS:', newColumn.cards.map((c) => c.id), oldColumn.cards.map((c) => c.id), newColumnId);
@@ -122,6 +111,10 @@ type Card = {
 async function handleUpdateCard() {
 	if (!$selectedCard) return;
     
+	if (!$selectedCard.title || $selectedCard.title.trim() === "") {
+		$selectedCard.title = "Judul";
+	}
+
 	isLoading.start("CardEdit", $selectedCard.id);
 
 	try {
@@ -238,7 +231,7 @@ async function handleDeleteCard(cardId: number) {
 			<section class="flex justify-between w-full">
                 <div class="space-x-2 flex">           
                     {#if !$isEdit}
-                        {#if new Date($selectedCard.deadline) < new Date() }
+                        {#if new Date($selectedCard.deadline) < new Date() && $selectedCard.deadline }
                             <div class="rounded-full justify-center items-center flex whitespace-nowrap py-1 px-3
                             font-open-sans font-semibold text-[14px] bg-red-100 text-red-700">
                                 Deadline Missed!
@@ -258,7 +251,7 @@ async function handleDeleteCard(cardId: number) {
                         <div class="h-[28px] text-[18px] font-outfit leading-none tracking-wide font-semibold flex justify-center items-center ml-1">Edit Card</div>
                     {/if} 
                 </div>
-				<button onclick={() => $showEditCardModal=false} class="aspect-square rounded-full cursor-pointer">
+				<button onclick={() => $showEditCardModal=false} class="aspect-square rounded-full cursor-pointer hover:rotate-90 duration-500 ease-out">
                     <Icon icon="mingcute:close-fill" class="text-2xl"/>
                 </button>
 			</section>
@@ -278,7 +271,7 @@ async function handleDeleteCard(cardId: number) {
                         class="text-[24px] font-outfit mb-1 tracking-wide font-semibold w-full">{$selectedCard.title}</textarea>
                     </div> -->
 					<div class="px-4 flex justify-between items-center">
-                        <textarea bind:value={$selectedCard.title} use:autosize rows="1" required onkeydown={handleTextareaKeydown}
+                        <textarea bind:value={$selectedCard.title} placeholder="Judul" use:autosize rows="1" required onkeydown={handleTextareaKeydown}
                         class="text-[24px] font-outfit mb-1 tracking-wide font-semibold w-full bg-transparent border-none focus:ring-0 resize-none overflow-hidden animate-pulse-agerr hover:animate-none focus:animate-none">{$selectedCard.title}</textarea>
                     </div>
                     <textarea bind:value={$selectedCard.description} placeholder="Ketik Disini" use:autosize rows="1" 

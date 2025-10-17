@@ -27,40 +27,36 @@
      * info: raw info from dndzone (contains id of dragged card in info.id and a trigger)
     */
     async function handleItemFinalize(columnIdx: number, newCards: any[], info: any) {
-        // const updatedColumns = [...columns];
-        // updatedColumns[columnIdx].cards = newCards;
-
-        // hanya proses bila drag berakhir di kolom tujuan
-        // if (info?.trigger !== 'droppedIntoAnother') return;
-
-        // onFinalUpdate(updatedColumns, {
-        //     type: 'card',
-        //     cardId: info.id,
-        //     oldColumnId: info.oldColumnId,
-        //     newColumnId: info.newColumnId
-        // });
 
         // Snapshot previous columns (deep enough to inspect .cards)
         const prevColumns = columns.map(c => ({ ...c, cards: c.cards ? [...c.cards] : [] }));
-        // console.log('prevColumns:',prevColumns)
 
         
         // Build updated columns preview (optimistic)
         const updatedColumns = columns.map((c, idx) => {
-        if (idx === columnIdx) {
-            return { ...c, cards: newCards };
-        }
-        return { ...c };
+            if (idx === columnIdx) {
+                return { ...c, cards: newCards };
+            }
+            return { ...c };
         });
+
+        console.log('tergeser 1')
 
         // only react when the drop finished in another zone (avoid double processing)
         // depending on your tests you can also accept 'droppedIntoZone' for reorders within same column
-        if (!info || info.trigger !== 'droppedIntoAnother') {
-            // still update UI for visual reorder within same column (optional)
-            // but do not send server-change for cross-column until we detect destination trigger
+        // if (!info || info.trigger !== 'droppedIntoAnother') {
+        //     // still update UI for visual reorder within same column (optional)
+        //     // but do not send server-change for cross-column until we detect destination trigger
+        //     columns = updatedColumns;
+        //     return;
+        // }
+        
+        if (!info || (info.trigger !== 'droppedIntoAnother' && info.trigger !== 'droppedIntoZone')) {
             columns = updatedColumns;
             return;
         }
+
+        console.log('tergeser 2')
 
         // Determine dragged card id and new column id
         const draggedCardId = info.id;
@@ -77,6 +73,8 @@
             columns = updatedColumns;
             return;
         }
+
+        console.log('tergeser 3')
 
         // Update UI immediately (optimistic)
         columns = updatedColumns;

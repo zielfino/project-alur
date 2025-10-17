@@ -53,21 +53,22 @@
 	// }
 </script>
 
-<div class='wrapper'>
+<div class='h-[90dvh] w-full bg-sky-100 flex flex-col justify-between py-2 rounded-lg'>
  	<div class="column-title">
 		{name}
 	</div>
-	<div class="column-content"
+	<div class="h-[calc(100%-48px)] space-y-2 pt-2 overflow-y-auto overflow-x-hidden flex justify-start items-center flex-col"
     use:dndzone={{ items, flipDurationMs }}
     onconsider={handleDndConsiderCards}
     onfinalize={handleDndFinalizeCards}
 	>
         {#each items as item (item.id)}
-           <div animate:flip="{{duration: flipDurationMs}}" >
+           <div class="w-[calc(100%-16px)]" animate:flip="{{duration: flipDurationMs}}">
                 <Card
 				card={item} 
 				/>
             </div>
         {/each}
+		<div class="h-[30px]"></div>
     </div>
 </div>

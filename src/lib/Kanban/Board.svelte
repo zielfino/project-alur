@@ -7,13 +7,13 @@
 	const dispatch = createEventDispatcher();
 	const flipDurationMs = 300;
 	// let { columns, onFinalUpdate } = $props();
-    export let columns: any[] = [];
+    export let board: any[] = [];
     export let onFinalUpdate: (cols: any[], info?: any) => void;
 
 	// let activeColumnId: number | null = null; // ⬅️ simpan kolom sumber drag
 
 	function handleDndConsiderColumns(e: CustomEvent) {
-		columns = e.detail.items;
+        onFinalUpdate(e.detail.items, { type: 'column' });
 	}
 
 	function handleDndFinalizeColumns(e: CustomEvent) {
@@ -29,11 +29,11 @@
     async function handleItemFinalize(columnIdx: number, newCards: any[], info: any) {
 
         // Snapshot previous columns (deep enough to inspect .cards)
-        const prevColumns = columns.map(c => ({ ...c, cards: c.cards ? [...c.cards] : [] }));
+        const prevColumns = board.columns.map(c => ({ ...c, cards: c.cards ? [...c.cards] : [] }));
 
         
         // Build updated columns preview (optimistic)
-        const updatedColumns = columns.map((c, idx) => {
+        const updatedColumns = board.columns.map((c, idx) => {
             if (idx === columnIdx) {
                 return { ...c, cards: newCards };
             }
@@ -52,7 +52,8 @@
         // }
         
         if (!info || (info.trigger !== 'droppedIntoAnother' && info.trigger !== 'droppedIntoZone')) {
-            columns = updatedColumns;
+            // board.columns = updatedColumns;
+            onFinalUpdate(updatedColumns, { type: 'column' });
             return;
         }
 
@@ -70,23 +71,25 @@
         if (oldColumnId === null) {
             console.warn('Could not determine source column for card', draggedCardId, info);
             // still update UI
-            columns = updatedColumns;
+            // board.columns = updatedColumns;
+            onFinalUpdate(updatedColumns, { type: 'column' });
             return;
         }
 
         console.log('tergeser 3')
 
         // Update UI immediately (optimistic)
-        columns = updatedColumns;
+        // board.columns = updatedColumns;
+        onFinalUpdate(updatedColumns, { type: 'column' });
 
         console.log('prevColumns:',prevColumns)
         console.log('oldColumnId:',oldColumnId)
         // send parent update (onFinalUpdate will handle the API call in +page)
         onFinalUpdate(updatedColumns, {
-            type: 'card',
-            cardId: draggedCardId,
-            oldColumnId,
-            newColumnId
+        type: 'card',
+        cardId: draggedCardId,
+        oldColumnId,
+        newColumnId
         });
     }
 	// function handleCardUpdateCard(e: CustomEvent<{ updatedCard: Card }>) {
@@ -99,15 +102,23 @@
 </script>
 
 <section class="board" 
-use:dndzone={{ items: columns, flipDurationMs, type: 'column' }} 
+use:dndzone={{ items: board.columns, flipDurationMs, type: 'column' }} 
 onconsider={handleDndConsiderColumns} 
 onfinalize={handleDndFinalizeColumns}>
-    {#each columns as column, idx (column.id)}
+    {#each board.columns as column, idx (column.id)}
   		<div class="column"animate:flip="{{duration: flipDurationMs}}" >    
             <Column 
-            name={column.name} 
-            items={column.cards} 
+            column={column}
             onDrop={(event) => handleItemFinalize(idx, event.items, event.info)} 
+            on:deleteColumn={(e) => {
+                board.columns = board.columns.filter(c => c.id !== e.detail.columnId);
+            }}
+            on:updateColumnName={(e) => {
+                const { columnId, newName } = e.detail;
+                board.columns = board.columns.map(c =>
+                    c.id === columnId ? { ...c, name: newName } : c
+                );
+            }}
             />
         </div>
     {/each}

@@ -18,7 +18,9 @@
 
 <div class="cursor-default relative bg-white p-3 pb-2.5 border-slate-900/30 border hover:bg-slate-100 rounded-md w-full text-left text-sm">
 	<!-- Title -->
-	<button onclick={() => openEditCardModal(card)} class="line-clamp-1 font-semibold text-slate-800 w-full text-left cursor-pointer">{$isLoading.CardEdit[card.id] ? 'Saving...' : card.title}</button>
+	<button onclick={() => openEditCardModal(card)} class="font-semibold text-slate-800 w-full text-left cursor-pointer group">
+		<div class="flex"><div class="line-clamp-1">{$isLoading.CardEdit[card.id] ? 'Saving...' : card.title}</div><Icon icon="mingcute:pencil-fill" class="ml-1 hidden group-hover:block text-sm min-w-fit" /></div>
+	</button>
 	<!-- Description -->
 	{#if card.description}
 		<p class="mt-1 line-clamp-2 text-slate-600">{card.description}</p>

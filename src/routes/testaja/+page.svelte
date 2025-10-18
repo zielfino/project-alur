@@ -10,9 +10,9 @@
 
     async function handleBoardUpdated(newColumnsData: Column[], info: any) {
         board.columns = newColumnsData;
-        console.log('Info object received:', info);
+        console.log('Info object received:', info ?? '(no info)');
         
-        if (info.type === 'column') {
+        if (info && info.type === 'column') {
             const columnIds = newColumnsData.map(c => c.id);
             console.log("ACTION: Update column order ->", columnIds);
             // const columnIds = newColumnsData.map((c) => c.id);
@@ -212,7 +212,7 @@ async function handleDeleteCard(cardId: number) {
 </script>
 <section>
     <Board
-    columns={board.columns} 
+    board={board} 
     onFinalUpdate={handleBoardUpdated}
     />
 </section>
@@ -224,10 +224,10 @@ async function handleDeleteCard(cardId: number) {
 ===================
 -->
 {#if $showEditCardModal && $selectedCard?.id}
-    <div class="absolute w-full h-[100dvh] top-0 right-0 bg-zinc-900/30 flex justify-end items-center overflow-hidden cursor-default"
-	transition:fade={{duration: 150}}>
+    <section class="absolute w-full h-[100dvh] top-0 right-0 bg-zinc-900/30 flex justify-end items-center overflow-hidden cursor-default"
+	transition:fade={{duration: 150}} onclick={() => $showEditCardModal=false}>
         <div class="bg-white p-4 rounded-s-xl min-w-[300px] w-full max-w-[500px] h-[95%] relative"
-		transition:fly={{ x: 300, duration: 300, opacity: 0 }}>
+		transition:fly={{ x: 300, duration: 300, opacity: 0 }} onclick={(e) => e.stopPropagation()} >
 			<section class="flex justify-between w-full">
                 <div class="space-x-2 flex">           
                     {#if !$isEdit}
@@ -348,5 +348,5 @@ async function handleDeleteCard(cardId: number) {
                 {/if}
             </section>
 		</div>
-	</div>
+    </section>
 {/if}

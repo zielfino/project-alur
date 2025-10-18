@@ -215,7 +215,8 @@ async function handleDeleteCard(cardId: number) {
 	let newCardTitle = $state('');
 	let newCardDescription = $state('');
 	let newCardDeadline = $state('');
-	let newCardPriority = $state(3);
+	let newCardPriority = $state(null);
+	let deadlineAddCard = $state<string | null>(null);
 
     async function handleAddCard() {
         console.log('added')
@@ -240,12 +241,13 @@ async function handleDeleteCard(cardId: number) {
 			newCardTitle = '';
 			newCardDescription = '';
 			newCardDeadline = '';
-			newCardPriority = 3;
+			newCardPriority = null;
 			$showAddCardModal = false;
 		} else {
 			alert('Failed to add card.');
 		}
 	}
+
 </script>
 <section>
     <Board
@@ -262,39 +264,74 @@ async function handleDeleteCard(cardId: number) {
 =========================
 -->
 {#if $showAddCardModal}
-    <div class="absolute w-1/2 h-1/2 top-0 left-0 bg-red-50">
-        <div class="bg-red-400">
-            <div>
-                <h2>Add a new card</h2>
-                <button onclick={() => $showAddCardModal = false}>x</button>
-            </div>
-			<form onsubmit={handleAddCard} class="flex flex-col gap-4">
+    <section class="fixed w-full h-[100dvh] top-0 right-0 bg-zinc-900/30 flex justify-center items-center overflow-hidden cursor-default backdrop-blur-xs"
+	transition:fade={{duration: 150}}>
+	<!-- transition:fade={{duration: 150}} onclick={() => $showAddCardModal=false}> -->
+        <div class="bg-white p-4 rounded-xl min-w-[300px] w-full max-w-[500px] h-[500px] relative"
+		transition:fly={{ y: 100, duration: 300, opacity: 0 }}>
+		<!-- transition:fly={{ x: 300, duration: 300, opacity: 0 }} onclick={(e) => e.stopPropagation()} > -->
+			<section class="flex justify-between w-full">
+                <div class="space-x-2 flex">           
+                    <div class="h-[28px] text-[18px] font-outfit leading-none tracking-wide font-semibold flex justify-center items-center ml-1">Add Card</div>
+                </div>
+				<button onclick={() => $showAddCardModal=false} class="aspect-square rounded-full cursor-pointer hover:rotate-90 duration-500 ease-out">
+                    <Icon icon="mingcute:close-fill" class="text-2xl"/>
+                </button>
+			</section>
+			<form onsubmit={handleAddCard} class="flex flex-col gap-4 overflow-y-auto overflow-x-hidden pt-2">
 				<div>
 					<label for="card-title">Card Title</label>
 					<input id="card-title" type="text" bind:value={newCardTitle} required class="w-full border rounded p-2" />
 				</div>
 				<div>
 					<label for="card-desc">Description</label>
-					<textarea id="card-desc" bind:value={newCardDescription} class="w-full border rounded p-2"></textarea>
+					<textarea id="card-desc" bind:value={newCardDescription} rows="10" class="w-full border rounded p-2 resize-none"></textarea>
 				</div>
-				<div>
-					<label for="card-deadline">Deadline</label>
-					<input id="card-deadline" type="date" bind:value={newCardDeadline} class="w-full border rounded p-2" />
-				</div>
-				<div>
-					<label for="card-priority">Priority (1=Low, 5=High)</label>
-					<select id="card-priority" bind:value={newCardPriority} class="w-full border rounded p-2">
-						<option value={1}>1</option>
-						<option value={2}>2</option>
-						<option value={3}>3 (Medium)</option>
-						<option value={4}>4</option>
-						<option value={5}>5</option>
-					</select>
-				</div>
-				<button type="submit" class="bg-blue-500 text-white rounded p-2">Add Card</button>
+
+                
+                <div class="grid grid-cols-2 gap-2 absolute bottom-16 w-[calc(100%-32px)]">
+                    <div>
+                        <div class="flex justify-between"><div>Deadline</div></div>
+                        <div class="flex justify-center items-center">
+                            <input type="date" 
+                            bind:value={deadlineAddCard}
+                            class="w-full rounded-s-md p-2 font-semibold {deadlineAddCard === null ? 'bg-gray-200 text-gray-800 hover:bg-gray-300' : new Date(deadlineAddCard) > new Date() ? 'bg-gray-200 text-gray-800 hover:bg-gray-300' : 'bg-red-100 text-red-700 hover:bg-red-200'} cursor-pointer" />
+                            <button type="button" class="cursor-pointer bg-gray-200 text-gray-800 hover:bg-gray-300 aspect-square h-[36px] rounded-e-lg flex justify-center items-center" onclick={() => {deadlineAddCard = null;}}>
+                                <Icon icon="mingcute:delete-back-line" class="text-xl" />
+                            </button>
+                        </div>
+                    </div>
+                    <div>
+                        <div>Priority</div>
+                        <div class="flex">
+                            <div class="pr-2 w-full rounded-s-md
+                            {!newCardPriority ? 'bg-gray-200 text-gray-800 hover:bg-gray-300' : 
+                            newCardPriority > 3 ? 'bg-red-100 text-red-700 hover:bg-red-200' : 
+                            newCardPriority < 3 ? 'bg-green-200 text-green-800 hover:bg-emerald-300' : 
+                            'bg-yellow-100 text-yellow-700 hover:bg-yellow-200'}">
+                                <select bind:value={newCardPriority} class="w-full p-2 cursor-pointer font-semibold">
+                                    <option class="bg-white text-black" value={1}>1 | Later</option>
+                                    <option class="bg-white text-black" value={2}>2 | Optional</option>
+                                    <option class="bg-white text-black" value={3}>3 | Regular</option>
+                                    <option class="bg-white text-black" value={4}>4 | Priority</option>
+                                    <option class="bg-white text-black" value={5}>5 | Urgent</option>
+                                </select>
+                            </div>
+                            <button type="button" class="cursor-pointer bg-gray-200 text-gray-800 hover:bg-gray-300 aspect-square h-[36px] rounded-e-lg flex justify-center items-center" onclick={() => {newCardPriority = null;}}>
+                                <Icon icon="mingcute:delete-back-line" class="text-xl" />
+                            </button>
+                        </div>
+                    </div>
+                </div>
+				<!-- <button type="submit" class="bg-blue-500 text-white rounded p-2">Add Card</button> -->
+                <section class="flex flex-row space-x-2 absolute bottom-4 left-4">
+                    <button type="submit" class="bg-blue-200 text-blue-800 hover:bg-blue-300 cursor-pointer h-[40px] w-[468px] font-semibold rounded-md">
+                        Add Card
+                    </button>
+                </section>
 			</form>
         </div>
-    </div>
+    </section>
 {/if}
 
 
@@ -304,7 +341,7 @@ async function handleDeleteCard(cardId: number) {
 =========================
 -->
 {#if $showEditCardModal && $selectedCard?.id}
-    <section class="fixed w-full h-[100dvh] top-0 right-0 bg-zinc-900/30 flex justify-end items-center overflow-hidden cursor-default"
+    <section class="fixed w-full h-[100dvh] top-0 right-0 bg-zinc-900/30 flex justify-end items-center overflow-hidden cursor-default backdrop-blur-xs"
 	transition:fade={{duration: 150}} onclick={() => $showEditCardModal=false}>
         <div class="bg-white p-4 rounded-s-xl min-w-[300px] w-full max-w-[500px] h-[95%] relative"
 		transition:fly={{ x: 300, duration: 300, opacity: 0 }} onclick={(e) => e.stopPropagation()} >

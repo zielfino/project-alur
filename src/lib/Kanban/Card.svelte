@@ -23,7 +23,7 @@
 	</button>
 	<!-- Description -->
 	{#if card.description}
-		<p class="mt-1 line-clamp-2 text-slate-600">{card.description}</p>
+		<p class="mt-1 line-clamp-2 text-slate-600 whitespace-pre-wrap">{card.description}</p>
 	{/if}
 
 	<!-- Bottom Utility -->

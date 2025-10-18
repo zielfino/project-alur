@@ -265,11 +265,11 @@ async function handleDeleteCard(cardId: number) {
 -->
 {#if $showAddCardModal}
     <section class="fixed w-full h-[100dvh] top-0 right-0 bg-zinc-900/30 flex justify-center items-center overflow-hidden cursor-default backdrop-blur-xs"
-	transition:fade={{duration: 150}}>
-	<!-- transition:fade={{duration: 150}} onclick={() => $showAddCardModal=false}> -->
+	transition:fade={{duration: 150}} onclick={() => $showAddCardModal=false}>
+	<!-- transition:fade={{duration: 150}}> -->
         <div class="bg-white p-4 rounded-xl min-w-[300px] w-full max-w-[500px] h-[500px] relative"
-		transition:fly={{ y: 100, duration: 300, opacity: 0 }}>
-		<!-- transition:fly={{ x: 300, duration: 300, opacity: 0 }} onclick={(e) => e.stopPropagation()} > -->
+		transition:fly={{ y: 100, duration: 300, opacity: 0 }} onclick={(e) => e.stopPropagation()} >
+		<!-- transition:fly={{ y: 100, duration: 300, opacity: 0 }}> -->
 			<section class="flex justify-between w-full">
                 <div class="space-x-2 flex">           
                     <div class="h-[28px] text-[18px] font-outfit leading-none tracking-wide font-semibold flex justify-center items-center ml-1">Add Card</div>
@@ -348,22 +348,24 @@ async function handleDeleteCard(cardId: number) {
 			<section class="flex justify-between w-full">
                 <div class="space-x-2 flex">           
                     {#if !$isEdit}
-                        {#if new Date($selectedCard.deadline) < new Date() && $selectedCard.deadline }
+                        {#if $selectedCard.deadline !== null && new Date($selectedCard.deadline) < new Date() && $selectedCard.deadline }
                             <div class="rounded-full justify-center items-center flex whitespace-nowrap py-1 px-3
                             font-open-sans font-semibold text-[14px] bg-red-100 text-red-700">
                                 Deadline Missed!
                             </div>
-                        {/if}              
-                        <div class="rounded-full justify-center items-center flex whitespace-nowrap py-1 px-3
-                        font-open-sans font-semibold text-[14px]
-                        {$selectedCard.priority > 3 ? 'bg-red-100 text-red-700' : 
-                        $selectedCard.priority < 3 ? 'bg-green-100 text-green-700' : 
-                        'bg-yellow-100 text-yellow-700'}">
-                            {$selectedCard.priority === 5 ? 'Urgent' : 
-                            $selectedCard.priority === 4 ? 'Priority' :  
-                            $selectedCard.priority === 3 ? 'Regular' :  
-                            $selectedCard.priority === 2 ? 'Optional ' : 'Later'}
-                        </div> 
+                        {/if}
+                        {#if $selectedCard.priority !== null}
+                            <div class="rounded-full justify-center items-center flex whitespace-nowrap py-1 px-3
+                            font-open-sans font-semibold text-[14px]
+                            {$selectedCard.priority > 3 ? 'bg-red-100 text-red-700' : 
+                            $selectedCard.priority < 3 ? 'bg-green-100 text-green-700' : 
+                            'bg-yellow-100 text-yellow-700'}">
+                                {$selectedCard.priority === 5 ? 'Urgent' : 
+                                $selectedCard.priority === 4 ? 'Priority' :  
+                                $selectedCard.priority === 3 ? 'Regular' :  
+                                $selectedCard.priority === 2 ? 'Optional ' : 'Later'}
+                            </div> 
+                        {/if}
                     {:else}
                         <div class="h-[28px] text-[18px] font-outfit leading-none tracking-wide font-semibold flex justify-center items-center ml-1">Edit Card</div>
                     {/if} 

@@ -3,6 +3,7 @@
 	import { dndzone } from 'svelte-dnd-action';
 	import Card from "$lib/Kanban/Card.svelte";
 	import { showAddCardModal, activeColumnId } from '$lib/stores/uiStore';
+	import Icon from '@iconify/svelte';
 
 	const flipDurationMs = 150;
 	// export let column: any;
@@ -82,34 +83,39 @@
 	}
 </script>
 
-<div class="h-[90dvh] w-full bg-sky-100 flex flex-col justify-between py-2 rounded-lg">
-	<div class="flex justify-between items-center p-3">
+<div class="h-[90dvh] w-full flex flex-col justify-between">
+	<div class="flex justify-between items-center p-3 rounded-lg
+	{column.state === 3 ? 'bg-emerald-200' : 
+	column.state === 2 ? 'bg-sky-200' : 
+	column.state === 1 ? 'bg-gray-200' : 'bg-red-200'}">
 		{#if editingColumnId === column.id}
-			<form onsubmit={handleUpdateColumnName} class="w-full">
+			<form onsubmit={handleUpdateColumnName} class="w-full flex justify-between group">
 				<input
 					type="text"
 					bind:value={editingColumnName}
-					class="font-semibold text-slate-700 p-1 rounded w-full"
+					class="font-semibold text-slate-700 w-full group-focus-within:animate-pulse-agerr"
 					onblur={cancelEditingColumn}
 					autofocus
 				/>
+				<button onclick={cancelEditingColumn} class="aspect-square rounded-full cursor-pointer group-focus-within:animate-pulse-agerr">
+					<Icon icon="mingcute:close-fill" class="text-lg"/>
+				</button>
 			</form>
 		{:else}
-			<button class="w-full text-left" onclick={startEditingColumn}>
-				<h2 class="font-semibold text-slate-700">{column.name}</h2>
-			</button>
+			<div class="flex w-full justify-between">
+				<button class="w-full text-left" onclick={startEditingColumn}>
+					<h2 class="font-semibold text-slate-700">{column.name}</h2>
+				</button>
+				<button onclick={handleDeleteColumn} class="aspect-square rounded-full cursor-pointer hover:rotate-90 duration-500 ease-out">
+					<Icon icon="mingcute:close-fill" class="text-lg"/>
+				</button>
+			</div>
 		{/if}
-
-		<button
-			onclick={handleDeleteColumn}
-			class="text-slate-500 hover:text-red-500 ml-2"
-		>
-			&times;
-		</button>
+		
 	</div>
 
 	<div
-		class="h-[calc(100%-48px)] space-y-2 pt-2 overflow-y-auto overflow-x-hidden flex justify-start items-center flex-col"
+		class="h-[calc(100%-48px)] space-y-2 pt-2 overflow-y-auto overflow-x-hidden flex justify-start items-center flex-col bg-gray-100 mt-2 rounded-t-lg"
 		use:dndzone={{ items: column.cards, flipDurationMs }}
 		onconsider={handleDndConsiderCards}
 		onfinalize={handleDndFinalizeCards}
@@ -121,11 +127,13 @@
 		{/each}
 		<div class="h-[30px]"></div>
 	</div>
+	<div class="bg-gray-100 rounded-b-lg p-2">
+		<button
+			class="text-slate-900 hover:bg-slate-300 p-2 cursor-pointer bg-slate-200 rounded-md w-full"
+			onclick={() => openAddCardModal(column.id)}
+		>
+			+ Add a card
+		</button>
+	</div>
 	
-	<button
-		class="text-slate-500 hover:bg-slate-300 p-2 mt-2 mx-2 rounded-md cursor-pointer"
-		onclick={() => openAddCardModal(column.id)}
-	>
-		+ Add a card
-	</button>
 </div>

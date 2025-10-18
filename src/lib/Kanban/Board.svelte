@@ -66,7 +66,7 @@
 	on:finalize={handleDndFinalizeColumns}
 >
 	{#each board.columns as column, idx (column.id)}
-		<div class="column" animate:flip="{{ duration: flipDurationMs }}">
+		<div class="h-full w-[300px] m-2 float-left border-2" animate:flip="{{ duration: flipDurationMs }}">
 			<Column
 				{column}
 				onDrop={(e) => handleItemFinalize(idx, e.items, e.info)}

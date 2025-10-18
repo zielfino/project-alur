@@ -6,7 +6,8 @@ export const sidebar = writable(false);
 export const sidebarIsHovered = writable(false);
 export const showEditCardModal = writable(false);
 export const isEdit = writable(false);
-
+export const showAddCardModal = writable(false);
+export const activeColumnId = writable<number | null>(null);
 
 export type Card = {
 	id: number;

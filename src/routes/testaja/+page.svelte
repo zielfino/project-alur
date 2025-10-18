@@ -209,6 +209,43 @@ async function handleDeleteCard(cardId: number) {
     }
 
 
+	import { showAddCardModal, activeColumnId } from '$lib/stores/uiStore';
+
+	// let activeColumnId = $state<number | null>(null);
+	let newCardTitle = $state('');
+	let newCardDescription = $state('');
+	let newCardDeadline = $state('');
+	let newCardPriority = $state(3);
+
+    async function handleAddCard() {
+        console.log('added')
+		if (!newCardTitle || !$activeColumnId || !board) return;
+		const response = await fetch('/api/boards/cards', {
+			method: 'POST',
+			body: JSON.stringify({
+				title: newCardTitle,
+				column_id: $activeColumnId,
+				description: newCardDescription,
+				deadline: newCardDeadline || null,
+				priority: newCardPriority
+			})
+		});
+		if (response.ok) {
+			const newCard = await response.json();
+			const columnIndex = board.columns.findIndex((c) => c.id === $activeColumnId);
+			if (columnIndex !== -1) {
+				// Ini adalah update yang reaktif
+				board.columns[columnIndex].cards = [...board.columns[columnIndex].cards, newCard];
+			}
+			newCardTitle = '';
+			newCardDescription = '';
+			newCardDeadline = '';
+			newCardPriority = 3;
+			$showAddCardModal = false;
+		} else {
+			alert('Failed to add card.');
+		}
+	}
 </script>
 <section>
     <Board
@@ -218,13 +255,56 @@ async function handleDeleteCard(cardId: number) {
 </section>
 
 
+
 <!-- 
-===================
-    EDIT MODAL
-===================
+=========================
+    ADD CARD MODAL
+=========================
+-->
+{#if $showAddCardModal}
+    <div class="absolute w-1/2 h-1/2 top-0 left-0 bg-red-50">
+        <div class="bg-red-400">
+            <div>
+                <h2>Add a new card</h2>
+                <button onclick={() => $showAddCardModal = false}>x</button>
+            </div>
+			<form onsubmit={handleAddCard} class="flex flex-col gap-4">
+				<div>
+					<label for="card-title">Card Title</label>
+					<input id="card-title" type="text" bind:value={newCardTitle} required class="w-full border rounded p-2" />
+				</div>
+				<div>
+					<label for="card-desc">Description</label>
+					<textarea id="card-desc" bind:value={newCardDescription} class="w-full border rounded p-2"></textarea>
+				</div>
+				<div>
+					<label for="card-deadline">Deadline</label>
+					<input id="card-deadline" type="date" bind:value={newCardDeadline} class="w-full border rounded p-2" />
+				</div>
+				<div>
+					<label for="card-priority">Priority (1=Low, 5=High)</label>
+					<select id="card-priority" bind:value={newCardPriority} class="w-full border rounded p-2">
+						<option value={1}>1</option>
+						<option value={2}>2</option>
+						<option value={3}>3 (Medium)</option>
+						<option value={4}>4</option>
+						<option value={5}>5</option>
+					</select>
+				</div>
+				<button type="submit" class="bg-blue-500 text-white rounded p-2">Add Card</button>
+			</form>
+        </div>
+    </div>
+{/if}
+
+
+<!-- 
+=========================
+    EDIT CARD MODAL
+=========================
 -->
 {#if $showEditCardModal && $selectedCard?.id}
-    <section class="absolute w-full h-[100dvh] top-0 right-0 bg-zinc-900/30 flex justify-end items-center overflow-hidden cursor-default"
+    <section class="fixed w-full h-[100dvh] top-0 right-0 bg-zinc-900/30 flex justify-end items-center overflow-hidden cursor-default"
 	transition:fade={{duration: 150}} onclick={() => $showEditCardModal=false}>
         <div class="bg-white p-4 rounded-s-xl min-w-[300px] w-full max-w-[500px] h-[95%] relative"
 		transition:fly={{ x: 300, duration: 300, opacity: 0 }} onclick={(e) => e.stopPropagation()} >

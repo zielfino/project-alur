@@ -210,6 +210,7 @@ async function handleDeleteCard(cardId: number) {
 
 
 	import { showAddCardModal, activeColumnId } from '$lib/stores/uiStore';
+	import Sidebar from "$lib/island/sidebar.svelte";
 
 	// let activeColumnId = $state<number | null>(null);
 	let newCardTitle = $state('');
@@ -248,13 +249,24 @@ async function handleDeleteCard(cardId: number) {
 		}
 	}
 
+   	import { sidebar, sidebarIsHovered as isHovered } from '$lib/stores/uiStore';
 </script>
-<section>
-    <Board
-    board={board} 
-    onFinalUpdate={handleBoardUpdated}
-    />
-</section>
+
+<main class="flex"> 
+    <Sidebar data={data} />
+    <section class="p-4 w-full flex flex-col
+    {$sidebar ? 'max-w-[calc(100%-256px-10px)]' : $isHovered ? 'max-w-[calc(100%-192px-10px)]' : 'max-w-[calc(100%-72px-10px)]'}">
+        <div class="h-full max-h-[75px] flex flex-col justify-center pl-10 pt-8 pb-2 ">
+            <h2 class="agerrh2">{board.name}</h2>
+        </div>
+        <div class="pb-6">
+            <Board
+            board={board} 
+            onFinalUpdate={handleBoardUpdated}
+            />
+        </div>
+    </section>
+</main>
 
 
 
@@ -325,7 +337,7 @@ async function handleDeleteCard(cardId: number) {
                 </div>
 				<!-- <button type="submit" class="bg-blue-500 text-white rounded p-2">Add Card</button> -->
                 <section class="flex flex-row space-x-2 absolute bottom-4 left-4">
-                    <button type="submit" class="bg-blue-200 text-blue-800 hover:bg-blue-300 cursor-pointer h-[40px] w-[468px] font-semibold rounded-md">
+                    <button type="submit" class="bg-sky-500 text-white hover:bg-sky-400 disabled:bg-sky-400 cursor-pointer h-[40px] w-[468px] font-semibold rounded-md">
                         Add Card
                     </button>
                 </section>
@@ -430,7 +442,7 @@ async function handleDeleteCard(cardId: number) {
                         </div>
 					</div>
 				
-                    <button transition:fly={{ y: 12, duration: 150, opacity: 0 }} disabled={$isLoading.CardEdit[$selectedCard.id]} type="submit" class="absolute bottom-4 right-4 bg-blue-200 text-blue-800 hover:bg-blue-300 disabled:bg-blue-300 cursor-pointer h-[40px] w-[96px] font-semibold rounded-md flex justify-center items-center">
+                    <button transition:fly={{ y: 12, duration: 150, opacity: 0 }} disabled={$isLoading.CardEdit[$selectedCard.id]} type="submit" class="absolute bottom-4 right-4 bg-sky-500 text-white hover:bg-sky-400 disabled:bg-sky-400 cursor-pointer h-[40px] w-[96px] font-semibold rounded-md flex justify-center items-center">
                         {#if $isLoading.CardEdit[$selectedCard.id]}
                             <Icon icon="mingcute:loading-fill" class="text-xl animate-spin" />
                         {:else}
@@ -441,7 +453,7 @@ async function handleDeleteCard(cardId: number) {
                 <div class="h-[20%]"></div>
 			{/if}
             <section class="flex flex-row space-x-2 absolute bottom-4 left-4">
-                <button class="bg-red-100 w-[116px] text-red-700 hover:bg-red-200 disabled:bg-red-200 cursor-pointer h-[40px] font-semibold rounded-md flex justify-center items-center" onclick={() => handleDeleteCard($selectedCard.id)}>
+                <button class="bg-rose-500 text-white hover:bg-rose-400 disabled:bg-rose-400 w-[116px] cursor-pointer h-[40px] font-semibold rounded-md flex justify-center items-center" onclick={() => handleDeleteCard($selectedCard.id)}>
                     <!-- {$isLoading.CardRemove[$selectedCard.id] ? 'Deleting...' : 'Delete Card'} -->
                     {#if $isLoading.CardRemove[$selectedCard.id]}
                         <Icon icon="mingcute:loading-fill" class="text-xl animate-spin" />

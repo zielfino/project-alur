@@ -41,8 +41,9 @@
     }
 </script>
 
-<section class="h-[100dvh] py-4">
-    <section role="complementary" bind:this={sidebarnav} onmouseenter={() => handleMouseEnter()} onmouseleave={() => handleMouseLeave()} class="group rounded-e-2xl flex flex-col justify-between overflow-hidden h-full p-4 ease-out
+<section class="h-[100dvh] py-4
+{$sidebar ? 'min-w-64' : $isHovered ? 'min-w-48' : 'min-w-18'}">
+    <section role="complementary" bind:this={sidebarnav} onmouseenter={() => handleMouseEnter()} onmouseleave={() => handleMouseLeave()} class="group rounded-e-2xl flex flex-col justify-between overflow-hidden h-[calc(100%-32px)] p-4 ease-out fixed
     {$sidebar ? 'w-64 bg-gray-100 ring ring-slate-300' : $isHovered ? 'w-48 bg-gray-100 ring ring-slate-300' : 'w-18 bg-gray-100'}">
         <!-- TOP SIDEBAR -->
         <div class="flex flex-col ">
@@ -94,14 +95,14 @@
 
 
         <!-- BOARDS -->
-        <div class="flex flex-col h-full overflow-y-scroll justify-start overflow-scroll-hidden mask-t-from-96% mask-t-to-100% mask-b-from-90% mask-b-to-100%">
+        <div class="flex flex-col h-full overflow-y-scroll justify-start overflow-scroll-hidden mask-t-from-96% mask-t-to-100% mask-b-from-90% mask-b-to-100% space-y-1">
             <div class="w-full h-3 bg-blue-700 opacity-0">,</div>
             <button onclick={() => goto('/')} class="text-slate-900 hover:bg-slate-200 rounded-lg h-[40px] flex items-center-safe
             {$sidebar || $isHovered ? 'w-full space-x-4 pl-2' : 'w-full'} {currentpage === '/' ? 'bg-slate-200' : 'cursor-pointer'}" disabled={currentpage === '/'}>
                     <div class="w-[18px] {$sidebar || $isHovered ? '' : 'pl-2'}"><Icon icon="material-symbols:dashboard-outline-rounded" class="inline-block text-2xl" /></div>
                     <div class="line-clamp-1 {$sidebar || $isHovered ? '' : 'opacity-0'}">Dashboard</div>
             </button>
-            <button class="text-slate-900 hover:bg-slate-200 rounded-lg h-[40px] cursor-pointer flex items-center-safe
+            <button onclick={() => goto('/testaja')} class="text-slate-900 hover:bg-slate-200 rounded-lg h-[40px] cursor-pointer flex items-center-safe
             {$sidebar || $isHovered ? 'w-full space-x-4 pl-2' : 'w-full'}">
                     <div class="w-[18px] {$sidebar || $isHovered ? '' : 'pl-2'}"><Icon icon="material-symbols:leaderboard-outline-rounded" class="rotate-180 inline-block text-2xl" /></div>
                     <div class="line-clamp-1 {$sidebar || $isHovered ? '' : 'opacity-0'}">Job Tracker</div>

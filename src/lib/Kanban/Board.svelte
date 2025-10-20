@@ -2,9 +2,13 @@
 	import { flip } from 'svelte/animate';
 	import { dndzone } from 'svelte-dnd-action';
 	import Column from "$lib/Kanban/Column.svelte";
+	import { showAddColumnInput } from '$lib/stores/uiStore';
 
-	export let board: any;
-	export let onFinalUpdate: (cols: any[], info?: any) => void;
+	let { board, onFinalUpdate } = $props<{
+		board: any;
+		onFinalUpdate: (cols: any[], info?: any) => void;
+	}>();
+
 
 	const flipDurationMs = 300;
 
@@ -57,20 +61,72 @@
 			newColumnId: newColumn.id
 		});
 	}
+	
+	let apiError = $state<string | null>(null);
+	let newColumnName = $state('');
+	let newColumnState = $state(1);
+
+	async function handleAddColumn() {
+		if (!board || !newColumnName) return;
+		apiError = null;
+		const response = await fetch('/api/boards/columns', {
+			method: 'POST',
+			body: JSON.stringify({ name: newColumnName, board_id: board.id, state: newColumnState })
+		});
+		if (response.ok) {
+			const newColumn = await response.json();
+			const updatedColumns = [...board.columns, newColumn];
+			updatedColumns.sort((a, b) => a.state - b.state || a.position - b.position);
+			board.columns = updatedColumns;
+			newColumnName = '';
+			$showAddColumnInput = false;
+		} else {
+			const result = await response.json();
+			apiError = result.error || 'Failed to add column.';
+		}
+	}
 </script>
 
 <section
-	class="board"
+	class="w-full h-[640px] ml-6 outline-none cursor-default flex overflow-x-auto overflow-y-hidden"
 	use:dndzone={{ items: board.columns, flipDurationMs, type: 'column' }}
-	on:consider={handleDndConsiderColumns}
-	on:finalize={handleDndFinalizeColumns}
+	onconsider={handleDndConsiderColumns}
+	onfinalize={handleDndFinalizeColumns}
 >
 	{#each board.columns as column, idx (column.id)}
-		<div class="h-full w-[300px] m-2 float-left border-2" animate:flip="{{ duration: flipDurationMs }}">
+		<div class="h-full min-w-[300px] max-w-[300px] m-3 float-left cursor-default" animate:flip="{{ duration: flipDurationMs }}">
 			<Column
 				{column}
 				onDrop={(e) => handleItemFinalize(idx, e.items, e.info)}
 			/>
 		</div>
 	{/each}
+	<div class="bg-gray-100 w-[300px] flex-shrink-0 p-2 m-3 self-start ring-1 ring-gray-300 rounded-lg">
+		{#if $showAddColumnInput}
+			<form onsubmit={handleAddColumn}>
+				<input
+					type="text"
+					bind:value={newColumnName}
+					placeholder="Enter column name..."
+					class="w-full p-2 rounded-sm border"
+				/>
+				<select bind:value={newColumnState} class="w-full p-2 mt-2 rounded-sm border">
+					<option value={1}>Not Started</option>
+					<option value={2}>In Progress</option>
+					<option value={3}>Finished</option>
+				</select>
+				<div class="mt-2 space-x-1 font-semibold tracking-wide">
+					<button type="submit" class="bg-sky-500 text-white hover:bg-sky-400 disabled:bg-sky-400 px-5 py-2 rounded-sm cursor-pointer">Add</button>
+					<button type="button" onclick={() => ($showAddColumnInput = false)} class="bg-gray-200 text-gray-800 hover:bg-gray-300 disabled:bg-gray-300 px-5 py-2 rounded-sm cursor-pointer">Cancel</button>
+				</div>
+				{#if apiError}
+					<p class="text-red-500 text-sm mt-2">{apiError}</p>
+				{/if}
+			</form>
+		{:else}
+			<button class="text-left text-gray-900 hover:bg-gray-200 p-2 cursor-pointer bg-gray-100 rounded-sm w-full" onclick={() => $showAddColumnInput = true}>
+				+ Add another column
+			</button>
+		{/if}
+	</div>
 </section>

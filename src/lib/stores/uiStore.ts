@@ -1,5 +1,8 @@
 import { writable } from 'svelte/store';
 
+export const boardLoading = writable(true);
+export const showCreateModal = writable(false);
+export const showEditBoardModal = writable(false);
 export const isLoginModalOpen = writable(false);
 export const isSigningUpMode = writable(false);
 export const sidebar = writable(false);

@@ -132,7 +132,7 @@
 			</form>
 		{:else}
 			<button class="text-left text-gray-900 hover:bg-gray-200 p-2 cursor-pointer bg-gray-100 rounded-md w-full" onclick={() => $showAddColumnInput = true}>
-				+ Add another column
+				+ Add column
 			</button>
 		{/if}
 	</div>

@@ -202,35 +202,33 @@
 
 
         <!-- BOARDDSS -->
-        <h1>Your Boards</h1>
+        <!-- <h1>Your Boards</h1> -->
 
-        <button onclick={() => (showCreateModal = true)}>+ Create New Board</button>
-
+        <!-- <button onclick={() => (showCreateModal = true)}>+ Create New Board</button> -->
+<!-- 
         {#if showCreateModal}
-            <div class="modal-backdrop">
-                <div class="modal-content">
-                    <h2>Create a new board</h2>
-                    <form onsubmit={handleCreateBoard}>
-                        <label for="board-name">Board Name</label>
-                        <input id="board-name" type="text" bind:value={newBoardName} required />
+            <div class="absolute top-0 right-0">
+				<h2>Create a new board</h2>
+				<form onsubmit={handleCreateBoard}>
+					<label for="board-name">Board Name</label>
+					<input id="board-name" type="text" bind:value={newBoardName} required />
 
-                        {#if nameValidationError}
-                            <p style="color: red; font-size: 12px;">{nameValidationError}</p>
-                        {/if}
+					{#if nameValidationError}
+						<p style="color: red; font-size: 12px;">{nameValidationError}</p>
+					{/if}
 
-                        <button type="submit" disabled={loading || !!nameValidationError}>
-                            {#if loading}Creating...{:else}Create Board{/if}
-                        </button>
+					<button type="submit" disabled={loading || !!nameValidationError}>
+						{#if loading}Creating...{:else}Create Board{/if}
+					</button>
 
-                        {#if apiError}
-                            <p style="color: red; margin-top: 10px;">{apiError}</p>
-                        {/if}
-                    </form>
-                </div>
-            </div>
-        {/if}
+					{#if apiError}
+						<p style="color: red; margin-top: 10px;">{apiError}</p>
+					{/if}
+				</form>
+			</div>
+        {/if} -->
 
-        {#if loading}
+        <!-- {#if loading}
             <p>Loading your boards...</p>
         {:else if error}
             <p style="color: red;">{error}</p>
@@ -249,7 +247,7 @@
                     <p>You haven't created any boards yet.</p>
                 {/each}
             </div>
-        {/if}
+        {/if} -->
         </div>
     </section>
 </main>

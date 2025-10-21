@@ -8,13 +8,14 @@
 	const flipDurationMs = 150;
 	// export let column: any;
 	// export let onDrop: (event: { columnId: number; items: any[]; info?: any }) => void;
-	let { column, onDrop } = $props<{
+	let { column = $bindable(), onDrop } = $props<{
 		column: any;
 		onDrop: (event: { columnId: number; items: any[]; info?: any }) => void;
 	}>();
 
 	function handleDndConsiderCards(e: CustomEvent) {
-		onDrop({ columnId: column.id, items: e.detail.items, info: e.detail.info });
+		// onDrop({ columnId: column.id, items: e.detail.items, info: e.detail.info });
+		column.cards = e.detail.items;
 	}
 
 	function handleDndFinalizeCards(e: CustomEvent) {

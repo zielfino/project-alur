@@ -128,7 +128,7 @@ export const PUT: RequestHandler = async ({ request, locals: { getSession } }) =
 
 /** -------------------------------
  *  🗑️ DELETE COLUMN
- *  Owner required
+ *  Level 3 required
  * ------------------------------- */
 export const DELETE: RequestHandler = async ({ request, locals: { getSession } }) => {
 	const session = await getSession();
@@ -142,7 +142,6 @@ export const DELETE: RequestHandler = async ({ request, locals: { getSession } }
 	try {
 		await connection.beginTransaction();
 
-		// 🔍 Cek board_id berdasarkan column_id
 		const [rows] = (await connection.execute(
 			'SELECT board_id FROM columns WHERE id = ?',
 			[column_id]
@@ -153,27 +152,12 @@ export const DELETE: RequestHandler = async ({ request, locals: { getSession } }
 		}
 
 		const boardId = (rows as any)[0].board_id;
-
-		// 🔐 Cek apakah user adalah owner
-		const [ownerCheck] = (await connection.execute(
-			'SELECT owner_uid FROM boards WHERE id = ?',
-			[boardId]
-		)) as RowDataPacket[];
-		if (!Array.isArray(ownerCheck) || ownerCheck.length === 0) {
+		const userLevel = await userPermission(session.user.id, boardId, 3);
+		if (!userLevel) {
 			await connection.rollback();
-			return json({ success: false, message: 'Board not found.' }, { status: 404 });
+			return json({ success: false, message: 'You do not have permission to manage columns.' }, { status: 403 });
 		}
 
-		const isOwner = ownerCheck[0].owner_uid === session.user.id;
-		if (!isOwner) {
-			await connection.rollback();
-			return json(
-				{ success: false, message: 'Only the board owner can delete this column.' },
-				{ status: 403 }
-			);
-		}
-
-		// 🧱 Hapus kolom
 		await connection.execute('DELETE FROM columns WHERE id = ?', [column_id]);
 		await connection.commit();
 
@@ -186,4 +170,3 @@ export const DELETE: RequestHandler = async ({ request, locals: { getSession } }
 		connection.release();
 	}
 };
-

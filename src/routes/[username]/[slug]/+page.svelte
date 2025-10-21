@@ -1,256 +1,253 @@
 <script lang="ts">
-    import Board from "$lib/Kanban/Board.svelte";
+	/** ---------------------------------------------
+	 * IMPORTS
+	 * --------------------------------------------- */
+	import Board from "$lib/Kanban/Board.svelte";
+	import Sidebar from "$lib/island/sidebar.svelte";
+	import Icon from "@iconify/svelte";
+	import { fade, fly } from "svelte/transition";
 	import { createEventDispatcher } from "svelte";
 
+	import { autosize } from "$lib/actions/autosize";
+	import { isLoading } from "$lib/stores/loading";
+	import {
+		showAddCardModal,
+		activeColumnId,
+		showEditCardModal,
+		selectedCard,
+		isEdit,
+		selectedCardWithFormat,
+		sidebar,
+		sidebarIsHovered as isHovered
+	} from "$lib/stores/uiStore";
+
+	/** ---------------------------------------------
+	 * TYPES
+	 * --------------------------------------------- */
+	type Card = {
+		id: number;
+		title: string;
+		description: string;
+		deadline: string;
+		priority: number;
+		column_id: number;
+	};
+
+	type Column = {
+		id: number;
+		name: string;
+		cards: Card[];
+	};
+
+	/** ---------------------------------------------
+	 * REACTIVE STATE
+	 * --------------------------------------------- */
 	const dispatch = createEventDispatcher();
-	type Column = { id: number; name: string; cards: any[]; };
+	let { data } = $props();
+	let board = $state(data.board);
 
-    let { data } = $props();
-    let board = $state(data.board);
-
-    async function handleBoardUpdated(newColumnsData: Column[], info: any) {
-        board.columns = newColumnsData;
-        console.log('Info object received:', info ?? '(no info)');
-        
-        if (info && info.type === 'column') {
-            const columnIds = newColumnsData.map(c => c.id);
-            console.log("ACTION: Update column order ->", columnIds);
-            // const columnIds = newColumnsData.map((c) => c.id);
-            // console.log("ACTION: Update column order ->", columnIds);
-
-            try {
-                await fetch("/api/boards/columns/move", {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({ items: columnIds }),
-                });
-            } catch (err) {
-                console.error('Failed to update column order', err);
-                // Optionally reload or rollback UI
-            }
-        } else if (info?.type === 'card') {
-            const { cardId, oldColumnId, newColumnId } = info;
-            
-            // Find columns from the passed snapshot (newColumnsData)
-            const newColumn = newColumnsData.find((col) => col.id === newColumnId);
-            const oldColumn = newColumnsData.find((col) => col.id === oldColumnId);
-
-            if (!newColumn || !oldColumn) {
-                console.warn("Missing column data for move", { oldColumnId, newColumnId });
-                return;
-            }
-
-            console.log("ACTION: Update card order:", { cardId, newColumnId, oldColumnId });
-
-            try {
-                console.log('NEW OLD NEWS:', newColumn.cards.map((c) => c.id), oldColumn.cards.map((c) => c.id), newColumnId);
-                const res = await fetch("/api/boards/cards/move", {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({
-                        card_id: cardId,
-                        new_column_id: newColumnId,
-                        items_in_new_column: newColumn.cards.map((c) => c.id),
-                        items_in_old_column: oldColumn.cards.map((c) => c.id),
-                    }),
-                });
-
-                if (!res.ok) {
-                    throw new Error('Server returned ' + res.status);
-                }
-
-                // success: DB updated
-                console.log('Server move succeeded for card', cardId);
-            } catch (err) {
-                console.error('Failed to move card on server:', err);
-                // Optional: refetch board from server to reconcile desync
-                // const fresh = await (await fetch('/path/to/load')).json(); board.columns = fresh.columns;
-            }
-        }
-    }
-
-
-    
-import { isLoading } from "$lib/stores/loading";
-
-type Card = {
-	id: number;
-	title: string;
-	description: string;
-	deadline: string;
-	priority: number;
-	column_id: number;
-};
-
-// async function handleUpdateCard(updatedCard: Card) {
-// 	if (!board) return;
-    
-// 	isLoading.start("CardEdit", updatedCard.id);
-
-// 	try {
-// 		const response = await fetch("/api/boards/cards", {
-// 			method: "PUT",
-// 			body: JSON.stringify(updatedCard),
-// 		});
-
-// 		if (response.ok) {
-// 			board.columns = board.columns.map((col) => ({
-// 				...col,
-// 				cards: col.cards.map((c) => (c.id === updatedCard.id ? updatedCard : c)),
-// 			}));
-// 		} else {
-// 			alert("Failed to update card");
-// 		}
-// 	} catch (err) {
-// 		console.error(err);
-// 		alert("Failed to update card");
-// 	} finally {
-// 	    isLoading.stop("CardEdit", updatedCard.id);
-// 	}
-// }
-async function handleUpdateCard() {
-	if (!$selectedCard) return;
-    
-	if (!$selectedCard.title || $selectedCard.title.trim() === "") {
-		$selectedCard.title = "Judul";
-	}
-
-	isLoading.start("CardEdit", $selectedCard.id);
-
-	try {
-		const response = await fetch("/api/boards/cards", {
-			method: "PUT",
-			body: JSON.stringify($selectedCard),
-		});
-
-		if (response.ok) {
-			board.columns = board.columns.map((col) => ({
-				...col,
-				cards: col.cards.map((c) => (c.id === $selectedCard.id ? $selectedCard : c)),
-			}));
-		} else {
-			alert("Failed to update card");
-		}
-	} catch (err) {
-		console.error(err);
-		alert("Failed to update card");
-	} finally {
-		isLoading.stop("CardEdit", $selectedCard.id);
-        $showEditCardModal = false
-	}
-}
-
-async function handleDeleteCard(cardId: number) {
-	if (!board) return;
-	if (!confirm("Are you sure you want to delete this card?")) return;
-
-	isLoading.start("CardRemove", cardId);
-
-	try {
-		const response = await fetch("/api/boards/cards", {
-			method: "DELETE",
-			body: JSON.stringify({ id: cardId }),
-		});
-
-		if (response.ok) {
-			board.columns = board.columns.map((col) => ({
-				...col,
-				cards: col.cards.filter((c) => c.id !== cardId),
-			}));
-		} else {
-			alert("Failed to delete card");
-		}
-	} catch (err) {
-		console.error(err);
-		alert("Failed to delete card");
-	} finally {
-		isLoading.stop("CardRemove", cardId); 
-        $showEditCardModal = false
-	}
-}
-
-
-	import { fade, fly } from "svelte/transition";
-	import { showEditCardModal, selectedCard, isEdit, selectedCardWithFormat  } from '$lib/stores/uiStore';
-	import Icon from "@iconify/svelte";
-	// let isEdit = $state(false);
-    import { autosize } from '$lib/actions/autosize';
-
-
-    function handleTextareaKeydown(event: KeyboardEvent) {
-		// 1. Cek apakah tombol yang ditekan adalah 'Enter' DAN 'Shift' tidak ditekan
-		if (event.key === 'Enter' && !event.shiftKey) {
-			// 2. Mencegah aksi default (membuat baris baru)
-			event.preventDefault();
-			
-			// 3. Jalankan fungsi submit Anda secara manual
-			handleUpdateCard();
-		}
-		// Jika Shift + Enter ditekan, biarkan ia membuat baris baru seperti biasa.
-	}
-
-
-
-    export function formatForInputDate(date: string | Date): string {
-        if (!date) return "";
-        const d = new Date(date);
-        const iso = d.toISOString();
-        return iso.split("T")[0]; // hasil: "2025-10-14"
-    }
-
-    export function formatForDisplay(date: string | Date): string {
-        if (!date) return "";
-        return new Date(date).toLocaleDateString("id-ID", {
-            weekday: "long",
-            day: "2-digit",
-            month: "short",
-            year: "numeric",
-        });
-    }
-
-
-	import { showAddCardModal, activeColumnId } from '$lib/stores/uiStore';
-	import Sidebar from "$lib/island/sidebar.svelte";
-
-	// let activeColumnId = $state<number | null>(null);
+	// State untuk Add Card
 	let newCardTitle = $state('');
 	let newCardDescription = $state('');
 	let newCardDeadline = $state('');
-	let newCardPriority = $state(null);
+	let newCardPriority = $state<number | null>(null);
 	let deadlineAddCard = $state<string | null>(null);
 
-    async function handleAddCard() {
-        console.log('added')
+	/** ---------------------------------------------
+	 * CARD HANDLERS
+	 * --------------------------------------------- */
+
+	// ➤ ADD CARD
+	async function handleAddCard() {
 		if (!newCardTitle || !$activeColumnId || !board) return;
-		const response = await fetch('/api/boards/cards', {
-			method: 'POST',
-			body: JSON.stringify({
-				title: newCardTitle,
-				column_id: $activeColumnId,
-				description: newCardDescription,
-				deadline: newCardDeadline || null,
-				priority: newCardPriority
-			})
-		});
-		if (response.ok) {
-			const newCard = await response.json();
-			const columnIndex = board.columns.findIndex((c) => c.id === $activeColumnId);
-			if (columnIndex !== -1) {
-				// Ini adalah update yang reaktif
-				board.columns[columnIndex].cards = [...board.columns[columnIndex].cards, newCard];
+
+		try {
+			const response = await fetch('/api/boards/cards', {
+				method: 'POST',
+				headers: { 'Content-Type': 'application/json' },
+				body: JSON.stringify({
+					title: newCardTitle,
+					column_id: $activeColumnId,
+					description: newCardDescription,
+					deadline: newCardDeadline || null,
+					priority: newCardPriority
+				})
+			});
+
+			if (!response.ok) {
+				const errMsg = await response.text();
+				console.error('Failed to add card:', errMsg);
+				alert('Failed to add card.');
+				return;
 			}
-			newCardTitle = '';
-			newCardDescription = '';
-			newCardDeadline = '';
-			newCardPriority = null;
-			$showAddCardModal = false;
-		} else {
-			alert('Failed to add card.');
+
+			const { success, card } = await response.json();
+			if (success && card) {
+				const columnIndex = board.columns.findIndex((c) => c.id === $activeColumnId);
+				if (columnIndex !== -1) {
+					board.columns[columnIndex].cards = [...board.columns[columnIndex].cards, card];
+				}
+
+				// Reset form
+				newCardTitle = '';
+				newCardDescription = '';
+				newCardDeadline = '';
+				newCardPriority = null;
+
+				// Tutup modal
+				$showAddCardModal = false;
+			} else {
+				alert('Something went wrong while adding the card.');
+			}
+		} catch (err) {
+			console.error('Error creating card:', err);
+			alert('An unexpected error occurred.');
 		}
 	}
 
-   	import { sidebar, sidebarIsHovered as isHovered } from '$lib/stores/uiStore';
+	// ➤ EDIT CARD
+	async function handleUpdateCard() {
+		if (!$selectedCard) return;
+		if (!$selectedCard.title || $selectedCard.title.trim() === "") {
+			$selectedCard.title = "Judul";
+		}
+
+		isLoading.start("CardEdit", $selectedCard.id);
+
+		try {
+			const response = await fetch("/api/boards/cards", {
+				method: "PUT",
+				body: JSON.stringify($selectedCard),
+			});
+
+			if (response.ok) {
+				board.columns = board.columns.map((col) => ({
+					...col,
+					cards: col.cards.map((c) => (c.id === $selectedCard.id ? $selectedCard : c)),
+				}));
+			} else {
+				alert("Failed to update card");
+			}
+		} catch (err) {
+			console.error(err);
+			alert("Failed to update card");
+		} finally {
+			isLoading.stop("CardEdit", $selectedCard.id);
+			$showEditCardModal = false;
+		}
+	}
+
+	// ➤ DELETE CARD
+	async function handleDeleteCard(cardId: number) {
+		if (!board) return;
+		if (!confirm("Are you sure you want to delete this card?")) return;
+
+		isLoading.start("CardRemove", cardId);
+
+		try {
+			const response = await fetch("/api/boards/cards", {
+				method: "DELETE",
+				body: JSON.stringify({ id: cardId }),
+			});
+
+			if (response.ok) {
+				board.columns = board.columns.map((col) => ({
+					...col,
+					cards: col.cards.filter((c) => c.id !== cardId),
+				}));
+			} else {
+				alert("Failed to delete card");
+			}
+		} catch (err) {
+			console.error(err);
+			alert("Failed to delete card");
+		} finally {
+			isLoading.stop("CardRemove", cardId);
+			$showEditCardModal = false;
+		}
+	}
+
+	/** ---------------------------------------------
+	 * BOARD HANDLER (COLUMN & CARD MOVE)
+	 * --------------------------------------------- */
+	async function handleBoardUpdated(newColumnsData: Column[], info: any) {
+	board = { ...board, columns: newColumnsData };
+		console.log('Info object received:', info ?? '(no info)');
+
+		// ➤ Move Column
+		if (info?.type === 'column') {
+			const columnIds = newColumnsData.map((c) => c.id);
+			console.log("ACTION: Update column order ->", columnIds);
+
+			try {
+				await fetch("/api/boards/columns/move", {
+					method: "POST",
+					headers: { "Content-Type": "application/json" },
+					body: JSON.stringify({ items: columnIds }),
+				});
+			} catch (err) {
+				console.error('Failed to update column order', err);
+			}
+		}
+
+		// ➤ Move Card
+		else if (info?.type === 'card') {
+			const { cardId, oldColumnId, newColumnId } = info;
+			const newColumn = newColumnsData.find((col) => col.id === newColumnId);
+			const oldColumn = newColumnsData.find((col) => col.id === oldColumnId);
+
+			if (!newColumn || !oldColumn) {
+				console.warn("Missing column data for move", { oldColumnId, newColumnId });
+				return;
+			}
+
+			try {
+				const res = await fetch("/api/boards/cards/move", {
+					method: "POST",
+					headers: { "Content-Type": "application/json" },
+					body: JSON.stringify({
+						card_id: cardId,
+						new_column_id: newColumnId,
+						items_in_new_column: newColumn.cards.map((c) => c.id),
+						items_in_old_column: oldColumn.cards.map((c) => c.id),
+					}),
+				});
+
+				if (!res.ok) throw new Error('Server returned ' + res.status);
+				console.log('Server move succeeded for card', cardId);
+			} catch (err) {
+				console.error('Failed to move card on server:', err);
+			}
+		}
+	}
+
+	/** ---------------------------------------------
+	 * HELPERS
+	 * --------------------------------------------- */
+	function handleTextareaKeydown(event: KeyboardEvent) {
+		if (event.key === 'Enter' && !event.shiftKey) {
+			event.preventDefault();
+			handleUpdateCard();
+		}
+	}
+
+	export function formatForInputDate(date: string | Date): string {
+		if (!date) return "";
+		const d = new Date(date);
+		return d.toISOString().split("T")[0];
+	}
+
+	export function formatForDisplay(date: string | Date): string {
+		if (!date) return "";
+		return new Date(date).toLocaleDateString("id-ID", {
+			weekday: "long",
+			day: "2-digit",
+			month: "short",
+			year: "numeric",
+		});
+	}
 </script>
+
 
 <main class="flex"> 
     <Sidebar data={data} />
@@ -261,7 +258,7 @@ async function handleDeleteCard(cardId: number) {
         </div>
         <div class="pb-6">
             <Board
-            board={board} 
+			bind:board={board}
             onFinalUpdate={handleBoardUpdated}
             />
         </div>

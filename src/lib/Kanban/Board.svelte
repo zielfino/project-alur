@@ -4,19 +4,21 @@
 	import Column from "$lib/Kanban/Column.svelte";
 	import { showAddColumnInput } from '$lib/stores/uiStore';
 
-	let { board, onFinalUpdate } = $props<{
+	let { board = $bindable(), onFinalUpdate } = $props<{
 		board: any;
 		onFinalUpdate: (cols: any[], info?: any) => void;
 	}>();
 
 
 	const flipDurationMs = 300;
+	// let isDraggingColumn = false;
 
 	function handleDndConsiderColumns(e: CustomEvent) {
-		onFinalUpdate(e.detail.items, { type: 'column' });
+		board.columns = e.detail.items;
 	}
 
 	function handleDndFinalizeColumns(e: CustomEvent) {
+		// isDraggingColumn = false;
 		onFinalUpdate(e.detail.items, { type: 'column' });
 	}
 
@@ -69,20 +71,25 @@
 	async function handleAddColumn() {
 		if (!board || !newColumnName) return;
 		apiError = null;
+
 		const response = await fetch('/api/boards/columns', {
 			method: 'POST',
 			body: JSON.stringify({ name: newColumnName, board_id: board.id, state: newColumnState })
 		});
+
 		if (response.ok) {
-			const newColumn = await response.json();
+			const result = await response.json();
+			const newColumn = result.column; // Ambil langsung object kolom-nya
+
 			const updatedColumns = [...board.columns, newColumn];
 			updatedColumns.sort((a, b) => a.state - b.state || a.position - b.position);
 			board.columns = updatedColumns;
+
 			newColumnName = '';
 			$showAddColumnInput = false;
 		} else {
 			const result = await response.json();
-			apiError = result.error || 'Failed to add column.';
+			apiError = result.message || result.error || 'Failed to add column.';
 		}
 	}
 </script>
@@ -96,7 +103,7 @@
 	{#each board.columns as column, idx (column.id)}
 		<div class="h-full min-w-[300px] max-w-[300px] m-3 float-left cursor-default" animate:flip="{{ duration: flipDurationMs }}">
 			<Column
-				{column}
+				bind:column={board.columns[idx]}
 				onDrop={(e) => handleItemFinalize(idx, e.items, e.info)}
 			/>
 		</div>

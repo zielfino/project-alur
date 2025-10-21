@@ -5,7 +5,7 @@
 	import { goto } from "$app/navigation";
 	import Icon from '@iconify/svelte';
 	let { data } = $props();
-    import { fade } from 'svelte/transition';
+    import { fade, fly } from 'svelte/transition';
 	import { page } from '$app/stores';
 	import { onMount } from 'svelte';
     
@@ -47,6 +47,7 @@
     type Board = {
         id: number;
         owner_uid: string;
+        owner_name: string;
         name: string;
         slug: string;
         created_at: string;
@@ -320,7 +321,7 @@
             {:else}
                 <div class="boards-grid">
                     {#each boards as board}
-                        <a href={`/${data.profile?.username}/${board.slug}`} disabled={`/${data.profile?.username}/${board.slug}`} class="text-slate-900 hover:bg-slate-200 rounded-lg h-[40px] cursor-pointer flex items-center-safe relative
+                        <a href={`/${board.owner_name || data.profile?.username}/${board.slug}`} disabled={`/${board.owner_name || data.profile?.username}/${board.slug}`} class="text-slate-900 hover:bg-slate-200 rounded-lg h-[40px] cursor-pointer flex items-center-safe relative
                         {$sidebar || $isHovered ? 'w-full space-x-4 pl-2' : 'w-full'}">
                             <div class="w-[18px] {$sidebar || $isHovered ? '' : 'pl-2'}"><Icon icon="material-symbols:leaderboard-outline-rounded" class="rotate-180 inline-block text-2xl" /></div>
                             <div class="line-clamp-1 {$sidebar  ? 'w-full' : $isHovered ? 'w-1/2' : 'opacity-0'}">{board.name}</div>
@@ -362,31 +363,139 @@
     </section>
 </section>
 
-<!-- CREATE -->
+<!-- 
+=========================
+    ADD BOARD MODAL
+=========================
+-->
 {#if showCreateModal}
-    <div class="absolute top-0 right-0">
-        <h2>Create a new board</h2>
-        <form onsubmit={handleCreateBoard}>
-            <label for="board-name">Board Name</label>
-            <input id="board-name" type="text" bind:value={newBoardName} required />
-
-            {#if nameValidationError}
-                <p style="color: red; font-size: 12px;">{nameValidationError}</p>
-            {/if}
-
-            <button type="submit" disabled={$boardLoading || !!nameValidationError}>
-                {#if $boardLoading}Creating...{:else}Create Board{/if}
-            </button>
-
-            {#if apiError}
-                <p style="color: red; margin-top: 10px;">{apiError}</p>
-            {/if}
-        </form>
-    </div>
+    <section class="z-50 fixed w-full h-[100dvh] top-0 right-0 bg-zinc-900/30 overflow-hidden cursor-default"
+	transition:fade={{duration: 150}} onclick={() => showCreateModal=false}>
+	<!-- transition:fade={{duration: 150}}> -->
+        <div class="bg-white p-4 rounded-xl min-w-[300px] w-full max-w-[300px] h-[145px] relative translate-y-[27dvh] translate-x-4"
+		transition:fly={{ y: 100, duration: 300, opacity: 0 }} onclick={(e) => e.stopPropagation()} >
+		<!-- transition:fly={{ y: 100, duration: 300, opacity: 0 }}> -->
+			<!-- <section class="flex justify-between w-full">
+                <div class="space-x-2 flex">           
+                    <div class="h-[28px] text-[18px] font-outfit leading-none tracking-wide font-semibold flex justify-center items-center ml-1">Add Board</div>
+                </div>
+				<button onclick={() => showCreateModal=false} class="aspect-square rounded-full cursor-pointer hover:rotate-90 duration-500 ease-out">
+                    <Icon icon="mingcute:close-fill" class="text-2xl"/>
+                </button>
+			</section> -->
+			<form onsubmit={handleCreateBoard} class="flex flex-col gap-4 overflow-y-auto overflow-x-hidden pt-2">
+				<div>
+					<label for="board-name">Board Name</label>
+                    <input id="board-name" type="text" bind:value={newBoardName} required class="w-full border rounded p-2" maxlength="50"/>
+				</div>
+                
+                <section class="flex flex-row space-x-2 absolute bottom-4 left-4">
+                    <button type="submit" class="bg-sky-500 text-white hover:bg-sky-400 disabled:bg-sky-400 cursor-pointer h-[40px] w-[calc((300px-32px-4px)/2)] font-semibold rounded-md">
+                        Add Board
+                    </button>
+                    <button type="button" onclick={() => showCreateModal=false} class="bg-gray-200 text-gray-700 hover:bg-gray-300 disabled:bg-gray-300 cursor-pointer h-[40px] w-[calc((300px-32px-4px)/2)] font-semibold rounded-md">
+                        Close
+                    </button>
+                </section>
+			</form>
+        </div>
+    </section>
 {/if}
 
 
-<!-- EDIT -->
+<!-- 
+=========================
+    EDIT BOARD MODAL
+=========================
+-->
+{#if $showEditBoardModal && selectedBoard}
+    <section class="z-50 fixed w-full h-[100dvh] top-0 right-0 bg-zinc-900/30 flex justify-center items-center overflow-hidden cursor-default backdrop-blur-xs"
+	transition:fade={{duration: 150}}>
+	<!-- transition:fade={{duration: 150}} onclick={() => showCreateModal=false}> -->
+        <div class="bg-white p-4 rounded-xl min-w-[300px] w-full max-w-[400px] h-[500px] relative"
+		transition:fly={{ y: 100, duration: 300, opacity: 0 }}>
+		<!-- transition:fly={{ y: 100, duration: 300, opacity: 0 }} onclick={(e) => e.stopPropagation()} > -->
+            
+			<section class="flex justify-between w-full">
+                <div class="space-x-2 flex">           
+                    <div class="h-[28px] text-[18px] font-outfit leading-none tracking-wide font-semibold flex justify-center items-center ml-1">Board Settings</div>
+                </div>
+				<button onclick={() => $showEditBoardModal=false} class="aspect-square rounded-full cursor-pointer hover:rotate-90 duration-500 ease-out">
+                    <Icon icon="mingcute:close-fill" class="text-2xl"/>
+                </button>
+			</section>
+
+			<form onsubmit={handleUpdateBoard}>
+				<div class="mt-2">
+					<label for="board-name">Board Name</label>
+                    <input id="board-name" type="text" bind:value={editingBoardName} required class="w-full border rounded-md p-2" maxlength="50"/>
+				</div>
+                <div class="flex justify-between w-full mt-4 absolute bottom-4">
+                    <div class="flex flex-row space-x-2 left-4">
+                        <button class="bg-sky-500 text-white hover:bg-sky-400 disabled:bg-sky-400 cursor-pointer h-[40px] w-[calc((300px-32px-4px)/2)] font-semibold rounded-md">
+                            Update
+                        </button>
+                        <button type="button" onclick={() => $showEditBoardModal=false} class="bg-gray-200 text-gray-700 hover:bg-gray-300 disabled:bg-gray-300 cursor-pointer h-[40px] w-[calc((300px-32px-4px)/2)] font-semibold rounded-md">
+                            Cancel
+                        </button>
+                    </div>
+                    <button type="button" onclick={handleDeleteBoard} class="bg-rose-100 text-rose-700 hover:bg-rose-200 disabled:bg-rose-200 cursor-pointer h-[40px] aspect-square font-semibold rounded-md flex justify-center items-center -translate-x-8">
+                        <Icon icon="mingcute:delete-2-line" class="text-2xl"/>
+                    </button>
+                </div>
+			</form>
+
+			<h3 class="mt-4">Members</h3>
+
+			<form onsubmit={handleInviteMember} class="flex w-full justify-between space-x-2">
+				<input type="text" bind:value={newMemberUsername} placeholder="enter @username" maxlength="50" class="w-full border rounded-md p-2" />
+                <div class="rounded-md w-[200px] pr-2
+                {!newMemberRole ? 'bg-gray-200 text-gray-800 hover:bg-gray-300' : 
+                newMemberRole === 3 ? 'bg-red-100 text-red-700 hover:bg-red-200' : 
+                newMemberRole === 1 ? 'bg-green-200 text-green-800 hover:bg-emerald-300' : 
+                'bg-sky-200 text-sky-800 hover:bg-sky-300'}">
+                    <select bind:value={newMemberRole} class="w-full p-2 cursor-pointer font-semibold">
+                        <option class="bg-white text-black" value={1}>Viewer</option>
+                        <option class="bg-white text-black" value={2}>Editor</option>
+                        <option class="bg-white text-black" value={3}>Manager</option>
+                    </select>
+                </div>
+                <button type="submit" class="bg-sky-500 text-white hover:bg-sky-400 disabled:bg-sky-400 cursor-pointer h-[40px] aspect-square font-semibold rounded-md flex justify-center items-center">
+                    <Icon icon="mingcute:user-add-fill" class="text-xl"/>
+                </button>
+			</form>
+			
+			<table class="w-full">
+                <tbody class="w-full">
+				    {#each members as member}
+                        <tr class="w-full flex text-nowrap space-x-2 items-center pt-1 mt-1 border-t-1 border-slate-300">
+                            <td class="aspect-square h-10 w-10"><img src={member.avatar_url} alt="userporfile" class="h-10 rounded-full"></td>
+                            <td class="line-clamp-1 min-w-[160px] text-center">@{member.username}</td>
+                            <td class="text-center w-full flex justify-center items-center">
+                                <div class="rounded-full w-fit px-3 py-1 font-semibold text-xs
+                                {!member.role ? 'bg-gray-200 text-gray-800' : 
+                                member.role === 3 ? 'bg-red-100 text-red-700' : 
+                                member.role === 1 ? 'bg-green-200 text-green-800' : 
+                                'bg-sky-200 text-sky-800'}">
+                                    {member.role === 3 ? 'Manager' : member.role === 2 ? 'Editor' : 'Viewer'}
+                                </div>
+                            </td>
+                            <!-- <td class="">{member.user_uid.split('').slice(0, 18).join('')}...</td> -->
+                            <td>
+                                <button onclick={() => handleRemoveMember(member.user_uid)} class="bg-rose-100 text-rose-700 hover:bg-rose-200 disabled:bg-rose-200 cursor-pointer h-[40px] aspect-square font-semibold rounded-md flex justify-center items-center">
+                                    <Icon icon="mingcute:user-remove-line" class="text-xl"/>
+                                </button>
+                            </td>
+                        </tr>
+                    {/each}
+                </tbody>
+			</table>
+        </div>
+    </section>
+{/if}
+
+
+<!-- EDIT
 {#if $showEditBoardModal && selectedBoard}
     <div class="absolute w-1/2 h-1/2 top-0 right-0 bg-red-50 z-50">
         <div class="bg-red-400">
@@ -428,4 +537,4 @@
 			</div>
 		</div>
 	</div>
-{/if}
+{/if} -->

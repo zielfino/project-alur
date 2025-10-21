@@ -205,8 +205,7 @@
         <!-- <h1>Your Boards</h1> -->
 
         <!-- <button onclick={() => (showCreateModal = true)}>+ Create New Board</button> -->
-<!-- 
-        {#if showCreateModal}
+		<!-- {#if showCreateModal}
             <div class="absolute top-0 right-0">
 				<h2>Create a new board</h2>
 				<form onsubmit={handleCreateBoard}>

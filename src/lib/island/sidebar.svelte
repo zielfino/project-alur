@@ -410,11 +410,11 @@
 -->
 {#if $showEditBoardModal && selectedBoard}
     <section class="z-50 fixed w-full h-[100dvh] top-0 right-0 bg-zinc-900/30 flex justify-center items-center overflow-hidden cursor-default backdrop-blur-xs"
-	transition:fade={{duration: 150}}>
-	<!-- transition:fade={{duration: 150}} onclick={() => showCreateModal=false}> -->
+	transition:fade={{duration: 150}} onclick={() => $showEditBoardModal=false}>
+	<!-- transition:fade={{duration: 150}}> -->
         <div class="bg-white p-4 rounded-xl min-w-[300px] w-full max-w-[400px] h-[500px] relative"
-		transition:fly={{ y: 100, duration: 300, opacity: 0 }}>
-		<!-- transition:fly={{ y: 100, duration: 300, opacity: 0 }} onclick={(e) => e.stopPropagation()} > -->
+		transition:fly={{ y: 100, duration: 300, opacity: 0 }} onclick={(e) => e.stopPropagation()} >
+		<!-- transition:fly={{ y: 100, duration: 300, opacity: 0 }}> -->
             
 			<section class="flex justify-between w-full">
                 <div class="space-x-2 flex">           
@@ -447,21 +447,21 @@
 
 			<h3 class="mt-4">Members</h3>
 
-			<form onsubmit={handleInviteMember} class="flex w-full justify-between space-x-2">
-				<input type="text" bind:value={newMemberUsername} placeholder="enter @username" maxlength="50" class="w-full border rounded-md p-2" />
-                <div class="rounded-md w-[200px] pr-2
+			<form onsubmit={handleInviteMember} class="flex w-full justify-between">
+				<input type="text" bind:value={newMemberUsername} placeholder="enter @username" maxlength="50" class="w-full border rounded-md p-2 mr-2" />
+                <div class="rounded-s-md w-[200px] pr-2
                 {!newMemberRole ? 'bg-gray-200 text-gray-800 hover:bg-gray-300' : 
-                newMemberRole === 3 ? 'bg-red-100 text-red-700 hover:bg-red-200' : 
-                newMemberRole === 1 ? 'bg-green-200 text-green-800 hover:bg-emerald-300' : 
-                'bg-sky-200 text-sky-800 hover:bg-sky-300'}">
+                newMemberRole === 3 ? 'bg-rose-100 text-rose-700 hover:bg-rose-200' : 
+                newMemberRole === 1 ? 'bg-sky-200 text-sky-800 hover:bg-sky-300' : 
+                'bg-emerald-200 text-emerald-800 hover:bg-emerald-300'}">
                     <select bind:value={newMemberRole} class="w-full p-2 cursor-pointer font-semibold">
                         <option class="bg-white text-black" value={1}>Viewer</option>
                         <option class="bg-white text-black" value={2}>Editor</option>
                         <option class="bg-white text-black" value={3}>Manager</option>
                     </select>
                 </div>
-                <button type="submit" class="bg-sky-500 text-white hover:bg-sky-400 disabled:bg-sky-400 cursor-pointer h-[40px] aspect-square font-semibold rounded-md flex justify-center items-center">
-                    <Icon icon="mingcute:user-add-fill" class="text-xl"/>
+                <button type="submit" class="bg-sky-500 text-white hover:bg-sky-400 disabled:bg-sky-400 cursor-pointer h-[40px] aspect-square font-semibold rounded-e-md flex justify-center items-center">
+                    <Icon icon="mingcute:user-add-line" class="text-xl"/>
                 </button>
 			</form>
 			
@@ -474,8 +474,8 @@
                             <td class="text-center w-full flex justify-center items-center">
                                 <div class="rounded-full w-fit px-3 py-1 font-semibold text-xs
                                 {!member.role ? 'bg-gray-200 text-gray-800' : 
-                                member.role === 3 ? 'bg-red-100 text-red-700' : 
-                                member.role === 1 ? 'bg-green-200 text-green-800' : 
+                                member.role === 3 ? 'bg-rose-100 text-rose-700' : 
+                                member.role === 2 ? 'bg-emerald-200 text-emerald-800' : 
                                 'bg-sky-200 text-sky-800'}">
                                     {member.role === 3 ? 'Manager' : member.role === 2 ? 'Editor' : 'Viewer'}
                                 </div>

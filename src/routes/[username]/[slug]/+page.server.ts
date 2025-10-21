@@ -9,6 +9,7 @@ export const load: PageServerLoad = async ({ params, locals: { getSession } }) =
 	if (!session) throw redirect(303, '/');
 
 	const { username, slug } = params;
+	console.log('Loading board for slug:', slug);
 
 	try {
 		// Ambil board
@@ -24,19 +25,20 @@ export const load: PageServerLoad = async ({ params, locals: { getSession } }) =
 			WHERE u.username = ? AND b.slug = ?
 			`,
 			[username, slug]
-		)) as RowDataPacket[]; // <-- cast di sini
+		)) as RowDataPacket[];
 
 		const board = boardsResult[0];
 		if (!board) throw error(404, 'Board not found.');
 
-		// Izin akses
+		// Izin akses dasar
 		const isOwner = session.user.id === board.owner_uid;
 		let isMember = false;
+		let userRole = 0;
 
 		if (!isOwner) {
 			const memberRows = (await query(
 				`
-				SELECT user_uid 
+				SELECT user_uid, role
 				FROM board_members 
 				WHERE board_id = ? AND user_uid = ?
 				`,
@@ -44,8 +46,15 @@ export const load: PageServerLoad = async ({ params, locals: { getSession } }) =
 			)) as RowDataPacket[];
 
 			isMember = memberRows.length > 0;
+			if (isMember) {
+				userRole = memberRows[0].role ?? 0;
+			}
+		} else {
+			// Owner selalu dianggap role tertinggi (4)
+			userRole = 4;
 		}
 
+		// Cegah akses tanpa izin
 		if (!isOwner && !isMember) {
 			throw error(403, `Anda perlu izin dari @${board.owner_username} untuk melihat papan ini.`);
 		}
@@ -73,17 +82,19 @@ export const load: PageServerLoad = async ({ params, locals: { getSession } }) =
 			[board.id]
 		)) as RowDataPacket[];
 
-		// Gabungkan
+		// Gabungkan columns + cards
 		const columnsWithCards = columns.map((column) => ({
 			...column,
 			cards: cards.filter((card) => card.column_id === column.id)
 		}));
 
+		// Return data lengkap
 		return {
 			board: {
 				...board,
 				columns: columnsWithCards
-			}
+			},
+			userRole // ⬅️ cukup ini saja tambahan baru
 		};
 	} catch (err: any) {
 		if (err.status) throw err;

@@ -44,7 +44,8 @@
 	 * --------------------------------------------- */
 	const dispatch = createEventDispatcher();
 	let { data } = $props();
-	let board = $state(data.board);
+	// let board = $state(data.board);
+	let { board } = $state(data);
 
 	// State untuk Add Card
 	let newCardTitle = $state('');
@@ -246,12 +247,28 @@
 			year: "numeric",
 		});
 	}
+
+	let statusPerm: boolean = $state(true)
+
+	$effect(() => {
+		board = data.board;
+	});
 </script>
 
 
 <main class="flex"> 
+	{#if board.owner_username !== data.profile?.username && statusPerm}
+		<div class="absolute w-full flex justify-center" transition:fade={{duration: 300}}>
+			<div class="bg-gray-100 ring-1 ring-gray-300 rounded-lg text-sm mt-4 flex z-10 gap-4">
+				<div class="pl-4 py-3">Currenly on <b>@{board.owner_username}</b> boards. With role level <b>{data.userRole}</b>.</div>
+				<button onclick={statusPerm = false} class="p-3 aspect-square rounded-full cursor-pointer hover:rotate-90 duration-500 ease-out">
+					<Icon icon="mingcute:close-fill" class="text-lg"/>
+				</button>
+			</div>
+		</div>
+	{/if}
     <Sidebar data={data} />
-    <section class="p-4 w-full flex flex-col
+    <section class="px-4 w-full flex flex-col relative justify-center
     {$sidebar ? 'max-w-[calc(100%-256px-10px)]' : $isHovered ? 'max-w-[calc(100%-192px-10px)]' : 'max-w-[calc(100%-72px-10px)]'}">
         <div class="h-full max-h-[75px] flex flex-col justify-center pl-10 pt-8 pb-2 ">
             <h2 class="agerrh2">{board.name}</h2>
@@ -273,7 +290,7 @@
 =========================
 -->
 {#if $showAddCardModal}
-    <section class="fixed w-full h-[100dvh] top-0 right-0 bg-zinc-900/30 flex justify-center items-center overflow-hidden cursor-default backdrop-blur-xs"
+    <section class="z-50 fixed w-full h-[100dvh] top-0 right-0 bg-zinc-900/30 flex justify-center items-center overflow-hidden cursor-default backdrop-blur-xs"
 	transition:fade={{duration: 150}} onclick={() => $showAddCardModal=false}>
 	<!-- transition:fade={{duration: 150}}> -->
         <div class="bg-white p-4 rounded-xl min-w-[300px] w-full max-w-[500px] h-[500px] relative"
@@ -350,7 +367,7 @@
 =========================
 -->
 {#if $showEditCardModal && $selectedCard?.id}
-    <section class="fixed w-full h-[100dvh] top-0 right-0 bg-zinc-900/30 flex justify-end items-center overflow-hidden cursor-default backdrop-blur-xs"
+    <section class="z-50 fixed w-full h-[100dvh] top-0 right-0 bg-zinc-900/30 flex justify-end items-center overflow-hidden cursor-default backdrop-blur-xs"
 	transition:fade={{duration: 150}} onclick={() => $showEditCardModal=false}>
         <div class="bg-white p-4 rounded-s-xl min-w-[300px] w-full max-w-[500px] h-[95%] relative"
 		transition:fly={{ x: 300, duration: 300, opacity: 0 }} onclick={(e) => e.stopPropagation()} >

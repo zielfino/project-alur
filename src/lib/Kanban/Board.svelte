@@ -108,23 +108,23 @@
 					type="text"
 					bind:value={newColumnName}
 					placeholder="Enter column name..."
-					class="w-full p-2 rounded-sm border"
+					class="w-full p-2 rounded-md border"
 				/>
-				<select bind:value={newColumnState} class="w-full p-2 mt-2 rounded-sm border">
+				<select bind:value={newColumnState} class="w-full p-2 mt-2 rounded-md border">
 					<option value={1}>Not Started</option>
 					<option value={2}>In Progress</option>
 					<option value={3}>Finished</option>
 				</select>
 				<div class="mt-2 space-x-1 font-semibold tracking-wide">
-					<button type="submit" class="bg-sky-500 text-white hover:bg-sky-400 disabled:bg-sky-400 px-5 py-2 rounded-sm cursor-pointer">Add</button>
-					<button type="button" onclick={() => ($showAddColumnInput = false)} class="bg-gray-200 text-gray-800 hover:bg-gray-300 disabled:bg-gray-300 px-5 py-2 rounded-sm cursor-pointer">Cancel</button>
+					<button type="submit" class="bg-sky-500 text-white hover:bg-sky-400 disabled:bg-sky-400 px-5 py-2 rounded-md cursor-pointer">Add</button>
+					<button type="button" onclick={() => ($showAddColumnInput = false)} class="bg-gray-200 text-gray-800 hover:bg-gray-300 disabled:bg-gray-300 px-5 py-2 rounded-md cursor-pointer">Cancel</button>
 				</div>
 				{#if apiError}
 					<p class="text-red-500 text-sm mt-2">{apiError}</p>
 				{/if}
 			</form>
 		{:else}
-			<button class="text-left text-gray-900 hover:bg-gray-200 p-2 cursor-pointer bg-gray-100 rounded-sm w-full" onclick={() => $showAddColumnInput = true}>
+			<button class="text-left text-gray-900 hover:bg-gray-200 p-2 cursor-pointer bg-gray-100 rounded-md w-full" onclick={() => $showAddColumnInput = true}>
 				+ Add another column
 			</button>
 		{/if}

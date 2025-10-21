@@ -1,187 +1,189 @@
 import { json, error } from '@sveltejs/kit';
-import { getDbConnection } from '$lib/server/database'; // <-- Impor helper yang baru
+import { getDbConnection } from '$lib/server/database';
+import { userPermission } from '$lib/server/permissions';
 import type { RequestHandler } from './$types';
 import type { ResultSetHeader, RowDataPacket } from 'mysql2';
-import { query } from '$lib/server/database';
 
+/** -------------------------------
+ *  🃏 CREATE COLUMN
+ *  Level 3 required
+ * ------------------------------- */
 export const POST: RequestHandler = async ({ request, locals: { getSession } }) => {
 	const session = await getSession();
-	if (!session) {
-		throw error(401, 'Unauthorized');
-	}
+	if (!session) throw error(401, 'Unauthorized');
 
 	const { name, board_id, state } = await request.json();
 	if (!name || !board_id || !state || ![1, 2, 3].includes(state)) {
 		throw error(400, 'Invalid input provided.');
 	}
 
-	// Dapatkan koneksi mentah dari pool untuk transaksi
 	const connection = await getDbConnection();
 
 	try {
-        // --- PEMERIKSAAN IZIN BARU ---
-		const permissionRows = (await query(
-			`SELECT b.owner_uid, bm.role FROM boards b
-			 LEFT JOIN board_members bm ON b.id = bm.board_id AND bm.user_uid = ?
-			 WHERE b.id = ?`,
-			[session.user.id, board_id]
-		)) as RowDataPacket[];
-
-		const permissions = permissionRows[0];
-		if (!permissions) throw error(404, 'Board not found.');
-
-		const isOwner = permissions.owner_uid === session.user.id;
-		const userRole = permissions.role;
-
-		// Periksa izin: harus pemilik ATAU role 3
-		if (!isOwner && (!userRole || userRole < 3)) {
-			throw error(403, 'You do not have permission to add columns to this board.');
-		}
-        // --- AKHIR PEMERIKSAAN IZIN ---
-		
-		// Batas maksimal 8 kolom
-		const [countRows] = (await connection.execute(
-			'SELECT COUNT(id) as column_count FROM columns WHERE board_id = ?',
-			[board_id]
-		)) as RowDataPacket[];
-		if (countRows[0].column_count >= 8) {
-			throw error(403, 'Maximum of 8 columns reached for this board.');
-		}
-
-		// --- LOGIKA BARU DIMULAI DI SINI ---
-
-		// Mulai transaksi
 		await connection.beginTransaction();
 
-		// 1. Cari posisi sisipan yang benar
+		const userLevel = await userPermission(session.user.id, board_id, 3);
+		if (!userLevel) {
+			await connection.rollback();
+			return json({ success: false, message: 'You do not have permission to manage columns.' }, { status: 403 });
+		}
+
+		const [countRows] = (await connection.execute(
+			'SELECT COUNT(id) AS column_count FROM columns WHERE board_id = ?',
+			[board_id]
+		)) as RowDataPacket[];
+		if ((countRows as any)[0].column_count >= 8) {
+			await connection.rollback();
+			return json({ success: false, message: 'Maximum of 8 columns reached.' }, { status: 403 });
+		}
+
 		const [posRows] = (await connection.execute(
-			'SELECT MAX(position) as max_pos FROM columns WHERE board_id = ? AND state <= ?',
+			'SELECT MAX(position) AS max_pos FROM columns WHERE board_id = ? AND state <= ?',
 			[board_id, state]
 		)) as RowDataPacket[];
-		
 		const lastPos = (posRows as any)[0].max_pos;
 		const newPosition = lastPos === null ? 0 : lastPos + 1;
 
-		// 2. Geser kolom lain yang ada untuk membuat ruang
 		await connection.execute(
 			'UPDATE columns SET position = position + 1 WHERE board_id = ? AND position >= ?',
 			[board_id, newPosition]
 		);
 
-		// 3. Masukkan kolom baru di posisi yang benar
-        const [result] = await connection.execute<ResultSetHeader>(
-            'INSERT INTO columns (board_id, name, state, position) VALUES (?, ?, ?, ?)',
-            [board_id, name, state, newPosition]
-        );
+		const [result] = await connection.execute<ResultSetHeader>(
+			'INSERT INTO columns (board_id, name, state, position) VALUES (?, ?, ?, ?)',
+			[board_id, name, state, newPosition]
+		);
 
-		// Jika semua perintah SQL berhasil, simpan perubahannya
 		await connection.commit();
 
-		// --- AKHIR LOGIKA BARU ---
-
-		const newColumn = {
-			id: result.insertId,
-			board_id,
-			name,
-			state,
-			position: newPosition,
-			cards: []
-		};
-
-		return json(newColumn, { status: 201 });
-
-	} catch (err: any) {
-		// Jika ada satu saja error, batalkan semua perubahan
+		return json(
+			{
+				success: true,
+				column: {
+					id: result.insertId,
+					board_id,
+					name,
+					state,
+					position: newPosition,
+					cards: []
+				}
+			},
+			{ status: 201 }
+		);
+	} catch (err) {
 		await connection.rollback();
-
-		if (err.status) throw err;
 		console.error('Failed to create column:', err);
-		throw error(500, 'Failed to create column');
-
+		throw error(500, 'Failed to create column.');
 	} finally {
-		// Selalu lepaskan koneksi kembali ke pool
-		if (connection) connection.release();
+		connection.release();
 	}
 };
 
 
-// --- FUNGSI BARU UNTUK UPDATE/EDIT NAMA KOLOM ---
+/** -------------------------------
+ *  ✏️ UPDATE COLUMN
+ *  Level 3 required
+ * ------------------------------- */
 export const PUT: RequestHandler = async ({ request, locals: { getSession } }) => {
 	const session = await getSession();
 	if (!session) throw error(401, 'Unauthorized');
 
 	const { name, column_id } = await request.json();
-	if (!name || !column_id) {
-		throw error(400, 'New name and column ID are required.');
-	}
+	if (!name || !column_id) throw error(400, 'Name and column ID required.');
+
+	const connection = await getDbConnection();
 
 	try {
-        // --- PEMERIKSAAN IZIN BARU ---
-		const permissionRows = (await query(
-			`SELECT b.owner_uid, bm.role FROM columns c
-			 JOIN boards b ON c.board_id = b.id
-			 LEFT JOIN board_members bm ON b.id = bm.board_id AND bm.user_uid = ?
-			 WHERE c.id = ?`,
-			[session.user.id, column_id]
+		await connection.beginTransaction();
+
+		// Get board id from column
+		const [rows] = (await connection.execute(
+			'SELECT board_id FROM columns WHERE id = ?',
+			[column_id]
 		)) as RowDataPacket[];
-
-		const permissions = permissionRows[0];
-		if (!permissions) throw error(404, 'Column not found.');
-
-		const isOwner = permissions.owner_uid === session.user.id;
-		const userRole = permissions.role;
-
-		if (!isOwner && (!userRole || userRole < 3)) {
-			throw error(403, 'You do not have permission to edit this column.');
+		if (!Array.isArray(rows) || rows.length === 0) {
+			await connection.rollback();
+			return json({ success: false, message: 'Column not found.' }, { status: 404 });
 		}
-        // --- AKHIR PEMERIKSAAN IZIN ---
 
-		await query('UPDATE columns SET name = ? WHERE id = ?', [name, column_id]);
+		const boardId = (rows as any)[0].board_id;
+		const userLevel = await userPermission(session.user.id, boardId, 3);
+		if (!userLevel) {
+			await connection.rollback();
+			return json({ success: false, message: 'You do not have permission to manage columns.' }, { status: 403 });
+		}
+
+		await connection.execute('UPDATE columns SET name = ? WHERE id = ?', [name, column_id]);
+		await connection.commit();
+
 		return json({ success: true });
 	} catch (err) {
+		await connection.rollback();
+		console.error('Failed to update column:', err);
 		throw error(500, 'Failed to update column name.');
+	} finally {
+		connection.release();
 	}
 };
 
-// --- FUNGSI BARU UNTUK MENGHAPUS KOLOM ---
+/** -------------------------------
+ *  🗑️ DELETE COLUMN
+ *  Owner required
+ * ------------------------------- */
 export const DELETE: RequestHandler = async ({ request, locals: { getSession } }) => {
 	const session = await getSession();
 	if (!session) throw error(401, 'Unauthorized');
 
 	const { column_id } = await request.json();
-	if (!column_id) {
-		throw error(400, 'Column ID is required.');
-	}
+	if (!column_id) throw error(400, 'Column ID is required.');
+
+	const connection = await getDbConnection();
 
 	try {
-        // --- PEMERIKSAAN IZIN BARU ---
-		const permissionRows = (await query(
-			`SELECT b.owner_uid, bm.role FROM columns c
-			 JOIN boards b ON c.board_id = b.id
-			 LEFT JOIN board_members bm ON b.id = bm.board_id AND bm.user_uid = ?
-			 WHERE c.id = ?`,
-			[session.user.id, column_id]
+		await connection.beginTransaction();
+
+		// 🔍 Cek board_id berdasarkan column_id
+		const [rows] = (await connection.execute(
+			'SELECT board_id FROM columns WHERE id = ?',
+			[column_id]
 		)) as RowDataPacket[];
-
-		const permissions = permissionRows[0];
-		if (!permissions) throw error(404, 'Column not found.');
-
-		console.log('test:', permissions)
-		const isOwner = permissions.owner_uid === session.user.id;
-		const userRole = permissions.role;
-
-		console.log('test:', isOwner)
-
-		if (!isOwner && (!userRole || userRole < 3)) {
-			throw error(403, 'You do not have permission to edit this column.');
+		if (!Array.isArray(rows) || rows.length === 0) {
+			await connection.rollback();
+			return json({ success: false, message: 'Column not found.' }, { status: 404 });
 		}
-        // --- AKHIR PEMERIKSAAN IZIN ---
 
-		// Karena Anda sudah mengatur ON DELETE CASCADE,
-		// menghapus kolom akan otomatis menghapus semua kartu di dalamnya.
-		await query('DELETE FROM columns WHERE id = ?', [column_id]);
+		const boardId = (rows as any)[0].board_id;
+
+		// 🔐 Cek apakah user adalah owner
+		const [ownerCheck] = (await connection.execute(
+			'SELECT owner_uid FROM boards WHERE id = ?',
+			[boardId]
+		)) as RowDataPacket[];
+		if (!Array.isArray(ownerCheck) || ownerCheck.length === 0) {
+			await connection.rollback();
+			return json({ success: false, message: 'Board not found.' }, { status: 404 });
+		}
+
+		const isOwner = ownerCheck[0].owner_uid === session.user.id;
+		if (!isOwner) {
+			await connection.rollback();
+			return json(
+				{ success: false, message: 'Only the board owner can delete this column.' },
+				{ status: 403 }
+			);
+		}
+
+		// 🧱 Hapus kolom
+		await connection.execute('DELETE FROM columns WHERE id = ?', [column_id]);
+		await connection.commit();
+
 		return json({ success: true });
 	} catch (err) {
+		await connection.rollback();
+		console.error('Failed to delete column:', err);
 		throw error(500, 'Failed to delete column.');
+	} finally {
+		connection.release();
 	}
 };
+

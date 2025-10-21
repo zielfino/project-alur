@@ -1,123 +1,232 @@
 <script lang="ts">
-	import Icon from '@iconify/svelte';
-	import { dndzone } from 'svelte-dnd-action';
-	import { flip } from 'svelte/animate';
-	// Definisikan tipe data Anda di satu tempat agar bersih
-	type Card = { id: number; title: string; description: string; deadline: string; priority: number; column_id: number };
-	type Column = { id: number; name: string; state: number; position: number; cards: Card[] };
-	type Board = { id: number; name: string; columns: Column[] };
+    import Board from "$lib/Kanban/Board.svelte";
+	import { createEventDispatcher } from "svelte";
 
-	let { data } = $props();
+	const dispatch = createEventDispatcher();
+	type Column = { id: number; name: string; cards: any[]; };
 
-	// 1. Buat state lokal yang reaktif dari data server
-	let board = $state<Board | null>(data.board);
+    let { data } = $props();
+    let board = $state(data.board);
 
-	// 2. Gunakan $effect untuk menjaga state lokal tetap sinkron jika data dari server berubah
-	$effect(() => {
-		board = data.board;
-	});
+    async function handleBoardUpdated(newColumnsData: Column[], info: any) {
+        board.columns = newColumnsData;
+        console.log('Info object received:', info ?? '(no info)');
+        
+        if (info && info.type === 'column') {
+            const columnIds = newColumnsData.map(c => c.id);
+            console.log("ACTION: Update column order ->", columnIds);
+            // const columnIds = newColumnsData.map((c) => c.id);
+            // console.log("ACTION: Update column order ->", columnIds);
 
-	// --- State untuk UI ---
-	let apiError = $state<string | null>(null);
+            try {
+                await fetch("/api/boards/columns/move", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ items: columnIds }),
+                });
+            } catch (err) {
+                console.error('Failed to update column order', err);
+                // Optionally reload or rollback UI
+            }
+        } else if (info?.type === 'card') {
+            const { cardId, oldColumnId, newColumnId } = info;
+            
+            // Find columns from the passed snapshot (newColumnsData)
+            const newColumn = newColumnsData.find((col) => col.id === newColumnId);
+            const oldColumn = newColumnsData.find((col) => col.id === oldColumnId);
 
-	// --- State untuk Kolom ---
-	let showAddColumnInput = $state(false);
-	let newColumnName = $state('');
-	let newColumnState = $state(1);
-	let editingColumnId = $state<number | null>(null);
-	let editingColumnName = $state('');
+            if (!newColumn || !oldColumn) {
+                console.warn("Missing column data for move", { oldColumnId, newColumnId });
+                return;
+            }
 
-	// --- State untuk Kartu ---
-	let showAddCardModal = $state(false);
-	let showEditCardModal = $state(false);
-	let activeColumnId = $state<number | null>(null);
-	let selectedCard = $state<Card | null>(null);
-	// State untuk form kartu baru
+            console.log("ACTION: Update card order:", { cardId, newColumnId, oldColumnId });
+
+            try {
+                console.log('NEW OLD NEWS:', newColumn.cards.map((c) => c.id), oldColumn.cards.map((c) => c.id), newColumnId);
+                const res = await fetch("/api/boards/cards/move", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({
+                        card_id: cardId,
+                        new_column_id: newColumnId,
+                        items_in_new_column: newColumn.cards.map((c) => c.id),
+                        items_in_old_column: oldColumn.cards.map((c) => c.id),
+                    }),
+                });
+
+                if (!res.ok) {
+                    throw new Error('Server returned ' + res.status);
+                }
+
+                // success: DB updated
+                console.log('Server move succeeded for card', cardId);
+            } catch (err) {
+                console.error('Failed to move card on server:', err);
+                // Optional: refetch board from server to reconcile desync
+                // const fresh = await (await fetch('/path/to/load')).json(); board.columns = fresh.columns;
+            }
+        }
+    }
+
+
+    
+import { isLoading } from "$lib/stores/loading";
+
+type Card = {
+	id: number;
+	title: string;
+	description: string;
+	deadline: string;
+	priority: number;
+	column_id: number;
+};
+
+// async function handleUpdateCard(updatedCard: Card) {
+// 	if (!board) return;
+    
+// 	isLoading.start("CardEdit", updatedCard.id);
+
+// 	try {
+// 		const response = await fetch("/api/boards/cards", {
+// 			method: "PUT",
+// 			body: JSON.stringify(updatedCard),
+// 		});
+
+// 		if (response.ok) {
+// 			board.columns = board.columns.map((col) => ({
+// 				...col,
+// 				cards: col.cards.map((c) => (c.id === updatedCard.id ? updatedCard : c)),
+// 			}));
+// 		} else {
+// 			alert("Failed to update card");
+// 		}
+// 	} catch (err) {
+// 		console.error(err);
+// 		alert("Failed to update card");
+// 	} finally {
+// 	    isLoading.stop("CardEdit", updatedCard.id);
+// 	}
+// }
+async function handleUpdateCard() {
+	if (!$selectedCard) return;
+    
+	if (!$selectedCard.title || $selectedCard.title.trim() === "") {
+		$selectedCard.title = "Judul";
+	}
+
+	isLoading.start("CardEdit", $selectedCard.id);
+
+	try {
+		const response = await fetch("/api/boards/cards", {
+			method: "PUT",
+			body: JSON.stringify($selectedCard),
+		});
+
+		if (response.ok) {
+			board.columns = board.columns.map((col) => ({
+				...col,
+				cards: col.cards.map((c) => (c.id === $selectedCard.id ? $selectedCard : c)),
+			}));
+		} else {
+			alert("Failed to update card");
+		}
+	} catch (err) {
+		console.error(err);
+		alert("Failed to update card");
+	} finally {
+		isLoading.stop("CardEdit", $selectedCard.id);
+        $showEditCardModal = false
+	}
+}
+
+async function handleDeleteCard(cardId: number) {
+	if (!board) return;
+	if (!confirm("Are you sure you want to delete this card?")) return;
+
+	isLoading.start("CardRemove", cardId);
+
+	try {
+		const response = await fetch("/api/boards/cards", {
+			method: "DELETE",
+			body: JSON.stringify({ id: cardId }),
+		});
+
+		if (response.ok) {
+			board.columns = board.columns.map((col) => ({
+				...col,
+				cards: col.cards.filter((c) => c.id !== cardId),
+			}));
+		} else {
+			alert("Failed to delete card");
+		}
+	} catch (err) {
+		console.error(err);
+		alert("Failed to delete card");
+	} finally {
+		isLoading.stop("CardRemove", cardId); 
+        $showEditCardModal = false
+	}
+}
+
+
+	import { fade, fly } from "svelte/transition";
+	import { showEditCardModal, selectedCard, isEdit, selectedCardWithFormat  } from '$lib/stores/uiStore';
+	import Icon from "@iconify/svelte";
+	// let isEdit = $state(false);
+    import { autosize } from '$lib/actions/autosize';
+
+
+    function handleTextareaKeydown(event: KeyboardEvent) {
+		// 1. Cek apakah tombol yang ditekan adalah 'Enter' DAN 'Shift' tidak ditekan
+		if (event.key === 'Enter' && !event.shiftKey) {
+			// 2. Mencegah aksi default (membuat baris baru)
+			event.preventDefault();
+			
+			// 3. Jalankan fungsi submit Anda secara manual
+			handleUpdateCard();
+		}
+		// Jika Shift + Enter ditekan, biarkan ia membuat baris baru seperti biasa.
+	}
+
+
+
+    export function formatForInputDate(date: string | Date): string {
+        if (!date) return "";
+        const d = new Date(date);
+        const iso = d.toISOString();
+        return iso.split("T")[0]; // hasil: "2025-10-14"
+    }
+
+    export function formatForDisplay(date: string | Date): string {
+        if (!date) return "";
+        return new Date(date).toLocaleDateString("id-ID", {
+            weekday: "long",
+            day: "2-digit",
+            month: "short",
+            year: "numeric",
+        });
+    }
+
+
+	import { showAddCardModal, activeColumnId } from '$lib/stores/uiStore';
+	import Sidebar from "$lib/island/sidebar.svelte";
+
+	// let activeColumnId = $state<number | null>(null);
 	let newCardTitle = $state('');
 	let newCardDescription = $state('');
 	let newCardDeadline = $state('');
-	let newCardPriority = $state(3);
-	
-	// --- FUNGSI-FUNGSI ---
+	let newCardPriority = $state(null);
+	let deadlineAddCard = $state<string | null>(null);
 
-	// Fungsi untuk Kolom
-	async function handleAddColumn() {
-		if (!board || !newColumnName) return;
-		apiError = null;
-		const response = await fetch('/api/boards/columns', {
-			method: 'POST',
-			body: JSON.stringify({ name: newColumnName, board_id: board.id, state: newColumnState })
-		});
-		if (response.ok) {
-			const newColumn = await response.json();
-			const updatedColumns = [...board.columns, newColumn];
-			updatedColumns.sort((a, b) => a.state - b.state || a.position - b.position);
-			board.columns = updatedColumns;
-			newColumnName = '';
-			showAddColumnInput = false;
-		} else {
-			const result = await response.json();
-			apiError = result.error || 'Failed to add column.';
-		}
-	}
-
-	function startEditingColumn(column: Column) {
-		editingColumnId = column.id;
-		editingColumnName = column.name;
-	}
-
-	function cancelEditingColumn() {
-		editingColumnId = null;
-		editingColumnName = '';
-	}
-
-	async function handleUpdateColumnName() {
-		if (!editingColumnId || !editingColumnName || !board) return;
-		const response = await fetch('/api/boards/columns', {
-			method: 'PUT',
-			body: JSON.stringify({ name: editingColumnName, column_id: editingColumnId })
-		});
-		if (response.ok) {
-			board.columns = board.columns.map((column) =>
-				column.id === editingColumnId ? { ...column, name: editingColumnName } : column
-			);
-			cancelEditingColumn();
-		} else {
-			alert('Failed to update column name.');
-		}
-	}
-
-	async function handleDeleteColumn(columnId: number) {
-		if (!board || !confirm('Are you sure?')) return;
-		const response = await fetch('/api/boards/columns', {
-			method: 'DELETE',
-			body: JSON.stringify({ column_id: columnId })
-		});
-		if (response.ok) {
-			board.columns = board.columns.filter((c) => c.id !== columnId);
-		} else {
-			alert('Failed to delete column.');
-		}
-	}
-
-	// Fungsi untuk Kartu
-	function openAddCardModal(columnId: number) {
-		activeColumnId = columnId;
-		showAddCardModal = true;
-	}
-
-	function openEditCardModal(card: Card) {
-		selectedCard = { ...card };
-		showEditCardModal = true;
-	}
-	
-	async function handleAddCard() {
-		if (!newCardTitle || !activeColumnId || !board) return;
+    async function handleAddCard() {
+        console.log('added')
+		if (!newCardTitle || !$activeColumnId || !board) return;
 		const response = await fetch('/api/boards/cards', {
 			method: 'POST',
 			body: JSON.stringify({
 				title: newCardTitle,
-				column_id: activeColumnId,
+				column_id: $activeColumnId,
 				description: newCardDescription,
 				deadline: newCardDeadline || null,
 				priority: newCardPriority
@@ -125,7 +234,7 @@
 		});
 		if (response.ok) {
 			const newCard = await response.json();
-			const columnIndex = board.columns.findIndex((c) => c.id === activeColumnId);
+			const columnIndex = board.columns.findIndex((c) => c.id === $activeColumnId);
 			if (columnIndex !== -1) {
 				// Ini adalah update yang reaktif
 				board.columns[columnIndex].cards = [...board.columns[columnIndex].cards, newCard];
@@ -133,227 +242,242 @@
 			newCardTitle = '';
 			newCardDescription = '';
 			newCardDeadline = '';
-			newCardPriority = 3;
-			showAddCardModal = false;
+			newCardPriority = null;
+			$showAddCardModal = false;
 		} else {
 			alert('Failed to add card.');
 		}
 	}
 
-	// async function handleUpdateCard() {
-	// 	if (!selectedCard || !board) return;
-	// 	const response = await fetch('/api/boards/cards', { method: 'PUT', body: JSON.stringify(selectedCard) });
-	// 	if (response.ok) {
-	// 		board.columns = board.columns.map((col) => ({
-	// 			...col,
-	// 			cards: col.cards.map((c) => (c.id === selectedCard!.id ? selectedCard! : c))
-	// 		}));
-	// 		showEditCardModal = false;
-	// 	} else {
-	// 		alert('Failed to update card.');
-	// 	}
-	// }
-
-	// async function handleDeleteCard() {
-	// 	if (!selectedCard || !board) return;
-	// 	if (!confirm('Are you sure you want to delete this card?')) return;
-	// 	const response = await fetch('/api/boards/cards', {
-	// 		method: 'DELETE',
-	// 		body: JSON.stringify({ id: selectedCard.id })
-	// 	});
-	// 	if (response.ok) {
-	// 		board.columns = board.columns.map((col) => ({
-	// 			...col,
-	// 			cards: col.cards.filter((c) => c.id !== selectedCard!.id)
-	// 		}));
-	// 		showEditCardModal = false;
-	// 	} else {
-	// 		alert('Failed to delete card.');
-	// 	}
-	// }
+   	import { sidebar, sidebarIsHovered as isHovered } from '$lib/stores/uiStore';
 </script>
 
-<div class="p-4 md:p-8 h-screen flex flex-col bg-slate-50">
-	<!-- Gunakan 'board' (state lokal) di sini, bukan 'data.board' -->
-	{#if board}
-		<header class="mb-4">
-			<h1 class="text-3xl font-bold text-slate-800">{board.name}</h1>
-		</header>
+<main class="flex"> 
+    <Sidebar data={data} />
+    <section class="p-4 w-full flex flex-col
+    {$sidebar ? 'max-w-[calc(100%-256px-10px)]' : $isHovered ? 'max-w-[calc(100%-192px-10px)]' : 'max-w-[calc(100%-72px-10px)]'}">
+        <div class="h-full max-h-[75px] flex flex-col justify-center pl-10 pt-8 pb-2 ">
+            <h2 class="agerrh2">{board.name}</h2>
+        </div>
+        <div class="pb-6">
+            <Board
+            board={board} 
+            onFinalUpdate={handleBoardUpdated}
+            />
+        </div>
+    </section>
+</main>
 
-		<main class="flex-1 flex gap-4 overflow-x-auto pb-4">
-			<!-- Arahkan #each ke state lokal -->
-			{#each board.columns as column (column.id)}
-				<div
-					class="rounded-lg w-72 flex-shrink-0 flex flex-col {column.state === 1
-						? 'bg-gray-200'
-						: column.state === 2
-						? 'bg-sky-200'
-						: 'bg-emerald-200'}"
-				>
-					<div class="flex justify-between items-center p-3">
-						<!-- Kode Anda untuk edit inline sudah benar -->
-						{#if editingColumnId === column.id}
-							<form onsubmit={handleUpdateColumnName} class="w-full">
-								<input
-									type="text"
-									bind:value={editingColumnName}
-									class="font-semibold text-slate-700 p-1 rounded w-full"
-									onblur={cancelEditingColumn}
-									autofocus
-								/>
-							</form>
-						{:else}
-							<button class="w-full text-left" onclick={() => startEditingColumn(column)}>
-								<h2 class="font-semibold text-slate-700">{column.name}</h2>
-							</button>
-						{/if}
-						<button
-							onclick={() => handleDeleteColumn(column.id)}
-							class="text-slate-500 hover:text-red-500 ml-2"
-						>
-							&times;
-						</button>
-					</div>
 
-					<div class="flex-1 overflow-y-auto p-2 space-y-2">
-                        {#each column.cards as card (card.id)}
-							<button onclick={() => openEditCardModal(card)} class="w-full bg-white rounded-md shadow p-3 text-left hover:bg-slate-50 text-sm">
-								<p class="font-medium text-slate-800">{card.title}</p>
-								
-                                {#if card.description}
-									<p class="mt-1 text-slate-600">{card.description}</p>
-								{/if}
 
-								<div class="mt-2 flex justify-between items-center text-slate-500">
-									{#if card.deadline}
-										<span class="flex items-center gap-1">
-											<Icon icon="solar:calendar-outline" class="w-4 h-4" />
-											{new Date(card.deadline).toLocaleDateString('id-ID')}
-										</span>
-									{/if}
-									{#if card.priority}
-										<span class="px-2 py-0.5 rounded-full text-xs font-semibold
-											{card.priority > 3 ? 'bg-red-100 text-red-700' : card.priority < 3 ? 'bg-green-100 text-green-700' : 'bg-yellow-100 text-yellow-700'}">
-											Priority: {card.priority}
-										</span>
-									{/if}
-								</div>
-							</button>
-						{/each}
-					</div>
-
-					<button
-						class="text-slate-500 hover:bg-slate-300 p-2 m-2 rounded-md"
-						onclick={() => openAddCardModal(column.id)}
-					>
-						+ Add a card
-					</button>
-				</div>
-			{/each}
-
-            <div class="bg-slate-100 rounded-lg w-72 flex-shrink-0 p-2 self-start">
-				{#if showAddColumnInput}
-					<form onsubmit={handleAddColumn}>
-						<input
-							type="text"
-							bind:value={newColumnName}
-							placeholder="Enter column name..."
-							class="w-full p-2 rounded-md border"
-						/>
-						<select bind:value={newColumnState} class="w-full p-2 mt-2 rounded-md border">
-							<option value={1}>Not Started</option>
-							<option value={2}>In Progress</option>
-							<option value={3}>Finished</option>
-						</select>
-						<div class="mt-2 space-x-2">
-							<button type="submit" class="bg-blue-500 text-white px-3 py-1 rounded-md">Add Column</button>
-							<button type="button" onclick={() => (showAddColumnInput = false)}>Cancel</button>
-						</div>
-						{#if apiError}
-							<p class="text-red-500 text-sm mt-2">{apiError}</p>
-						{/if}
-					</form>
-				{:else}
-					<button class="w-full text-left text-slate-600 p-2 hover:bg-slate-200 rounded" onclick={() => showAddColumnInput = true}>
-						+ Add another column
-					</button>
-				{/if}
-			</div>
-		</main>
-	{:else}
-		<p>Board not found.</p>
-	{/if}
-</div>
-
-{#if showAddCardModal}
-    <div class="absolute w-1/2 h-1/2 top-0 left-0 bg-red-50">
-        <div class="bg-red-400">
-            <h2>Add a new card</h2>
-			<form onsubmit={handleAddCard} class="flex flex-col gap-4">
+<!-- 
+=========================
+    ADD CARD MODAL
+=========================
+-->
+{#if $showAddCardModal}
+    <section class="fixed w-full h-[100dvh] top-0 right-0 bg-zinc-900/30 flex justify-center items-center overflow-hidden cursor-default backdrop-blur-xs"
+	transition:fade={{duration: 150}} onclick={() => $showAddCardModal=false}>
+	<!-- transition:fade={{duration: 150}}> -->
+        <div class="bg-white p-4 rounded-xl min-w-[300px] w-full max-w-[500px] h-[500px] relative"
+		transition:fly={{ y: 100, duration: 300, opacity: 0 }} onclick={(e) => e.stopPropagation()} >
+		<!-- transition:fly={{ y: 100, duration: 300, opacity: 0 }}> -->
+			<section class="flex justify-between w-full">
+                <div class="space-x-2 flex">           
+                    <div class="h-[28px] text-[18px] font-outfit leading-none tracking-wide font-semibold flex justify-center items-center ml-1">Add Card</div>
+                </div>
+				<button onclick={() => $showAddCardModal=false} class="aspect-square rounded-full cursor-pointer hover:rotate-90 duration-500 ease-out">
+                    <Icon icon="mingcute:close-fill" class="text-2xl"/>
+                </button>
+			</section>
+			<form onsubmit={handleAddCard} class="flex flex-col gap-4 overflow-y-auto overflow-x-hidden pt-2">
 				<div>
 					<label for="card-title">Card Title</label>
 					<input id="card-title" type="text" bind:value={newCardTitle} required class="w-full border rounded p-2" />
 				</div>
 				<div>
 					<label for="card-desc">Description</label>
-					<textarea id="card-desc" bind:value={newCardDescription} class="w-full border rounded p-2" />
+					<textarea id="card-desc" bind:value={newCardDescription} rows="10" class="w-full border rounded p-2 resize-none"></textarea>
 				</div>
-				<div>
-					<label for="card-deadline">Deadline</label>
-					<input id="card-deadline" type="date" bind:value={newCardDeadline} class="w-full border rounded p-2" />
-				</div>
-				<div>
-					<label for="card-priority">Priority (1=Low, 5=High)</label>
-					<select id="card-priority" bind:value={newCardPriority} class="w-full border rounded p-2">
-						<option value={1}>1</option>
-						<option value={2}>2</option>
-						<option value={3}>3 (Medium)</option>
-						<option value={4}>4</option>
-						<option value={5}>5</option>
-					</select>
-				</div>
-				<button type="submit" class="bg-blue-500 text-white rounded p-2">Add Card</button>
+
+                
+                <div class="grid grid-cols-2 gap-2 absolute bottom-16 w-[calc(100%-32px)]">
+                    <div>
+                        <div class="flex justify-between"><div>Deadline</div></div>
+                        <div class="flex justify-center items-center">
+                            <input type="date" 
+                            bind:value={deadlineAddCard}
+                            class="w-full rounded-s-md p-2 font-semibold {deadlineAddCard === null ? 'bg-gray-200 text-gray-800 hover:bg-gray-300' : new Date(deadlineAddCard) > new Date() ? 'bg-gray-200 text-gray-800 hover:bg-gray-300' : 'bg-red-100 text-red-700 hover:bg-red-200'} cursor-pointer" />
+                            <button type="button" class="cursor-pointer bg-gray-200 text-gray-800 hover:bg-gray-300 aspect-square h-[36px] rounded-e-lg flex justify-center items-center" onclick={() => {deadlineAddCard = null;}}>
+                                <Icon icon="mingcute:delete-back-line" class="text-xl" />
+                            </button>
+                        </div>
+                    </div>
+                    <div>
+                        <div>Priority</div>
+                        <div class="flex">
+                            <div class="pr-2 w-full rounded-s-md
+                            {!newCardPriority ? 'bg-gray-200 text-gray-800 hover:bg-gray-300' : 
+                            newCardPriority > 3 ? 'bg-red-100 text-red-700 hover:bg-red-200' : 
+                            newCardPriority < 3 ? 'bg-green-200 text-green-800 hover:bg-emerald-300' : 
+                            'bg-yellow-100 text-yellow-700 hover:bg-yellow-200'}">
+                                <select bind:value={newCardPriority} class="w-full p-2 cursor-pointer font-semibold">
+                                    <option class="bg-white text-black" value={1}>1 | Later</option>
+                                    <option class="bg-white text-black" value={2}>2 | Optional</option>
+                                    <option class="bg-white text-black" value={3}>3 | Regular</option>
+                                    <option class="bg-white text-black" value={4}>4 | Priority</option>
+                                    <option class="bg-white text-black" value={5}>5 | Urgent</option>
+                                </select>
+                            </div>
+                            <button type="button" class="cursor-pointer bg-gray-200 text-gray-800 hover:bg-gray-300 aspect-square h-[36px] rounded-e-lg flex justify-center items-center" onclick={() => {newCardPriority = null;}}>
+                                <Icon icon="mingcute:delete-back-line" class="text-xl" />
+                            </button>
+                        </div>
+                    </div>
+                </div>
+				<!-- <button type="submit" class="bg-blue-500 text-white rounded p-2">Add Card</button> -->
+                <section class="flex flex-row space-x-2 absolute bottom-4 left-4">
+                    <button type="submit" class="bg-sky-500 text-white hover:bg-sky-400 disabled:bg-sky-400 cursor-pointer h-[40px] w-[468px] font-semibold rounded-md">
+                        Add Card
+                    </button>
+                </section>
 			</form>
         </div>
-    </div>
+    </section>
 {/if}
 
-{#if showEditCardModal && selectedCard}
-    <div class="absolute w-1/2 h-1/2 top-0 right-0 bg-red-50">
-        <div class="bg-red-400">
-			<h2>Edit Card</h2>
-			<form onsubmit={handleUpdateCard} class="flex flex-col gap-4">
-				<div>
-					<div>Title</div>
-					<input type="text" bind:value={selectedCard.title} required class="w-full border rounded p-2" />
-				</div>
-				<div>
-					<div>Description</div>
-					<textarea bind:value={selectedCard.description} class="w-full border rounded p-2" />
-				</div>
-				<div>
-					<div>Deadline</div>
-					<input type="date" bind:value={selectedCard.deadline} class="w-full border rounded p-2" />
-				</div>
-				<div>
-					<div>Priority</div>
-					<select bind:value={selectedCard.priority} class="w-full border rounded p-2">
-						<option value={1}>1 (Low)</option>
-						<option value={2}>2</option>
-						<option value={3}>3 (Medium)</option>
-						<option value={4}>4</option>
-						<option value={5}>5 (High)</option>
-					</select>
-				</div>
+
+<!-- 
+=========================
+    EDIT CARD MODAL
+=========================
+-->
+{#if $showEditCardModal && $selectedCard?.id}
+    <section class="fixed w-full h-[100dvh] top-0 right-0 bg-zinc-900/30 flex justify-end items-center overflow-hidden cursor-default backdrop-blur-xs"
+	transition:fade={{duration: 150}} onclick={() => $showEditCardModal=false}>
+        <div class="bg-white p-4 rounded-s-xl min-w-[300px] w-full max-w-[500px] h-[95%] relative"
+		transition:fly={{ x: 300, duration: 300, opacity: 0 }} onclick={(e) => e.stopPropagation()} >
+			<section class="flex justify-between w-full">
+                <div class="space-x-2 flex">           
+                    {#if !$isEdit}
+                        {#if $selectedCard.deadline !== null && new Date($selectedCard.deadline) < new Date() && $selectedCard.deadline }
+                            <div class="rounded-full justify-center items-center flex whitespace-nowrap py-1 px-3
+                            font-open-sans font-semibold text-[14px] bg-red-100 text-red-700">
+                                Deadline Missed!
+                            </div>
+                        {/if}
+                        {#if $selectedCard.priority !== null}
+                            <div class="rounded-full justify-center items-center flex whitespace-nowrap py-1 px-3
+                            font-open-sans font-semibold text-[14px]
+                            {$selectedCard.priority > 3 ? 'bg-red-100 text-red-700' : 
+                            $selectedCard.priority < 3 ? 'bg-green-100 text-green-700' : 
+                            'bg-yellow-100 text-yellow-700'}">
+                                {$selectedCard.priority === 5 ? 'Urgent' : 
+                                $selectedCard.priority === 4 ? 'Priority' :  
+                                $selectedCard.priority === 3 ? 'Regular' :  
+                                $selectedCard.priority === 2 ? 'Optional ' : 'Later'}
+                            </div> 
+                        {/if}
+                    {:else}
+                        <div class="h-[28px] text-[18px] font-outfit leading-none tracking-wide font-semibold flex justify-center items-center ml-1">Edit Card</div>
+                    {/if} 
+                </div>
+				<button onclick={() => $showEditCardModal=false} class="aspect-square rounded-full cursor-pointer hover:rotate-90 duration-500 ease-out">
+                    <Icon icon="mingcute:close-fill" class="text-2xl"/>
+                </button>
+			</section>
+			{#if !$isEdit}
+				<section class="p-4 mt-2 h-[calc(100%-80px)] overflow-y-auto overflow-x-hidden mask-b-from-95% mask-b-to-100%">
+					<div class="flex justify-between items-center">
+                        <h3 class="text-[24px] font-outfit mb-1 tracking-wide font-semibold">{$selectedCard.title}</h3>
+                    </div>
+                    {#if $selectedCard.description}
+                        <p class="agerrp my-4 text-justify whitespace-pre-wrap">{$selectedCard.description} </p>
+                    {/if}
+				</section>
+			{:else}
+				<form onsubmit={() => handleUpdateCard()} class="pt-4 mt-2 h-[calc(100%-80px-64px)] overflow-y-auto overflow-x-hidden">
+					<!-- <div class="flex justify-between items-center">
+                        <textarea bind:value={$selectedCard.title} use:autosize required 
+                        class="text-[24px] font-outfit mb-1 tracking-wide font-semibold w-full">{$selectedCard.title}</textarea>
+                    </div> -->
+					<div class="px-4 flex justify-between items-center">
+                        <textarea bind:value={$selectedCard.title} placeholder="Judul" use:autosize rows="1" required onkeydown={handleTextareaKeydown}
+                        class="text-[24px] font-outfit mb-1 tracking-wide font-semibold w-full bg-transparent border-none focus:ring-0 resize-none overflow-hidden animate-pulse-agerr hover:animate-none focus:animate-none">{$selectedCard.title}</textarea>
+                    </div>
+                    <textarea bind:value={$selectedCard.description} placeholder="Ketik Disini" use:autosize rows="1" 
+                    class="px-4 w-full agerrp my-4 text-justify animate-pulse-agerr hover:animate-none focus:animate-none resize-none"></textarea>
+					<div transition:fly={{ y: 12, duration: 150, opacity: 0 }} class="grid grid-cols-2 gap-2 absolute bottom-16 w-[calc(100%-32px)]">
+                        <div>
+                            <div class="flex justify-between"><div>Deadline</div></div>
+                            <div class="flex justify-center items-center">
+                                <input type="date" 
+                                bind:value={$selectedCardWithFormat.deadlineFormatted}
+                                class="w-full rounded-s-md p-2 font-semibold {$selectedCard.deadline === null ? 'bg-gray-200 text-gray-800 hover:bg-gray-300' : new Date($selectedCard.deadline) > new Date() ? 'bg-gray-200 text-gray-800 hover:bg-gray-300' : 'bg-red-100 text-red-700 hover:bg-red-200'} cursor-pointer" />
+                                <button type="button" class="cursor-pointer bg-gray-200 text-gray-800 hover:bg-gray-300 aspect-square h-[36px] rounded-e-lg flex justify-center items-center" onclick={() => {$selectedCard.deadline = null;}}>
+                                    <Icon icon="mingcute:delete-back-line" class="text-xl" />
+                                </button>
+                            </div>
+                        </div>
+                        <div>
+                            <div>Priority</div>
+                            <div class="flex">
+                                <div class="pr-2 w-full rounded-s-md
+                                {!$selectedCard.priority ? 'bg-gray-200 text-gray-800 hover:bg-gray-300' : 
+                                $selectedCard.priority > 3 ? 'bg-red-100 text-red-700 hover:bg-red-200' : 
+                                $selectedCard.priority < 3 ? 'bg-green-200 text-green-800 hover:bg-emerald-300' : 
+                                'bg-yellow-100 text-yellow-700 hover:bg-yellow-200'}">
+                                    <select bind:value={$selectedCard.priority} class="w-full p-2 cursor-pointer font-semibold">
+                                        <option class="bg-white text-black" value={1}>1 | Later</option>
+                                        <option class="bg-white text-black" value={2}>2 | Optional</option>
+                                        <option class="bg-white text-black" value={3}>3 | Regular</option>
+                                        <option class="bg-white text-black" value={4}>4 | Priority</option>
+                                        <option class="bg-white text-black" value={5}>5 | Urgent</option>
+                                    </select>
+                                </div>
+                                <button type="button" class="cursor-pointer bg-gray-200 text-gray-800 hover:bg-gray-300 aspect-square h-[36px] rounded-e-lg flex justify-center items-center" onclick={() => {$selectedCard.priority = null;}}>
+                                    <Icon icon="mingcute:delete-back-line" class="text-xl" />
+                                </button>
+                            </div>
+                        </div>
+					</div>
 				
-				<div class="flex justify-between items-center mt-4">
-					<button type="button" class="text-red-500 hover:underline" onclick={handleDeleteCard}>
-						Delete Card
-					</button>
-					
-					<button type="submit" class="bg-blue-500 text-white rounded p-2">Save Changes</button>
-				</div>
-			</form>
+                    <button transition:fly={{ y: 12, duration: 150, opacity: 0 }} disabled={$isLoading.CardEdit[$selectedCard.id]} type="submit" class="absolute bottom-4 right-4 bg-sky-500 text-white hover:bg-sky-400 disabled:bg-sky-400 cursor-pointer h-[40px] w-[96px] font-semibold rounded-md flex justify-center items-center">
+                        {#if $isLoading.CardEdit[$selectedCard.id]}
+                            <Icon icon="mingcute:loading-fill" class="text-xl animate-spin" />
+                        {:else}
+                            Save
+                        {/if}
+                    </button>
+				</form>
+                <div class="h-[20%]"></div>
+			{/if}
+            <section class="flex flex-row space-x-2 absolute bottom-4 left-4">
+                <button class="bg-rose-500 text-white hover:bg-rose-400 disabled:bg-rose-400 w-[116px] cursor-pointer h-[40px] font-semibold rounded-md flex justify-center items-center" onclick={() => handleDeleteCard($selectedCard.id)}>
+                    <!-- {$isLoading.CardRemove[$selectedCard.id] ? 'Deleting...' : 'Delete Card'} -->
+                    {#if $isLoading.CardRemove[$selectedCard.id]}
+                        <Icon icon="mingcute:loading-fill" class="text-xl animate-spin" />
+                    {:else}
+                        Delete Card
+                    {/if}
+                </button>
+                <button class="bg-gray-200 text-gray-800 hover:bg-gray-300 cursor-pointer h-[40px] w-[72px] font-semibold rounded-md"  onclick={() => $isEdit=!$isEdit}>
+                    {$isEdit ? 'Back' : 'Edit'}
+                </button>
+                {#if $selectedCard.deadline && !$isEdit}
+                    <div transition:fly={{ x: -4, duration: 150, opacity: 0 }}>
+                        <h4 class="text-[16px] font-outfit leading-none mb-1 tracking-wide">Deadline : </h4>
+                        <h5 class="text-[14px] font-outfit leading-none tracking-wide font-semibold opacity-50">
+                                {new Date($selectedCard.deadline).toLocaleDateString('id-ID', {
+                                    weekday: 'long',
+                                    day: '2-digit',
+                                    month: 'short',
+                                    year: 'numeric'
+                                })}
+                        </h5>
+                    </div>
+                {/if}
+            </section>
 		</div>
-	</div>
+    </section>
 {/if}

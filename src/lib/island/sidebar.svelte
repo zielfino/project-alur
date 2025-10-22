@@ -9,7 +9,7 @@
 	import { page } from '$app/stores';
 	import { onMount } from 'svelte';
     
-    let currentpage = $page.url.pathname;
+    // let currentpage = $page.url.pathname;
     // let isHovered = $state(false);
     let sidebarnav: HTMLElement | null = $state(null);
     let searchInput: HTMLInputElement | null = $state(null);
@@ -61,6 +61,7 @@
     // let loading = $state(true);
     let error = $state<string | null>(null);
     let boards = $state<Board[]>([]);
+    let sharedBoards = $state<Board[]>([]);
 
 	// let $showEditBoardModal = $state(false);
 	let selectedBoard = $state<Board | null>(null);
@@ -202,17 +203,28 @@
                 throw new Error('Failed to load your boards.');
             }
             boards = await response.json();
+
+            const sharedResponse = await fetch('/api/boards/shared');
+            if (sharedResponse.ok) {
+                sharedBoards = await sharedResponse.json();
+            }
         } catch (e: any) {
             error = e.message;
         } finally {
             $boardLoading = false;
         }
     });
+
+    let currentpage = $state($page.url.pathname);
+    
+	$effect(() => {
+        currentpage = $page.url.pathname;
+	});
 </script>
 
 <section class="h-[100dvh] py-4
 {$sidebar ? 'min-w-64' : $isHovered ? 'min-w-48' : 'min-w-18'}">
-    <section role="complementary" bind:this={sidebarnav} onmouseenter={() => handleMouseEnter()} onmouseleave={() => handleMouseLeave()} class="group rounded-e-2xl flex flex-col justify-between overflow-hidden h-[calc(100%-32px)] p-4 ease-out fixed
+    <section role="complementary" bind:this={sidebarnav} onmouseenter={() => handleMouseEnter()} onmouseleave={() => handleMouseLeave()} class="rounded-e-2xl flex flex-col justify-between overflow-hidden h-[calc(100%-32px)] p-4 ease-out fixed
     {$sidebar ? 'w-64 bg-gray-100 ring ring-slate-300' : $isHovered ? 'w-48 bg-gray-100 ring ring-slate-300' : 'w-18 bg-gray-100'}">
         <!-- TOP SIDEBAR -->
         <div class="flex flex-col ">
@@ -273,70 +285,88 @@
                     <input type="text" class="w-full {$sidebar || $isHovered ? 'opacity-100' : 'opacity-0'}" bind:this={searchInput} oninput={() => handeSeatchInput()} placeholder="Search" /> 
                 </div>
             </div>
-            <div class="border-t-2 border-zinc-300 mt-4 mb-1"></div>
+            <div class="border-t-2 border-zinc-300 mt-4 mb-2"></div>
         </div>
 
 
-        <!-- BOARDS -->
         <div class="flex flex-col h-full overflow-y-scroll justify-start overflow-scroll-hidden mask-t-from-96% mask-t-to-100% mask-b-from-90% mask-b-to-100% space-y-1">
-            <div class="w-full h-3 bg-blue-700 opacity-0">,</div>
+            <!-- <div class="w-full h-3 bg-blue-700 opacity-0">,</div> -->
+
+            
+            <!-- DASHBOARDS -->
             <a href="/" class="text-slate-900 hover:bg-slate-200 rounded-lg h-[40px] flex items-center-safe
-            {$sidebar || $isHovered ? 'w-full space-x-4 pl-2' : 'w-full'} {currentpage === '/' ? 'bg-slate-200' : 'cursor-pointer'}" disabled={currentpage === '/'}>
+            {$sidebar || $isHovered ? 'w-full space-x-4 pl-2' : 'w-full'} {currentpage === '/' ? 'cursor-default bg-slate-200' : 'cursor-pointer'}" disabled={currentpage === '/'}>
                     <div class="w-[18px] {$sidebar || $isHovered ? '' : 'pl-2'}"><Icon icon="material-symbols:dashboard-outline-rounded" class="inline-block text-2xl" /></div>
                     <div class="line-clamp-1 {$sidebar || $isHovered ? '' : 'opacity-0'}">Dashboard</div>
             </a>
-            <!-- <a href="/testaja" class="text-slate-900 hover:bg-slate-200 rounded-lg h-[40px] cursor-pointer flex items-center-safe
-            {$sidebar || $isHovered ? 'w-full space-x-4 pl-2' : 'w-full'}">
-                    <div class="w-[18px] {$sidebar || $isHovered ? '' : 'pl-2'}"><Icon icon="material-symbols:leaderboard-outline-rounded" class="rotate-180 inline-block text-2xl" /></div>
-                    <div class="line-clamp-1 {$sidebar || $isHovered ? '' : 'opacity-0'}">Job Tracker</div>
-            </a>
-            <button class="text-slate-900 hover:bg-slate-200 rounded-lg h-[40px] cursor-pointer flex items-center-safe
-            {$sidebar || $isHovered ? 'w-full space-x-4 pl-2' : 'w-full'}">
-                    <div class="w-[18px] {$sidebar || $isHovered ? '' : 'pl-2'}"><Icon icon="material-symbols:checklist-rounded" class="inline-block text-2xl" /></div>
-                    <div class="line-clamp-1 {$sidebar || $isHovered ? '' : 'opacity-0'}">Task Manager</div>
-            </button>
-            <button class="text-slate-900 hover:bg-slate-200 rounded-lg h-[40px] cursor-pointer flex items-center-safe
-            {$sidebar || $isHovered ? 'w-full space-x-4 pl-2' : 'w-full'}">
-                    <div class="w-[18px] {$sidebar || $isHovered ? '' : 'pl-2'}"><Icon icon="material-symbols:attach-money-rounded" class="inline-block text-2xl" /></div>
-                    <div class="line-clamp-1 {$sidebar || $isHovered ? '' : 'opacity-0'}">Money </div>
-            </button>
-            <div class="border-t-2 border-zinc-300 mt-4 mb-1"></div> -->
 
-
-
-            <!-- BOARDS -->
-            <!-- <button class="text-slate-900 hover:bg-slate-200 rounded-lg h-[40px] cursor-pointer flex items-center-safe
-            {$sidebar || $isHovered ? 'w-full space-x-4 pl-2' : 'w-full'}">
-                    <div class="w-[18px] {$sidebar || $isHovered ? '' : 'pl-2'}"><Icon icon="mingcute:add-fill" class="inline-block text-2xl" /></div>
-                    <div class="line-clamp-1 {$sidebar || $isHovered ? '' : 'opacity-0'}">Add Board </div>
-            </button> -->
-            {#if $boardLoading}
+            
+            <!-- OWN BOARDS -->
+            <!-- {#if $boardLoading}
                 <div class="text-slate-900 hover:bg-slate-200 rounded-lg h-[40px] cursor-pointer flex items-center-safe relative
                 {$sidebar || $isHovered ? 'w-full space-x-4 pl-2' : 'w-full'}">
                     <div class="w-[18px] {$sidebar || $isHovered ? '' : 'pl-2'}"><Icon icon="material-symbols:leaderboard-outline-rounded" class="rotate-180 inline-block text-2xl" /></div>
                     <div class="line-clamp-1 {$sidebar || $isHovered ? '' : 'opacity-0'}">Loading...</div>
                 </div>
-            {:else if error}
-                <p style="color: red;">{error}</p>
+            {:else if error} -->
+            {#if error}
+                <div class="text-slate-900 hover:bg-slate-200 rounded-lg h-[40px] cursor-pointer flex items-center-safe relative
+                {$sidebar || $isHovered ? 'w-full space-x-4 pl-2' : 'w-full'}">
+                    <div class="w-[18px] {$sidebar || $isHovered ? '' : 'pl-2'}"><Icon icon="material-symbols:leaderboard-outline-rounded" class="rotate-180 inline-block text-2xl" /></div>
+                    <div class="line-clamp-1 {$sidebar || $isHovered ? '' : 'opacity-0'}">{error}</div>
+                </div>
             {:else}
-                <div class="boards-grid">
+                <div class="boards-grid space-y-1">
                     {#each boards as board}
-                        <a href={`/${board.owner_name || data.profile?.username}/${board.slug}`} disabled={`/${board.owner_name || data.profile?.username}/${board.slug}`} class="text-slate-900 hover:bg-slate-200 rounded-lg h-[40px] cursor-pointer flex items-center-safe relative
-                        {$sidebar || $isHovered ? 'w-full space-x-4 pl-2' : 'w-full'}">
+                        <a href={`/${board.owner_name || data.profile?.username}/${board.slug}`} disabled={currentpage === `/${board.owner_name || data.profile?.username}/${board.slug}`} class="text-slate-900 hover:bg-slate-200 rounded-lg h-[40px] flex items-center-safe relative group
+                        {$sidebar || $isHovered ? 'w-full space-x-4 pl-2' : 'w-full'} {currentpage ===  `/${board.owner_name || data.profile?.username}/${board.slug}` ? 'cursor-default bg-slate-200' : 'cursor-pointer'}">
                             <div class="w-[18px] {$sidebar || $isHovered ? '' : 'pl-2'}"><Icon icon="material-symbols:leaderboard-outline-rounded" class="rotate-180 inline-block text-2xl" /></div>
                             <div class="line-clamp-1 {$sidebar  ? 'w-full' : $isHovered ? 'w-1/2' : 'opacity-0'}">{board.name}</div>
                             <button onclick={(e) => { e.preventDefault(); openEditBoardModal(board); }} class="p-2 rounded hover:bg-slate-300 cursor-pointer opacity-0 group-hover:opacity-100 transition-opacity absolute right-1">
                                 <Icon icon="mdi:dots-horizontal" />
                             </button>
                         </a>
-                        <!-- <div class="board-card group">
-                            <a href={`/${data.profile?.username}/${board.slug}`} class="flex-1">
-                                <h3>{board.name}</h3>
+                    {:else}
+                        <div class="text-slate-900 hover:bg-slate-200 rounded-lg h-[40px] cursor-pointer flex items-center-safe relative
+                        {$sidebar || $isHovered ? 'w-full space-x-4 pl-2' : 'w-full'}">
+                            <div class="w-[18px] {$sidebar || $isHovered ? '' : 'pl-2'}"><Icon icon="material-symbols:leaderboard-outline-rounded" class="rotate-180 inline-block text-2xl" /></div>
+                            <div class="line-clamp-1 {$sidebar || $isHovered ? '' : 'opacity-0'}">Create Board</div>
+                        </div>
+                    {/each}
+                </div>
+            {/if}
+
+
+            <div class="border-t-2 border-zinc-300 my-2"></div>
+
+            
+            <!-- SHARED BOARDS -->
+            <!-- {#if $boardLoading}
+                <div class="text-slate-900 hover:bg-slate-200 rounded-lg h-[40px] cursor-pointer flex items-center-safe relative
+                {$sidebar || $isHovered ? 'w-full space-x-4 pl-2' : 'w-full'}">
+                    <div class="w-[18px] {$sidebar || $isHovered ? '' : 'pl-2'}"><Icon icon="material-symbols:leaderboard-outline-rounded" class="rotate-180 inline-block text-2xl" /></div>
+                    <div class="line-clamp-1 {$sidebar || $isHovered ? '' : 'opacity-0'}">Loading...</div>
+                </div>
+            {:else if error} -->
+            {#if error}
+                <div class="text-slate-900 hover:bg-slate-200 rounded-lg h-[40px] cursor-pointer flex items-center-safe relative
+                {$sidebar || $isHovered ? 'w-full space-x-4 pl-2' : 'w-full'}">
+                    <div class="w-[18px] {$sidebar || $isHovered ? '' : 'pl-2'}"><Icon icon="material-symbols:leaderboard-outline-rounded" class="rotate-180 inline-block text-2xl" /></div>
+                    <div class="line-clamp-1 {$sidebar || $isHovered ? '' : 'opacity-0'}">{error}</div>
+                </div>
+            {:else}
+                <div class="boards-grid space-y-1">
+                    {#each sharedBoards as board}
+                        {#if board.owner_name}
+                            <a href={`/${board.owner_name || data.profile?.username}/${board.slug}`} disabled={currentpage === `/${board.owner_name || data.profile?.username}/${board.slug}`} class="text-slate-900 hover:bg-slate-200 rounded-lg h-[40px] flex items-center-safe relative group
+                            {$sidebar || $isHovered ? 'w-full space-x-4 pl-2' : 'w-full'} {currentpage ===  `/${board.owner_name || data.profile?.username}/${board.slug}` ? 'cursor-default bg-slate-200' : 'cursor-pointer'}">
+                                <div class="w-[18px] {$sidebar || $isHovered ? '' : 'pl-2'}"><Icon icon="material-symbols:leaderboard-outline-rounded" class="rotate-180 inline-block text-2xl" /></div>
+                                <div class="line-clamp-1 {$sidebar  ? 'w-full' : $isHovered ? 'w-1/2' : 'opacity-0'}">{board.name}</div>
+                                <button onclick={(e) => { e.preventDefault(); openEditBoardModal(board); }} class="p-2 rounded hover:bg-slate-300 cursor-pointer opacity-0 group-hover:opacity-100 transition-opacity absolute right-1">
+                                    <Icon icon="mdi:dots-horizontal" />
+                                </button>
                             </a>
-                            <button onclick={() => openEditBoardModal(board)} class="p-2 rounded hover:bg-black/10 opacity-0 group-hover:opacity-100 transition-opacity">
-                                <Icon icon="mdi:dots-horizontal" />
-                            </button>
-                        </div> -->
+                        {/if}
                     {:else}
                         <div class="text-slate-900 hover:bg-slate-200 rounded-lg h-[40px] cursor-pointer flex items-center-safe relative
                         {$sidebar || $isHovered ? 'w-full space-x-4 pl-2' : 'w-full'}">
@@ -353,7 +383,7 @@
         <div class="w-full space-y-2">
             <div class="border-t-2 border-zinc-300 mt-1"></div>
             <button onclick={() => goto('/profile')} class="text-slate-900 hover:bg-slate-200 font-semibold font-outfit tracking-wider rounded-lg h-[40px] cursor-pointer flex justify-center-safe items-center-safe
-            {$sidebar || $isHovered ? 'w-full space-x-2' : 'w-10 group-hover:w-40 group-hover:space-x-2'} {currentpage === '/profile' ? 'bg-slate-200' : 'cursor-pointer'}" disabled={currentpage === '/profile'}>
+            {$sidebar || $isHovered ? 'w-full space-x-2' : 'w-10 group-hover:w-40 group-hover:space-x-2'} {currentpage === '/profile' ? 'cursor-default bg-slate-200' : 'cursor-pointer'}" disabled={currentpage === '/profile'}>
                     <div class="w-[18px] {$sidebar || $isHovered ? '' : 'pl-3'}"><Icon icon="fa7-solid:gear" class="inline-block text-lg duration-400 ease-in-out
                         {$sidebar || $isHovered ? 'rotate-0' : 'rotate-180'}" /></div>
                     <div class="{$sidebar || $isHovered ? '' : 'opacity-0'}">Settings</div>
@@ -447,14 +477,14 @@
 
 			<h3 class="mt-4">Members</h3>
 
-			<form onsubmit={handleInviteMember} class="flex w-full justify-between">
+			<form onsubmit={handleInviteMember} class="flex w-full justify-between mb-2">
 				<input type="text" bind:value={newMemberUsername} placeholder="enter @username" maxlength="50" class="w-full border rounded-md p-2 mr-2" />
                 <div class="rounded-s-md w-[200px] pr-2
                 {!newMemberRole ? 'bg-gray-200 text-gray-800 hover:bg-gray-300' : 
                 newMemberRole === 3 ? 'bg-rose-100 text-rose-700 hover:bg-rose-200' : 
                 newMemberRole === 1 ? 'bg-sky-200 text-sky-800 hover:bg-sky-300' : 
                 'bg-emerald-200 text-emerald-800 hover:bg-emerald-300'}">
-                    <select bind:value={newMemberRole} class="w-full p-2 cursor-pointer font-semibold">
+                    <select bind:value={newMemberRole} class="w-full p-2 cursor-pointer font-semibold text-center">
                         <option class="bg-white text-black" value={1}>Viewer</option>
                         <option class="bg-white text-black" value={2}>Editor</option>
                         <option class="bg-white text-black" value={3}>Manager</option>
@@ -468,9 +498,9 @@
 			<table class="w-full">
                 <tbody class="w-full">
 				    {#each members as member}
-                        <tr class="w-full flex text-nowrap space-x-2 items-center pt-1 mt-1 border-t-1 border-slate-300">
+                        <tr class="w-full flex text-nowrap space-x-2 items-center pb-1 mb-1 border-b-1 border-slate-300">
                             <td class="aspect-square h-10 w-10"><img src={member.avatar_url} alt="userporfile" class="h-10 rounded-full"></td>
-                            <td class="line-clamp-1 min-w-[160px] text-center">@{member.username}</td>
+                            <td class="line-clamp-1 min-w-[160px] text-start">@{member.username}</td>
                             <td class="text-center w-full flex justify-center items-center">
                                 <div class="rounded-full w-fit px-3 py-1 font-semibold text-xs
                                 {!member.role ? 'bg-gray-200 text-gray-800' : 
@@ -493,48 +523,3 @@
         </div>
     </section>
 {/if}
-
-
-<!-- EDIT
-{#if $showEditBoardModal && selectedBoard}
-    <div class="absolute w-1/2 h-1/2 top-0 right-0 bg-red-50 z-50">
-        <div class="bg-red-400">
-			<h2>Edit Board</h2>
-			<form onsubmit={handleUpdateBoard}>
-				<label for="board-name">Board Name</label>
-				<input id="board-name" type="text" bind:value={editingBoardName} required />
-				<button type="submit">Save Changes</button>
-			</form>
-			<hr class="my-4" />
-
-			<h3>Members</h3>
-			
-			<div class="member-list">
-				{#each members as member}
-					<div class="member-item">
-						<span>@{member.username} (Role: {member.role})</span>
-						<button class="remove-button" onclick={() => handleRemoveMember(member.user_uid)}>
-							Remove {member.user_uid}
-						</button>
-					</div>
-				{/each}
-			</div>
-
-			<form onsubmit={handleInviteMember} class="invite-form">
-				<input type="text" bind:value={newMemberUsername} placeholder="Enter username to invite" />
-				<select bind:value={newMemberRole}>
-					<option value={1}>Viewer (Read-only)</option>
-					<option value={2}>Editor (Read/Edit)</option>
-					<option value={3}>Admin (Read/Edit/Delete)</option>
-				</select>
-				<button type="submit">Invite</button>
-			</form>
-			<hr class="my-4" />
-			<div class="danger-zone">
-				<h3>Delete Board</h3>
-				<p>This action is permanent.</p>
-				<button class="delete-button" onclick={handleDeleteBoard}>Delete this board</button>
-			</div>
-		</div>
-	</div>
-{/if} -->

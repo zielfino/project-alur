@@ -3,6 +3,7 @@
 	import { dndzone } from 'svelte-dnd-action';
 	import Column from "$lib/Kanban/Column.svelte";
 	import { showAddColumnInput } from '$lib/stores/uiStore';
+	import { pushError } from '$lib/stores/errorNotification';
 
 	let { board = $bindable(), onFinalUpdate } = $props<{
 		board: any;
@@ -89,7 +90,7 @@
 			$showAddColumnInput = false;
 		} else {
 			const result = await response.json();
-			apiError = result.message || result.error || 'Failed to add column.';
+			pushError(result.error, result.message);
 		}
 	}
 </script>

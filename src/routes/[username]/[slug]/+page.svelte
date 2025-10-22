@@ -6,7 +6,7 @@
 	import Sidebar from "$lib/island/sidebar.svelte";
 	import Icon from "@iconify/svelte";
 	import { fade, fly } from "svelte/transition";
-	import { createEventDispatcher } from "svelte";
+	// import { createEventDispatcher } from "svelte";
 
 	import { autosize } from "$lib/actions/autosize";
 	import { isLoading } from "$lib/stores/loading";
@@ -20,6 +20,7 @@
 		sidebar,
 		sidebarIsHovered as isHovered
 	} from "$lib/stores/uiStore";
+	import { pushError } from "$lib/stores/errorNotification.js";
 
 	/** ---------------------------------------------
 	 * TYPES
@@ -42,7 +43,7 @@
 	/** ---------------------------------------------
 	 * REACTIVE STATE
 	 * --------------------------------------------- */
-	const dispatch = createEventDispatcher();
+	// const dispatch = createEventDispatcher();
 	let { data } = $props();
 	// let board = $state(data.board);
 	let { board } = $state(data);
@@ -54,11 +55,9 @@
 	let newCardPriority = $state<number | null>(null);
 	let deadlineAddCard = $state<string | null>(null);
 
-	/** ---------------------------------------------
-	 * CARD HANDLERS
-	 * --------------------------------------------- */
-
-	// ➤ ADD CARD
+	/* ---------------------------------------------
+	* ➤ ADD CARD
+	* --------------------------------------------- */
 	async function handleAddCard() {
 		if (!newCardTitle || !$activeColumnId || !board) return;
 
@@ -76,9 +75,8 @@
 			});
 
 			if (!response.ok) {
-				const errMsg = await response.text();
-				console.error('Failed to add card:', errMsg);
-				alert('Failed to add card.');
+				const data = await response.json().catch(() => ({}));
+				pushError(response.status, data.message || 'Failed to add card.');
 				return;
 			}
 
@@ -98,15 +96,17 @@
 				// Tutup modal
 				$showAddCardModal = false;
 			} else {
-				alert('Something went wrong while adding the card.');
+				pushError(400, 'Something went wrong while adding the card.');
 			}
 		} catch (err) {
 			console.error('Error creating card:', err);
-			alert('An unexpected error occurred.');
+			pushError(500, 'Unexpected error while adding card.');
 		}
 	}
 
-	// ➤ EDIT CARD
+	/* ---------------------------------------------
+	* ➤ EDIT CARD
+	* --------------------------------------------- */
 	async function handleUpdateCard() {
 		if (!$selectedCard) return;
 		if (!$selectedCard.title || $selectedCard.title.trim() === "") {
@@ -124,21 +124,26 @@
 			if (response.ok) {
 				board.columns = board.columns.map((col) => ({
 					...col,
-					cards: col.cards.map((c) => (c.id === $selectedCard.id ? $selectedCard : c)),
+					cards: col.cards.map((c) =>
+						c.id === $selectedCard.id ? $selectedCard : c
+					),
 				}));
 			} else {
-				alert("Failed to update card");
+				const data = await response.json().catch(() => ({}));
+				pushError(response.status, data.message || 'Failed to update card.');
 			}
 		} catch (err) {
-			console.error(err);
-			alert("Failed to update card");
+			console.error('Error updating card:', err);
+			pushError(500, 'Unexpected error while updating card.');
 		} finally {
 			isLoading.stop("CardEdit", $selectedCard.id);
 			$showEditCardModal = false;
 		}
 	}
 
-	// ➤ DELETE CARD
+	/* ---------------------------------------------
+	* ➤ DELETE CARD
+	* --------------------------------------------- */
 	async function handleDeleteCard(cardId: number) {
 		if (!board) return;
 		if (!confirm("Are you sure you want to delete this card?")) return;
@@ -157,37 +162,45 @@
 					cards: col.cards.filter((c) => c.id !== cardId),
 				}));
 			} else {
-				alert("Failed to delete card");
+				const data = await response.json().catch(() => ({}));
+				pushError(response.status, data.message || 'Failed to delete card.');
 			}
 		} catch (err) {
-			console.error(err);
-			alert("Failed to delete card");
+			console.error('Error deleting card:', err);
+			pushError(500, 'Unexpected error while deleting card.');
 		} finally {
 			isLoading.stop("CardRemove", cardId);
 			$showEditCardModal = false;
 		}
 	}
 
+
 	/** ---------------------------------------------
 	 * BOARD HANDLER (COLUMN & CARD MOVE)
 	 * --------------------------------------------- */
 	async function handleBoardUpdated(newColumnsData: Column[], info: any) {
-	board = { ...board, columns: newColumnsData };
-		console.log('Info object received:', info ?? '(no info)');
+		board = { ...board, columns: newColumnsData };
+		// console.log('Info object received:', info ?? '(no info)');
 
 		// ➤ Move Column
 		if (info?.type === 'column') {
 			const columnIds = newColumnsData.map((c) => c.id);
-			console.log("ACTION: Update column order ->", columnIds);
+			// console.log("ACTION: Update column order ->", columnIds);
 
 			try {
-				await fetch("/api/boards/columns/move", {
+				const response = await fetch("/api/boards/columns/move", {
 					method: "POST",
 					headers: { "Content-Type": "application/json" },
 					body: JSON.stringify({ items: columnIds }),
 				});
+
+				if (!response.ok) {
+					const data = await response.json().catch(() => ({}));
+					pushError(response.status, data.message || 'Failed to move columns.');
+				}
 			} catch (err) {
-				console.error('Failed to update column order', err);
+				// console.error('Network error:', err);
+				pushError(0, 'Network error occurred.');
 			}
 		}
 
@@ -198,12 +211,13 @@
 			const oldColumn = newColumnsData.find((col) => col.id === oldColumnId);
 
 			if (!newColumn || !oldColumn) {
-				console.warn("Missing column data for move", { oldColumnId, newColumnId });
+				pushError(400, 'Invalid column data for card move.');
+				// console.warn("Missing column data for move", { oldColumnId, newColumnId });
 				return;
 			}
 
 			try {
-				const res = await fetch("/api/boards/cards/move", {
+				const response = await fetch("/api/boards/cards/move", {
 					method: "POST",
 					headers: { "Content-Type": "application/json" },
 					body: JSON.stringify({
@@ -214,10 +228,16 @@
 					}),
 				});
 
-				if (!res.ok) throw new Error('Server returned ' + res.status);
-				console.log('Server move succeeded for card', cardId);
+				if (!response.ok) {
+					const data = await response.json().catch(() => ({}));
+					pushError(response.status, data.message || 'Failed to move card.');
+					return; // hentikan eksekusi
+				}
+				// console.log('Server move succeeded for card', cardId);
+
 			} catch (err) {
-				console.error('Failed to move card on server:', err);
+				// console.error('Network error:', err);
+				pushError(0, 'Network error occurred.');
 			}
 		}
 	}
@@ -258,7 +278,7 @@
 
 <main class="flex"> 
 	{#if board.owner_username !== data.profile?.username && statusPerm}
-		<div class="absolute w-full flex justify-center" transition:fade={{duration: 300}}>
+		<div class="absolute w-full flex justify-center">
 			<div class="bg-gray-100 ring-1 ring-gray-300 rounded-lg text-sm mt-4 flex z-10 gap-4">
 				<div class="pl-4 py-3">Currenly on <b>@{board.owner_username}</b> boards. With role level <b>{data.userRole}</b>.</div>
 				<button onclick={statusPerm = false} class="p-3 aspect-square rounded-full cursor-pointer hover:rotate-90 duration-500 ease-out">

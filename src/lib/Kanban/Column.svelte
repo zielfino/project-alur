@@ -4,6 +4,7 @@
 	import Card from "$lib/Kanban/Card.svelte";
 	import { showAddCardModal, activeColumnId } from '$lib/stores/uiStore';
 	import Icon from '@iconify/svelte';
+	import { pushError } from '$lib/stores/errorNotification';
 
 	const flipDurationMs = 150;
 	// export let column: any;
@@ -51,7 +52,8 @@
 			});
 			cancelEditingColumn();
 		} else {
-			alert('Failed to update column name.');
+			const result = await response.json();
+			pushError(result.error, result.message);
 		}
 	}
 
@@ -70,7 +72,8 @@
 				info: { type: 'delete-column', columnId: column.id },
 			});
 		} else {
-			alert('Failed to delete column.');
+			const result = await response.json();
+			pushError(result.error, result.message);
 		}
 	}
 

@@ -6,6 +6,8 @@
 	import { page } from '$app/stores';
 	import { supabase } from '$lib/supabaseClient';
 	import '../app.css';
+	import ErrorNotification from '$lib/component/ErrorNotification.svelte';
+	
 
 	// runes pattern
 	let { data, children } = $props();
@@ -91,5 +93,6 @@
 </svelte:head>
 
 <section>
+	<ErrorNotification />
 	{@render children?.()}
 </section>

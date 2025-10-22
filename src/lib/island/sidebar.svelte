@@ -362,9 +362,6 @@
                             {$sidebar || $isHovered ? 'w-full space-x-4 pl-2' : 'w-full'} {currentpage ===  `/${board.owner_name || data.profile?.username}/${board.slug}` ? 'cursor-default bg-slate-200' : 'cursor-pointer'}">
                                 <div class="w-[18px] {$sidebar || $isHovered ? '' : 'pl-2'}"><Icon icon="material-symbols:leaderboard-outline-rounded" class="rotate-180 inline-block text-2xl" /></div>
                                 <div class="line-clamp-1 {$sidebar  ? 'w-full' : $isHovered ? 'w-1/2' : 'opacity-0'}">{board.name}</div>
-                                <button onclick={(e) => { e.preventDefault(); openEditBoardModal(board); }} class="p-2 rounded hover:bg-slate-300 cursor-pointer opacity-0 group-hover:opacity-100 transition-opacity absolute right-1">
-                                    <Icon icon="mdi:dots-horizontal" />
-                                </button>
                             </a>
                         {/if}
                     {:else}
@@ -382,7 +379,7 @@
         <!-- BOTTOM SIDERBAR -->
         <div class="w-full space-y-2">
             <div class="border-t-2 border-zinc-300 mt-1"></div>
-            <button onclick={() => goto('/profile')} class="text-slate-900 hover:bg-slate-200 font-semibold font-outfit tracking-wider rounded-lg h-[40px] cursor-pointer flex justify-center-safe items-center-safe
+            <button onclick={() => goto('/profile')} class="text-slate-900 hover:bg-slate-200 font-semibold font-outfit tracking-wider rounded-lg h-[40px] flex justify-center-safe items-center-safe
             {$sidebar || $isHovered ? 'w-full space-x-2' : 'w-10 group-hover:w-40 group-hover:space-x-2'} {currentpage === '/profile' ? 'cursor-default bg-slate-200' : 'cursor-pointer'}" disabled={currentpage === '/profile'}>
                     <div class="w-[18px] {$sidebar || $isHovered ? '' : 'pl-3'}"><Icon icon="fa7-solid:gear" class="inline-block text-lg duration-400 ease-in-out
                         {$sidebar || $isHovered ? 'rotate-0' : 'rotate-180'}" /></div>

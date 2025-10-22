@@ -85,7 +85,7 @@
     <!-- HERO SECTION -->
     <main class="agerrcontainer z-1 select-none">
         <section class="flex flex-col justify-center items-center mt-[150px]">
-            <h1 class="text-[76px] font-outfit font-bold tracking-tight leading-none mb-1">Find Your Flow.</h1>
+            <h1 class="text-[76px] font-outfit font-bold tracking-tight leading-none mb-1">Find Your Flow!</h1>
             <p class="agerrp text-slate-700 text-center">See all your tasks at a glance with <b>simple</b>, and <b>clean</b> Kanban boards. <br> No more guessing what's next.</p>
             <button class="button mt-6 mb-3 agerrbggradient text-2xl font-outfit font-semibold tracking-wide px-8 py-4 text-white cursor-pointer rounded-xl" onclick={openSigninModal}>Try now it's FREE!</button>
             <a href="https://zielalfino.com" tabindex="-1" class="text-xs text-slate-500 font-semibold hover:underline">It is Porfolio BTW.</a>

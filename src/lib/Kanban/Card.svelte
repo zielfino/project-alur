@@ -4,7 +4,7 @@
 	import { showEditCardModal, selectedCard, isEdit  } from '$lib/stores/uiStore';
 
 	type Card = { id: number; title: string; description: string; deadline: string; priority: number; column_id: number };
-	let { card } = $props();
+	let { card, userRole } = $props();
 
 	// ====================
 	// 		FUNCTION

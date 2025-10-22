@@ -327,11 +327,11 @@
                             </button>
                         </a>
                     {:else}
-                        <div class="text-slate-900 hover:bg-slate-200 rounded-lg h-[40px] cursor-pointer flex items-center-safe relative
+                        <button onclick={() => showCreateModal = true} class="text-slate-900 hover:bg-slate-200 rounded-lg h-[40px] cursor-pointer flex items-center-safe relative
                         {$sidebar || $isHovered ? 'w-full space-x-4 pl-2' : 'w-full'}">
                             <div class="w-[18px] {$sidebar || $isHovered ? '' : 'pl-2'}"><Icon icon="material-symbols:leaderboard-outline-rounded" class="rotate-180 inline-block text-2xl" /></div>
                             <div class="line-clamp-1 {$sidebar || $isHovered ? '' : 'opacity-0'}">Create Board</div>
-                        </div>
+                        </button>
                     {/each}
                 </div>
             {/if}
@@ -368,7 +368,7 @@
                         <div class="text-slate-900 hover:bg-slate-200 rounded-lg h-[40px] cursor-pointer flex items-center-safe relative
                         {$sidebar || $isHovered ? 'w-full space-x-4 pl-2' : 'w-full'}">
                             <div class="w-[18px] {$sidebar || $isHovered ? '' : 'pl-2'}"><Icon icon="material-symbols:leaderboard-outline-rounded" class="rotate-180 inline-block text-2xl" /></div>
-                            <div class="line-clamp-1 {$sidebar || $isHovered ? '' : 'opacity-0'}">Create Board</div>
+                            <div class="line-clamp-1 {$sidebar || $isHovered ? '' : 'opacity-0'}">Shared Board</div>
                         </div>
                     {/each}
                 </div>

@@ -9,7 +9,8 @@
 	const flipDurationMs = 150;
 	// export let column: any;
 	// export let onDrop: (event: { columnId: number; items: any[]; info?: any }) => void;
-	let { column = $bindable(), onDrop } = $props<{
+	let { column = $bindable(), onDrop, userRole } = $props<{
+		userRole: number;
 		column: any;
 		onDrop: (event: { columnId: number; items: any[]; info?: any }) => void;
 	}>();
@@ -85,14 +86,19 @@
 		$showAddCardModal = true;
 		console.log({activeColumnId}, {showAddCardModal})
 	}
+	
+	let isDndDisabled = $state(false);
+	$effect(() => {
+		isDndDisabled = userRole < 2;
+	});
 </script>
 
-<div class="h-[600px] w-full flex flex-col justify-between ring-1 ring-gray-300 rounded-lg overflow-hidden">
+<div class="h-[600px] w-full flex flex-col justify-between ring-1 ring-gray-300 bg-gray-100 rounded-lg overflow-hidden">
 	<div class="flex justify-between items-center p-3
 	{column.state === 3 ? 'bg-emerald-200' : 
 	column.state === 2 ? 'bg-sky-200' : 
 	column.state === 1 ? 'bg-gray-200' : 'bg-red-200'}">
-		{#if editingColumnId === column.id}
+		{#if editingColumnId === column.id && userRole >= 3}
 			<form onsubmit={handleUpdateColumnName} class="w-full flex justify-between group">
 				<input
 					type="text"
@@ -107,37 +113,42 @@
 			</form>
 		{:else}
 			<div class="flex w-full justify-between">
-				<button class="w-full text-left cursor-pointer" onclick={startEditingColumn}>
+				<button class="w-full text-left {userRole >= 3 ? 'cursor-pointer' : 'cursor-default'}" disabled={!(userRole >= 3)} onclick={startEditingColumn}>
 					<h2 class="font-semibold text-gray-700">{column.name}</h2>
 				</button>
-				<button onclick={handleDeleteColumn} class="aspect-square rounded-full cursor-pointer hover:rotate-90 duration-500 ease-out">
-					<Icon icon="mingcute:close-fill" class="text-lg"/>
-				</button>
+				{#if userRole >= 3}
+					<button onclick={handleDeleteColumn} class="aspect-square rounded-full cursor-pointer hover:rotate-90 duration-500 ease-out">
+						<Icon icon="mingcute:close-fill" class="text-lg"/>
+					</button>
+				{/if}
 			</div>
 		{/if}
 		
 	</div>
 
 	<div
-		class="h-[calc(100%-48px)] space-y-2 pt-2 overflow-y-auto overflow-x-hidden flex justify-start items-center flex-col bg-gray-100"
-		use:dndzone={{ items: column.cards, flipDurationMs }}
+		class="h-[calc(100%-48px)] space-y-2 pt-2 overflow-y-auto overflow-x-hidden flex justify-start items-center flex-col bg-gray-100
+		{userRole >= 2 ? '' : 'mb-2' }"
+		use:dndzone={{ items: column.cards, flipDurationMs, dragDisabled: isDndDisabled }}
 		onconsider={handleDndConsiderCards}
 		onfinalize={handleDndFinalizeCards}
 	>
 		{#each column.cards as card (card.id)}
 			<div class="w-[calc(100%-16px)]" animate:flip="{{ duration: flipDurationMs }}">
-				<Card card={card} />
+				<Card userRole={userRole} card={card} />
 			</div>
 		{/each}
 		<div class="h-[30px]"></div>
 	</div>
-	<div class="bg-gray-100 rounded-b-lg p-2">
-		<button
-			class="text-gray-900 hover:bg-gray-300 p-2 cursor-pointer bg-gray-200 rounded-md w-full"
-			onclick={() => openAddCardModal(column.id)}
-		>
-			+ Add a card
-		</button>
-	</div>
+	{#if userRole >= 2}
+		<div class="bg-gray-100 rounded-b-lg p-2">
+			<button
+				class="text-gray-900 hover:bg-gray-300 p-2 cursor-pointer bg-gray-200 rounded-md w-full"
+				onclick={() => openAddCardModal(column.id)}
+			>
+				+ Add a card
+			</button>
+		</div>
+	{/if}
 	
 </div>

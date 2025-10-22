@@ -125,7 +125,7 @@ export const DELETE: RequestHandler = async ({ request, locals: { getSession } }
 		if (!boardRows[0]) throw error(404, 'Card not found.');
 
 		const board_id = boardRows[0].board_id;
-		const userLevel = await userPermission(session.user.id, board_id, 3);
+		const userLevel = await userPermission(session.user.id, board_id, 2);
 		if (!userLevel)
 			return json({ success: false, message: 'You do not have permission to delete cards.' }, { status: 403 });
 

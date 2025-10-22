@@ -296,6 +296,7 @@
         <div class="pb-6">
             <Board
 			bind:board={board}
+			userRole={data.userRole}
             onFinalUpdate={handleBoardUpdated}
             />
         </div>
@@ -487,17 +488,19 @@
                 <div class="h-[20%]"></div>
 			{/if}
             <section class="flex flex-row space-x-2 absolute bottom-4 left-4">
-                <button class="bg-rose-500 text-white hover:bg-rose-400 disabled:bg-rose-400 w-[116px] cursor-pointer h-[40px] font-semibold rounded-md flex justify-center items-center" onclick={() => handleDeleteCard($selectedCard.id)}>
-                    <!-- {$isLoading.CardRemove[$selectedCard.id] ? 'Deleting...' : 'Delete Card'} -->
-                    {#if $isLoading.CardRemove[$selectedCard.id]}
-                        <Icon icon="mingcute:loading-fill" class="text-xl animate-spin" />
-                    {:else}
-                        Delete Card
-                    {/if}
-                </button>
-                <button class="bg-gray-200 text-gray-800 hover:bg-gray-300 cursor-pointer h-[40px] w-[72px] font-semibold rounded-md"  onclick={() => $isEdit=!$isEdit}>
-                    {$isEdit ? 'Back' : 'Edit'}
-                </button>
+				{#if data.userRole >= 2}
+					<button class="bg-rose-500 text-white hover:bg-rose-400 disabled:bg-rose-400 w-[116px] cursor-pointer h-[40px] font-semibold rounded-md flex justify-center items-center" onclick={() => handleDeleteCard($selectedCard.id)}>
+						<!-- {$isLoading.CardRemove[$selectedCard.id] ? 'Deleting...' : 'Delete Card'} -->
+						{#if $isLoading.CardRemove[$selectedCard.id]}
+							<Icon icon="mingcute:loading-fill" class="text-xl animate-spin" />
+						{:else}
+							Delete Card
+						{/if}
+					</button>
+					<button class="bg-gray-200 text-gray-800 hover:bg-gray-300 cursor-pointer h-[40px] w-[72px] font-semibold rounded-md"  onclick={() => $isEdit=!$isEdit}>
+						{$isEdit ? 'Back' : 'Edit'}
+					</button>
+				{/if}
                 {#if $selectedCard.deadline && !$isEdit}
                     <div transition:fly={{ x: -4, duration: 150, opacity: 0 }}>
                         <h4 class="text-[16px] font-outfit leading-none mb-1 tracking-wide">Deadline : </h4>

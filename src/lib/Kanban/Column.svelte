@@ -5,6 +5,7 @@
 	import { showAddCardModal, activeColumnId } from '$lib/stores/uiStore';
 	import Icon from '@iconify/svelte';
 	import { pushError } from '$lib/stores/errorNotification';
+	import { isLoading } from '$lib/stores/loading';
 
 	const flipDurationMs = 150;
 	// export let column: any;
@@ -40,41 +41,64 @@
 	async function handleUpdateColumnName() {
 		if (!editingColumnName.trim()) return;
 
-		const response = await fetch('/api/boards/columns', {
-			method: 'PUT',
-			body: JSON.stringify({ name: editingColumnName, column_id: column.id }),
-		});
+		isLoading.start('ColumnEdit')
 
-		if (response.ok) {
-			onDrop({
-				columnId: column.id,
-				items: column.cards,
-				info: { type: 'rename-column', columnId: column.id, newName: editingColumnName },
+		
+		try {
+			const response = await fetch('/api/boards/columns', {
+				method: 'PUT',
+				body: JSON.stringify({ name: editingColumnName, column_id: column.id }),
 			});
-			cancelEditingColumn();
-		} else {
-			const result = await response.json();
-			pushError(result.error, result.message);
+
+			if (response.ok) {
+				onDrop({
+					columnId: column.id,
+					items: column.cards,
+					info: { type: 'rename-column', columnId: column.id, newName: editingColumnName },
+				});
+				cancelEditingColumn();
+				isLoading.stop('ColumnEdit')
+			} else {
+				const result = await response.json();
+				pushError(result.error, result.message);
+				isLoading.stop('ColumnEdit')
+			}
+		} catch (err) {
+			console.error('Error creating card:', err);
+			pushError(500, 'Unexpected error while adding card.');
+			isLoading.stop('ColumnEdit')
 		}
 	}
 
 	async function handleDeleteColumn() {
 		if (!confirm('Are you sure?')) return;
 
-		const response = await fetch('/api/boards/columns', {
-			method: 'DELETE',
-			body: JSON.stringify({ column_id: column.id }),
-		});
+		isLoading.start('ColumnRemove')
+		
+		try {
 
-		if (response.ok) {
-			onDrop({
-				columnId: column.id,
-				items: [],
-				info: { type: 'delete-column', columnId: column.id },
+			const response = await fetch('/api/boards/columns', {
+				method: 'DELETE',
+				body: JSON.stringify({ column_id: column.id }),
 			});
-		} else {
-			const result = await response.json();
-			pushError(result.error, result.message);
+
+			if (response.ok) {
+				onDrop({
+					columnId: column.id,
+					items: [],
+					info: { type: 'delete-column', columnId: column.id },
+				});
+				isLoading.stop('ColumnRemove')
+			} else {
+				const result = await response.json();
+				pushError(result.error, result.message);
+				isLoading.stop('ColumnRemove')
+			}
+
+		} catch (err) {
+			console.error('Error creating card:', err);
+			pushError(500, 'Unexpected error while adding card.');
+			isLoading.stop('ColumnRemove')
 		}
 	}
 

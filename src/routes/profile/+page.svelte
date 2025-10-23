@@ -331,7 +331,7 @@
 									<!-- <div class="text-[12px] font-outfit leading-none mb-1 tracking-wide font-semibold">Change</div> -->
 								</div>
 							</button>
-							<img src={ previewUrl || data.profile?.avatar_url || profile} width="50px" class="rounded-full" alt="">
+							<img src={ previewUrl || data.profile?.avatar_url || profile} width="50px" height="50px" class="rounded-full aspect-square" alt="">
 						</div>
 						<input type="file" bind:this={fileInput} onchange={handleAvatarUpload} accept="image/png, image/jpeg" disabled={loading.avatar} class="hidden" />
 					</form>

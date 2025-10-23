@@ -2,6 +2,7 @@
 import { json, error } from '@sveltejs/kit';
 import type { RequestHandler } from './$types';
 import { query } from '$lib/server/database';
+import { withLock } from '$lib/server/lock';
 
 export const POST: RequestHandler = async ({ request, locals: { supabase, getSession } }) => {
     // Pastikan pengguna sudah login
@@ -25,13 +26,17 @@ export const POST: RequestHandler = async ({ request, locals: { supabase, getSes
         throw error(500, updateError.message);
     }
 
-    try {
-        await query('UPDATE users SET has_password = TRUE WHERE uid = ?', [session.user.id]);
-    } catch (dbError) {
-        console.error("Failed to set has_password flag:", dbError);
-        // Lanjutkan saja, ini bukan error fatal
-    }
+	const lockKey = `${session.user.id}:password`;
 
-    // Jika berhasil, kirim respons sukses
-    return json({ success: true, message: 'Password action successful.' });
+	return await withLock(lockKey, async () => {
+        try {
+            await query('UPDATE users SET has_password = TRUE WHERE uid = ?', [session.user.id]);
+        } catch (dbError) {
+            console.error("Failed to set has_password flag:", dbError);
+            // Lanjutkan saja, ini bukan error fatal
+        }
+    
+        // Jika berhasil, kirim respons sukses
+        return json({ success: true, message: 'Password action successful.' });
+	});
 };

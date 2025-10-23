@@ -1,6 +1,7 @@
 import { json } from '@sveltejs/kit';
 import { query } from '$lib/server/database';
 import type { RowDataPacket } from 'mysql2';
+import { withLock } from '$lib/server/lock';
 
 export async function POST({ request, locals: { getSession } }) {
 	const session = await getSession();
@@ -44,22 +45,26 @@ export async function POST({ request, locals: { getSession } }) {
 
 	// --- VALIDASI SELESAI ---
 
-	try {
-		// Cek apakah username sudah ada yang pakai
-		const existing = (await query('SELECT id FROM users WHERE username = ?', [
-			username
-		])) as RowDataPacket[];
+	const lockKey = `${session.user.id}:setusername`;
 
-		if (existing.length > 0) {
-			return json({ error: 'Username is already taken' }, { status: 409 });
+	return await withLock(lockKey, async () => {
+		try {
+			// Cek apakah username sudah ada yang pakai
+			const existing = (await query('SELECT id FROM users WHERE username = ?', [
+				username
+			])) as RowDataPacket[];
+	
+			if (existing.length > 0) {
+				return json({ error: 'Username is already taken' }, { status: 409 });
+			}
+	
+			// Update username untuk user yang sedang login
+			await query('UPDATE users SET username = ? WHERE uid = ?', [username, session.user.id]);
+	
+			return json({ success: true });
+		} catch (err) {
+			console.error('Update profile error:', err);
+			return json({ error: 'Internal server error' }, { status: 500 });
 		}
-
-		// Update username untuk user yang sedang login
-		await query('UPDATE users SET username = ? WHERE uid = ?', [username, session.user.id]);
-
-		return json({ success: true });
-	} catch (err) {
-		console.error('Update profile error:', err);
-		return json({ error: 'Internal server error' }, { status: 500 });
-	}
+	});
 }

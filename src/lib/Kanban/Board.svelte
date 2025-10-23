@@ -4,6 +4,7 @@
 	import Column from "$lib/Kanban/Column.svelte";
 	import { showAddColumnInput } from '$lib/stores/uiStore';
 	import { pushError } from '$lib/stores/errorNotification';
+	import { isLoading } from '$lib/stores/loading';
 
 	let { board = $bindable(), onFinalUpdate, userRole } = $props<{
 		userRole: number;
@@ -73,6 +74,7 @@
 	async function handleAddColumn() {
 		if (!board || !newColumnName) return;
 		apiError = null;
+		isLoading.start('BoardAdd')
 
 		const response = await fetch('/api/boards/columns', {
 			method: 'POST',
@@ -89,9 +91,11 @@
 
 			newColumnName = '';
 			$showAddColumnInput = false;
+			isLoading.stop('BoardAdd')
 		} else {
 			const result = await response.json();
 			pushError(result.error, result.message);
+			isLoading.stop('BoardAdd')
 		}
 	}
 

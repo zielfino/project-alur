@@ -1,5 +1,6 @@
 import { json } from '@sveltejs/kit';
 import { query } from '$lib/server/database';
+import { withLock } from '$lib/server/lock';
 
 export async function POST({ request, locals: { getSession } }) {
 	// CHECKPOINT 1: Endpoint untuk edit nama dijangkau.
@@ -33,17 +34,21 @@ export async function POST({ request, locals: { getSession } }) {
 	}
 	console.log('CHECKPOINT EDIT PROFILE: SUCCESS - Validation passed.');
 
-	try {
-		// Langkah 4: Hubungkan ke database dan jalankan perintah UPDATE.
-		console.log('CHECKPOINT EDIT PROFILE: Attempting to update name in MySQL...');
-		await query('UPDATE users SET name = ? WHERE uid = ?', [name, session.user.id]);
+	const lockKey = `${session.user.id}:rename`;
 
-		// Jika berhasil, kirim respons sukses.
-		console.log('CHECKPOINT EDIT PROFILE: SUCCESS - MySQL database updated.');
-		return json({ success: true, message: 'Name updated successfully.' });
-	} catch (err) {
-		// Jika terjadi error pada database, catat error dan kirim respons error.
-		console.error('CHECKPOINT EDIT PROFILE: FAILED - Database error:', err);
-		return json({ error: 'Internal server error' }, { status: 500 });
-	}
+	return await withLock(lockKey, async () => {
+		try {
+			// Langkah 4: Hubungkan ke database dan jalankan perintah UPDATE.
+			console.log('CHECKPOINT EDIT PROFILE: Attempting to update name in MySQL...');
+			await query('UPDATE users SET name = ? WHERE uid = ?', [name, session.user.id]);
+	
+			// Jika berhasil, kirim respons sukses.
+			console.log('CHECKPOINT EDIT PROFILE: SUCCESS - MySQL database updated.');
+			return json({ success: true, message: 'Name updated successfully.' });
+		} catch (err) {
+			// Jika terjadi error pada database, catat error dan kirim respons error.
+			console.error('CHECKPOINT EDIT PROFILE: FAILED - Database error:', err);
+			return json({ error: 'Internal server error' }, { status: 500 });
+		}
+	});
 }

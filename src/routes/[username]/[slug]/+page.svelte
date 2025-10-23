@@ -61,6 +61,7 @@
 	async function handleAddCard() {
 		if (!newCardTitle || !$activeColumnId || !board) return;
 
+		isLoading.start("CardEdit");
 		try {
 			const response = await fetch('/api/boards/cards', {
 				method: 'POST',
@@ -95,10 +96,13 @@
 
 				// Tutup modal
 				$showAddCardModal = false;
+				isLoading.stop("CardEdit");
 			} else {
+				isLoading.stop("CardEdit");
 				pushError(400, 'Something went wrong while adding the card.');
 			}
 		} catch (err) {
+			isLoading.stop("CardEdit");
 			console.error('Error creating card:', err);
 			pushError(500, 'Unexpected error while adding card.');
 		}
@@ -135,9 +139,10 @@
 		} catch (err) {
 			console.error('Error updating card:', err);
 			pushError(500, 'Unexpected error while updating card.');
-		} finally {
 			isLoading.stop("CardEdit", $selectedCard.id);
+		} finally {
 			$showEditCardModal = false;
+			isLoading.stop("CardEdit", $selectedCard.id);
 		}
 	}
 
@@ -168,9 +173,10 @@
 		} catch (err) {
 			console.error('Error deleting card:', err);
 			pushError(500, 'Unexpected error while deleting card.');
-		} finally {
 			isLoading.stop("CardRemove", cardId);
+		} finally {
 			$showEditCardModal = false;
+			isLoading.stop("CardRemove", cardId);
 		}
 	}
 

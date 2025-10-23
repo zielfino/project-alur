@@ -43,6 +43,8 @@
 
     
 	import { boardLoading, showEditBoardModal } from '$lib/stores/uiStore';
+	import { isLoading } from '$lib/stores/loading';
+	import { pushError } from '$lib/stores/errorNotification';
 
     type Board = {
         id: number;
@@ -82,119 +84,190 @@
 	}
 
     async function handleUpdateBoard() {
-		if (!selectedBoard || !editingBoardName) return;
+        if (!selectedBoard || !editingBoardName) return;
 
-		const response = await fetch('/api/boards', {
-			method: 'PUT',
-			body: JSON.stringify({ board_id: selectedBoard.id, name: editingBoardName })
-		});
+        isLoading.start('BoardEdit', selectedBoard.id);
 
-		if (response.ok) {
-			const { newName, newSlug } = await response.json();
-			// Update UI secara reaktif
-			boards = boards.map(b => 
-				b.id === selectedBoard.id ? { ...b, name: newName, slug: newSlug } : b
-			);
-			$showEditBoardModal = false;
-		} else {
-			alert('Failed to update board.');
-		}
-	}
+        try {
+            const response = await fetch('/api/boards', {
+                method: 'PUT',
+                body: JSON.stringify({
+                    board_id: selectedBoard.id,
+                    name: editingBoardName
+                })
+            });
 
-	async function handleDeleteBoard() {
-		if (!selectedBoard) return;
-		if (!confirm(`Are you sure you want to delete the board "${selectedBoard.name}"? This action cannot be undone.`)) return;
-		
-		const response = await fetch('/api/boards', {
-			method: 'DELETE',
-			body: JSON.stringify({ board_id: selectedBoard.id })
-		});
+            if (response.ok) {
+                const { newName, newSlug } = await response.json();
 
-		if (response.ok) {
-			boards = boards.filter(b => b.id !== selectedBoard.id);
-			$showEditBoardModal = false;
-		} else {
-			alert('Failed to delete board.');
-		}
-	}
+                boards = boards.map(b =>
+                    b.id === selectedBoard.id
+                        ? { ...b, name: newName, slug: newSlug }
+                        : b
+                );
 
-	async function handleInviteMember() {
-		if (!newMemberUsername || !selectedBoard) return;
-		
-		if (newMemberUsername === data.profile?.username) {
-			alert("You can't invite yourself.");
-			return;
-		}
+                // 🧩 Update juga selectedBoard biar slug-nya baru
+                selectedBoard = { ...selectedBoard, name: newName, slug: newSlug };
 
-		const response = await fetch('/api/boards/members', {
-			method: 'POST',
-			body: JSON.stringify({
-				usernameToInvite: newMemberUsername,
-				board_id: selectedBoard.id,
-				role: newMemberRole
-			})
-		});
+                $showEditBoardModal = false;
+            } else {
+                const result = await response.json();
+                pushError(response.status, result.error || 'Failed to update board.');
+            }
+        } catch (err) {
+            console.error('Error updating board:', err);
+            pushError(500, 'Unexpected error while updating board.');
+        } finally {
+            isLoading.stop('BoardEdit', selectedBoard.id);
 
-		if (response.ok) {
-			// Untuk simplicity, kita fetch ulang daftar anggota untuk menampilkan yang baru
-			const res = await fetch(`/api/boards/members?board_id=${selectedBoard.id}`);
-			members = await res.json();
-			newMemberUsername = '';
-		} else {
-			const result = await response.json();
-			alert(`Error Invite: ${result.error}`);
-		}
-	}
+            // 🔁 Pindahkan setelah selectedBoard diperbarui
+            goto(`/${data.profile?.username}/${selectedBoard.slug}`);
+        }
+    }
 
-	async function handleRemoveMember(userUidToRemove: string) {
-		if (!selectedBoard) return;
-		if (!confirm(`Are you sure you want to remove this member?`)) return;
 
-		const response = await fetch('/api/boards/members', {
-			method: 'DELETE',
-			body: JSON.stringify({
-				board_id: selectedBoard.id,
-				user_uid_to_remove: userUidToRemove
-			})
-		});
-		console.log('test:',members)
+    async function handleDeleteBoard() {
+        if (!selectedBoard) return;
+        if (
+            !confirm(
+                `Are you sure you want to delete the board "${selectedBoard.name}"? This action cannot be undone.`
+            )
+        )
+            return;
 
-		if (response.ok) {
-			members = members.filter(m => m.user_uid !== userUidToRemove);
-		} else {
-			alert('Failed to remove member.');
-		}
-	}
+        isLoading.start('BoardRemove', selectedBoard.id);
+
+        try {
+            const response = await fetch('/api/boards', {
+                method: 'DELETE',
+                body: JSON.stringify({ board_id: selectedBoard.id })
+            });
+
+            if (response.ok) {
+                boards = boards.filter(b => b.id !== selectedBoard.id);
+                $showEditBoardModal = false;
+            } else {
+                const result = await response.json();
+                pushError(response.status, result.error || 'Failed to delete board.');
+            }
+        } catch (err) {
+            console.error('Error deleting board:', err);
+            pushError(500, 'Unexpected error while deleting board.');
+        } finally {
+            isLoading.stop('BoardRemove', selectedBoard.id);
+            if (currentpage === `/${data.profile?.username}/${selectedBoard.slug}`) {
+                goto('/');
+            }
+        }
+    }
+
+    async function handleInviteMember() {
+        if (!newMemberUsername || !selectedBoard) return;
+
+        if (newMemberUsername === data.profile?.username) {
+            pushError(400, "You can't invite yourself.");
+            return;
+        }
+
+        isLoading.start('BoardEdit', selectedBoard.id);
+
+        try {
+            const response = await fetch('/api/boards/members', {
+                method: 'POST',
+                body: JSON.stringify({
+                    usernameToInvite: newMemberUsername,
+                    board_id: selectedBoard.id,
+                    role: newMemberRole
+                })
+            });
+
+            if (response.ok) {
+                const res = await fetch(`/api/boards/members?board_id=${selectedBoard.id}`);
+                members = await res.json();
+                newMemberUsername = '';
+            } else {
+                const result = await response.json();
+                pushError(response.status, result.error || 'Failed to invite member.');
+            }
+        } catch (err) {
+            console.error('Error inviting member:', err);
+            pushError(500, 'Unexpected error while inviting member.');
+        } finally {
+            isLoading.stop('BoardEdit', selectedBoard.id);
+        }
+    }
+
+    async function handleRemoveMember(userUidToRemove: string) {
+        if (!selectedBoard) return;
+        if (!confirm('Are you sure you want to remove this member?')) return;
+
+        isLoading.start('BoardEdit', selectedBoard.id);
+
+        try {
+            const response = await fetch('/api/boards/members', {
+                method: 'DELETE',
+                body: JSON.stringify({
+                    board_id: selectedBoard.id,
+                    user_uid_to_remove: userUidToRemove
+                })
+            });
+
+            if (response.ok) {
+                members = members.filter(m => m.user_uid !== userUidToRemove);
+            } else {
+                const result = await response.json();
+                pushError(response.status, result.error || 'Failed to remove member.');
+            }
+        } catch (err) {
+            console.error('Error removing member:', err);
+            pushError(500, 'Unexpected error while removing member.');
+        } finally {
+            isLoading.stop('BoardEdit', selectedBoard.id);
+        }
+    }
+
 
     
 	let newBoardName = $state('');
     let nameValidationError = $state<string | null>(null);
 	let apiError = $state<string | null>(null);
 	let showCreateModal = $state(false);
+    
+    async function handleCreateBoard() {
+        if (!newBoardName || nameValidationError) return;
+        $boardLoading = true;
 
-	async function handleCreateBoard() {
-		if (!newBoardName || nameValidationError) return; // Jangan kirim jika tidak valid
-		$boardLoading = true;
-		apiError = null; // Reset error API setiap kali submit
+        isLoading.start('BoardAdd');
 
-		const response = await fetch('/api/boards', {
-			method: 'POST',
-			headers: { 'Content-Type': 'application/json' },
-			body: JSON.stringify({ name: newBoardName })
-		});
+        try {
+            apiError = null;
 
-		if (response.ok) {
-			const newBoard = await response.json();
-			boards = [...boards, newBoard];
-            showCreateModal = false;
-			newBoardName = '';
-		} else {
-			// --- PERBAIKAN: Tidak lagi menggunakan alert() ---
-			const result = await response.json();
-			apiError = result.error || 'Failed to create board.';
-		}
-		$boardLoading = false;
-	}
+            const response = await fetch('/api/boards', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ name: newBoardName })
+            });
+
+            if (response.ok) {
+                const newBoard = await response.json();
+                boards = [...boards, newBoard];
+                showCreateModal = false;
+                newBoardName = '';
+            } else {
+                const result = await response.json();
+                pushError(response.status, result.error || 'Failed to create board.');
+                apiError = result.error || 'Failed to create board.';
+            }
+        } catch (err) {
+            console.error('Error creating board:', err);
+            pushError(500, 'Unexpected error while creating board.');
+            apiError = 'Unexpected error while creating board.';
+        } finally {
+            $boardLoading = false;
+            isLoading.stop('BoardAdd');
+        }
+    }
+
     
     onMount(async () => {
         try {
@@ -230,7 +303,7 @@
         <div class="flex flex-col ">
             <div class="flex items-center
             {$sidebar || $isHovered ? 'gap-2' : 'gap-4'}">
-                <img src={data.profile?.avatar_url || profile} width="40px" height="40px" class="rounded-full" alt="">
+                <img src={data.profile?.avatar_url || profile} width="40px" height="40px" class="rounded-full aspect-square" alt="">
                 <div>
                     <div class=" line-clamp-1 font-medium text-slate-900 font-outfit leading-5 text-base {$sidebar || $isHovered ? 'opacity-100' : 'opacity-0'}">{ data.profile?.name || 'User'   }</div>
                     <div class="agerrh5 text-slate-400">@{data.profile?.username || 'username'}</div>

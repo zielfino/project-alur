@@ -1,6 +1,6 @@
 <script lang="ts">
-	import { goto } from '$app/navigation';
-	import LogoutButton from '$lib/component/logoutButton.svelte';
+	// import { goto } from '$app/navigation';
+	// import LogoutButton from '$lib/component/logoutButton.svelte';
     import MainFooter from '$lib/island/mainFooter.svelte';
 	import Login from './login.svelte';
     let parentLogin: HTMLElement | null = null;
@@ -51,7 +51,7 @@
     }
 </script>
 
-<section class="bg-white flex flex-col items-center justify-center nodrag relative">
+<main class="bg-white flex flex-col items-center justify-center nodrag relative overflow-hidden">
 
     <!-- NAVIGATION -->
     <nav class="agerrlongercontainer z-50 flex sticky top-0 justify-between items-center pt-4 h-[60px] select-none">
@@ -71,8 +71,7 @@
     </nav>
     
     <!-- TOPER BACKGROUND -->
-    <div class="absolute top-0 w-full bg-[url('/img/landingbackground.jpg')]
-    h-[200px] bg-cover bg-[center_60%]
+    <div class="absolute top-0 w-full bg-[url('/img/landingbackground.jpg')] h-[200px] bg-cover bg-[center_60%]
     mask-radial-farthest-corner mask-b-from-70% mask-radial-at-[50%_0%] mask-radial-from-30% mask-radial-to-80%"></div>
 
     {#if $isLoginModalOpen}
@@ -286,7 +285,7 @@
             <div aria-label="boxfeature" class="agerrnonboxfeature mask-b-from-0% mask-b-to-50%"></div>
         </section>
     </section>
-</section>
+</main>
 
 <!-- FOOTER -->
 <MainFooter />

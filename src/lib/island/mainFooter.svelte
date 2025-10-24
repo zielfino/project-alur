@@ -1,53 +1,81 @@
-<footer class="w-full flex flex-col items-center justify-center bg-slate-50 z-20 select-none">
-    <section class="bg-white w-full flex justify-center border-y border-slate-300">
-        <div class="agerrcontainer py-4 text-base">
-            Alurr | Organize all your project, find a flow.
+<script lang="ts">
+	import Logosvg from "$lib/assets/logosvg.svelte";
+
+    const year = new Date().getFullYear();
+</script>
+
+<footer>
+
+    <!-- HEAD -->
+    <div class="fullwiddhcover">
+        <div class="container text flex items-center">
+
+            <!-- LOGO -->
+            <Logosvg />
+
+            <!-- TAGLINE -->
+            <div class="">
+                Organize all your <br class="phone:hidden"> project, find a flow.
+            </div>
+
         </div>
-    </section>
-    <section class="agerrcontainer pt-8">
-        <div class="grid grid-cols-12">
-            <div class="col-span-2 my-4">
-                <h4 class="mb-4 text-base font-bold text-slate-700">Projects</h4>
-                <ul class="text-slate-400/80 font-semibold text-xs tracking-wide [&>*]:my-1.5 [&_a]:hover:underline [&_a]:focus-visible:decoration-sky-400 [&_a]:focus-visible:underline [&_a]:focus-visible:decoration-2 [&_a]:text-slate-500">
-                    <li><a href="https://kasatara.agerrstudio.com">KASATARA</a></li>
+    </div>
+
+    <!-- CONTENT -->
+    <div class="container text pt-6 phone:pt-4 laptop:pt-8">
+
+        <!-- LINKS -->
+        <div class="links">
+
+            <!-- BLANKSPACE -->
+            <div class="max-phone:hidden col-span-1 tablet:col-span-3 laptop:col-span-4 order-2"></div>
+
+            <!-- LINK -->
+            <div class="link order-1 phone:order-1">
+                <h4 class="title">Project Alur</h4>
+                <ul>
+                    <li><a href="/">About</a></li>
+                    <li><a href="/">Privacy</a></li>
+                    <li><a href="/">Contact</a></li>
+                    <li><a href="/">Terms</a></li>
+                </ul>
+            </div>
+            <div class="link order-3">
+                <h4 class="title">Projects</h4>
+                <ul>
                     <li>NECOFE</li>
-                    <li><a href="https://alur.my.id">Project Alur</a></li>
-                    <li>Uangku</li>
-                    <li>CatetAja</li>
-                    <li>JagaMakan</li>
+                    <li><a href="https://kasatara.agerrstudio.com">KASATARA</a></li>
+                    <li><a href="/">Project Alur</a></li>
                 </ul>
             </div>
-            <div class="col-span-2 my-4">
-                <h4 class="mb-4 text-base font-bold text-slate-700">Portfolio</h4>
-                <ul class="text-slate-400/80 font-semibold text-xs tracking-wide [&>*]:my-1.5 [&_a]:hover:underline [&_a]:focus-visible:decoration-sky-400 [&_a]:focus-visible:underline [&_a]:focus-visible:decoration-2 [&_a]:text-slate-500">
-                    <li><a href="https://resume.zielalfino.com">My Resume</a></li>
-                    <li><a href="https://portfolio.zielalfino.com">My Portfolio</a></li>
-                </ul>
-            </div>
-            <div class="col-span-4"></div>
-            <div class="col-span-2 my-4">
-                <h4 class="mb-4 text-base font-bold text-slate-700">My Links</h4>
-                <ul class="text-slate-400/80 font-semibold text-xs tracking-wide [&>*]:my-1.5 [&_a]:hover:underline [&_a]:focus-visible:decoration-sky-400 [&_a]:focus-visible:underline [&_a]:focus-visible:decoration-2 [&_a]:text-slate-500">
-                    <li><a href="https://github.com/zielfino">Github</a></li>
-                    <li><a href="https://www.linkedin.com/in/zielfino/">LinkedIn</a></li>
-                    <li><a href="https://dribbble.com/zielfino">Dribble</a></li>
-                    <li><a href="https://www.behance.net/zielfino">Behance</a></li>
-                </ul>
-            </div>
-            <div class="col-span-2 my-4">
-                <h4 class="mb-4 text-base font-bold text-slate-700">agerr site</h4>
-                <ul class="text-slate-400/80 font-semibold text-xs tracking-wide [&>*]:my-1.5 [&_a]:hover:underline [&_a]:focus-visible:decoration-sky-400 [&_a]:focus-visible:underline [&_a]:focus-visible:decoration-2 [&_a]:text-slate-500">
+            <div class="link order-4">
+                <h4 class="title">agerr site</h4>
+                <ul>
                     <li><a href="https://agerrstudio.com">agerr.studio</a></li>
                     <li>agerr.blog</li>
                     <li>agerr.store</li>
                 </ul>
             </div>
+            <div class="link order-2 phone:order-5">
+                <h4 class="title">My Links</h4>
+                <ul>
+                    <li><a href="https://www.linkedin.com/in/zielfino/">LinkedIn</a></li>
+                    <li><a href="https://github.com/zielfino">Github</a></li>
+                    <li><a href="https://dribbble.com/zielfino">Dribble</a></li>
+                    <li><a href="https://zielalfino.com/">Website</a></li>
+                </ul>
+            </div>
         </div>
-        <div class="text-slate-700 text-base tracking-wide">
-            <span class="font-outfit tracking-normal font-[600]">©</span><span class="text-sm font-[700]">2025</span> <span class="font-outfit tracking-normal font-[600]">agerr.studio</span>
+        
+        <!-- COPYRIGTH -->
+        <div class="font-semibold text-xs text-slate-800 italic max-phone:mt-4">
+           <span> © {year} agerr.studio. All right reserved</span>
         </div>
-        <div class="text-center tracking-wider font-semibold text-xs text-slate-500 mb-2 mt-12">
-            landing reference: ClickUp & Contenful
+
+        <!-- REFERENCE -->
+        <div class="text-center font-[400] text-xs text-slate-800/50 mb-2 mt-16 phone:mt-12 tracking-wider">
+            <span>landing reference: <a href="/">ClickUp</a> & <a href="/">Contenful</a></span>
         </div>
-    </section>
+        
+    </div>
 </footer>

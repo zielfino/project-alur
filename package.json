@@ -1,10 +1,10 @@
 {
 	"name": "project-alur",
 	"private": true,
-	"version": "0.8.2-alpha",
+	"version": "0.8.2-alpha.1",
 	"type": "module",
 	"scripts": {
-		"dev": "vite dev",
+		"dev": "vite dev --host",
 		"build": "vite build",
 		"preview": "vite preview",
 		"prepare": "svelte-kit sync || echo ''",

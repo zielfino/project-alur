@@ -45,6 +45,7 @@
 	import { boardLoading, showEditBoardModal } from '$lib/stores/uiStore';
 	import { isLoading } from '$lib/stores/loading';
 	import { pushError } from '$lib/stores/errorNotification';
+	import { isConfirm } from '$lib/stores/confirmStore';
 
     type Board = {
         id: number;
@@ -128,13 +129,14 @@
 
     async function handleDeleteBoard() {
         if (!selectedBoard) return;
-        if (
-            !confirm(
-                `Are you sure you want to delete the board "${selectedBoard.name}"? This action cannot be undone.`
-            )
-        )
-            return;
+        // if (
+        //     !confirm(
+        //         `Are you sure you want to delete the board "${selectedBoard.name}"? This action cannot be undone.`
+        //     )
+        // )
+        //     return;
 
+		if (!(await isConfirm("Are you sure you want to delete this board?"))) return;
         isLoading.start('BoardRemove', selectedBoard.id);
 
         try {
@@ -199,7 +201,8 @@
 
     async function handleRemoveMember(userUidToRemove: string) {
         if (!selectedBoard) return;
-        if (!confirm('Are you sure you want to remove this member?')) return;
+        // if (!confirm('Are you sure you want to remove this member?')) return;
+		if (!(await isConfirm("Are you sure you want to remove this member?"))) return;
 
         isLoading.start('BoardEdit', selectedBoard.id);
 

@@ -6,6 +6,7 @@
 	import Icon from '@iconify/svelte';
 	import { pushError } from '$lib/stores/errorNotification';
 	import { isLoading } from '$lib/stores/loading';
+	import { isConfirm } from '$lib/stores/confirmStore';
 
 	const flipDurationMs = 150;
 	// export let column: any;
@@ -71,7 +72,8 @@
 	}
 
 	async function handleDeleteColumn() {
-		if (!confirm('Are you sure?')) return;
+		// if (!confirm('Are you sure?')) return;
+		if (!(await isConfirm("Are you sure you want to delete this column?"))) return;
 
 		isLoading.start('ColumnRemove')
 		

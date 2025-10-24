@@ -21,6 +21,7 @@
 		sidebarIsHovered as isHovered
 	} from "$lib/stores/uiStore";
 	import { pushError } from "$lib/stores/errorNotification.js";
+	import { isConfirm } from "$lib/stores/confirmStore.js";
 
 	/** ---------------------------------------------
 	 * TYPES
@@ -151,7 +152,8 @@
 	* --------------------------------------------- */
 	async function handleDeleteCard(cardId: number) {
 		if (!board) return;
-		if (!confirm("Are you sure you want to delete this card?")) return;
+		if (!(await isConfirm("Are you sure you want to delete this card?"))) return;
+		// if (!confirm("Are you sure you want to delete this card?")) return;
 
 		isLoading.start("CardRemove", cardId);
 

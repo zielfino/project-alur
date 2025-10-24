@@ -75,19 +75,19 @@
 		}
 	});
 
-	function lockScroll() {
-		document.body.style.overflow = 'hidden';
-		document.body.style.touchAction = 'none';
-    }
+	// function lockScroll() {
+	// 	document.body.style.overflow = 'hidden';
+	// 	document.body.style.touchAction = 'none';
+    // }
 
-    function unlockScroll() {
-		document.body.style.overflow = '';
-		document.body.style.touchAction = '';
-    }
+    // function unlockScroll() {
+	// 	document.body.style.overflow = '';
+	// 	document.body.style.touchAction = '';
+    // }
 
 	
-	import { isAnyLoading } from '$lib/stores/loading';
-	import { fade } from 'svelte/transition';
+	import ConfirmModal from '$lib/component/ConfirmModal.svelte';
+	import IsLoading from '$lib/component/isLoading.svelte';
 </script>
 
 <svelte:head>
@@ -99,14 +99,6 @@
 <section>
 	<ErrorNotification />
 	{@render children?.()}
-	{#if $isAnyLoading}
-		<div transition:fade={{duration: 150}}
-			class="fixed inset-0 z-[9999] bg-black/20 backdrop-blur-sm
-				flex items-center justify-center cursor-wait
-				transition-opacity duration-300 opacity-100
-				pointer-events-auto select-none"
-		>
-			<div class="h-10 w-10 border-4 border-white/60 border-t-transparent rounded-full animate-spin"></div>
-		</div>
-	{/if}
+	<IsLoading/>
+	<ConfirmModal />
 </section>

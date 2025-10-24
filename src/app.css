@@ -94,9 +94,9 @@ a.link {
     @apply text-[14px] font-outfit leading-none mb-1 tracking-wide font-semibold
 }
 
-.agerrbggradient {
+/* .agerrbggradient {
     @apply bg-gradient-to-tr from-sky-400 via-indigo-500 to-purple-400 bg-[length:200%_200%] bg-left hover:bg-right focus-visible:bg-right text-white group-hover:text-sky-100 group-focus-visible:text-sky-100
-}
+} */
 
 .agerrborder {
     @apply border border-slate-300 rounded-xl

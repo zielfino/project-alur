@@ -1,6 +1,6 @@
 
-            <div class="w-24 pr-4 mr-4 border-e-2">
-                <svg id="Layer_2" data-name="Layer 2" class="translate-y-[2px]" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 115.23 50.43">
+            <!-- <div class="w-24 pr-4 mr-4 border-e-2"> -->
+                <svg id="Layer_2" data-name="Layer 2" class="translate-y-[0.1em]" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 115.23 50.43">
                     <defs>
                         <style>
                         .cls-1 {
@@ -40,4 +40,4 @@
                         </g>
                     </g>
                 </svg>
-            </div> 
+            <!-- </div>  -->

@@ -11,7 +11,9 @@
         <div class="container text flex items-center">
 
             <!-- LOGO -->
-            <Logosvg />
+            <div class="w-24 pr-4 mr-4 border-e border-slate-300">
+                <Logosvg />
+            </div>
 
             <!-- TAGLINE -->
             <div class="">
@@ -74,7 +76,7 @@
 
         <!-- REFERENCE -->
         <div class="text-center font-[400] text-xs text-slate-800/50 mb-2 mt-16 phone:mt-12 tracking-wider">
-            <span>landing reference: <a href="/">ClickUp</a> & <a href="/">Contenful</a></span>
+            <span>landing reference: <a href="https://clickup.com/">ClickUp</a> & <a href="https://www.contentful.com/">Contenful</a></span>
         </div>
         
     </div>

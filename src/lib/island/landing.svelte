@@ -2,49 +2,14 @@
 	// import { goto } from '$app/navigation';
 	// import LogoutButton from '$lib/component/logoutButton.svelte';
     import MainFooter from '$lib/island/mainFooter.svelte';
-	import Login from './login.svelte';
-    let parentLogin: HTMLElement | null = null;
-    let loginButton: HTMLElement | null = null;
-    let signupButton: HTMLElement | null = null;
+	// import Login from './login.svelte';
 
-    function addHover() {
-        parentLogin?.classList.add('bg-slate-200');
-        signupButton?.classList.add('text-slate-200');
-        parentLogin?.classList.remove('bg-white');
-        signupButton?.classList.remove('text-white');
-    }
-    function removeHover() {
-        parentLogin?.classList.add('bg-white');
-        signupButton?.classList.add('text-white');
-        parentLogin?.classList.remove('bg-slate-200');
-        signupButton?.classList.remove('text-slate-200');
-    }
-
-    function addFocus() {
-        parentLogin?.classList.add('bg-sky-100');
-        parentLogin?.classList.add('ring-2');
-        parentLogin?.classList.add('ring-sky-500');
-        signupButton?.classList.add('text-sky-100');
-        parentLogin?.classList.remove('bg-white');
-        signupButton?.classList.remove('text-white');
-    }
-    function removeFocus() {
-        parentLogin?.classList.add('bg-white');
-        signupButton?.classList.add('text-white');
-        parentLogin?.classList.remove('bg-sky-100');
-        parentLogin?.classList.remove('ring-2');
-        parentLogin?.classList.remove('ring-sky-500');
-        signupButton?.classList.remove('text-sky-100');
-    }
+    // import { isLoginModalOpen, isSigningUpMode } from '$lib/stores/uiStore';
+	// import { fade } from 'svelte/transition';
+    // import { quadOut } from 'svelte/easing';
+	import MainNav from './mainNav.svelte';
 
     import { isLoginModalOpen, isSigningUpMode } from '$lib/stores/uiStore';
-	import { fade } from 'svelte/transition';
-    import { quadOut } from 'svelte/easing';
-
-    function openLoginModal() {
-        isLoginModalOpen.set(true); 
-        isSigningUpMode.set(false);
-    }
     function openSigninModal() {
         isLoginModalOpen.set(true); 
         isSigningUpMode.set(true); 
@@ -53,36 +18,21 @@
 
 <main class="bg-white flex flex-col items-center justify-center nodrag relative overflow-hidden">
 
-    <!-- NAVIGATION -->
-    <nav class="agerrlongercontainer z-50 flex sticky top-0 justify-between items-center pt-4 h-[60px] select-none">
-        <a href="https://agerrstudio.com" class="button px-4 h-full flex justify-center items-center agerrborder bg-white hover:bg-slate-200">
-            <div>Alur //</div>
-            <div class="text-[10px] align-middle leading-[1.3] tracking-widest border-l border-slate-300 ml-2 pl-2">Organize All<br>Your Project</div>
-        </a>
-        <div class="flex space-x-2 h-full">
-            <a href="https://zielalfino.agerrstudio.com" class="button flex justify-center items-center cursor-pointer px-5 h-full bg-white hover:bg-slate-200 rounded-lg agerrborder">Contact Me</a>
-            <div bind:this={parentLogin} class="group p-1 flex justify-center items-center agerrborder space-x-1 bg-white">
-                <button bind:this={loginButton} onclick={openLoginModal} onmouseenter={addHover} onmouseleave={removeHover} onfocus={addFocus} onblur={removeFocus} 
-                class="cursor-pointer px-3 h-full rounded-lg">Log In</button>
-                <button bind:this={signupButton} onclick={openSigninModal} class="cursor-pointer button agerrbggradient px-3 h-full rounded-lg font-bold text-white">Sign Up</button>
-                <!-- <LogoutButton/> -->
-            </div>
-        </div>
-    </nav>
+    <MainNav />
     
     <!-- TOPER BACKGROUND -->
     <div class="absolute top-0 w-full bg-[url('/img/landingbackground.jpg')] h-[200px] bg-cover bg-[center_60%]
     mask-radial-farthest-corner mask-b-from-70% mask-radial-at-[50%_0%] mask-radial-from-30% mask-radial-to-80%"></div>
 
-    {#if $isLoginModalOpen}
+    <!-- {#if $isLoginModalOpen}
         <div transition:fade={{ duration: 150, easing: quadOut }} class="agerrbackblur flex">    
             <Login />
         </div>
-    {/if}
+    {/if} -->
 
 
     <!-- HERO SECTION -->
-    <main class="agerrcontainer z-1 select-none">
+    <main class="agerrcontainer z-1 select-none pt-16">
         <section class="flex flex-col justify-center items-center mt-[150px]">
             <h1 class="text-[76px] font-outfit font-bold tracking-tight leading-none mb-1">Find Your Flow.</h1>
             <p class="agerrp text-slate-700 text-center">See all your tasks at a glance with <b>simple</b>, and <b>clean</b> Kanban boards. <br> No more guessing what's next.</p>

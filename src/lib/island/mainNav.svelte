@@ -10,12 +10,14 @@
     let signupButton: HTMLElement | null = null;
 
     function addHover() {
+	    if (window.innerWidth < 500) return;
         parentLogin?.classList.add('bg-slate-200');
         signupButton?.classList.add('text-slate-200');
         parentLogin?.classList.remove('bg-white');
         signupButton?.classList.remove('text-white');
     }
     function removeHover() {
+	    if (window.innerWidth < 500) return;
         parentLogin?.classList.add('bg-white');
         signupButton?.classList.add('text-white');
         parentLogin?.classList.remove('bg-slate-200');
@@ -23,6 +25,7 @@
     }
 
     function addFocus() {
+	    if (window.innerWidth < 500) return;
         parentLogin?.classList.add('bg-sky-100');
         parentLogin?.classList.add('ring-2');
         parentLogin?.classList.add('ring-sky-500');
@@ -31,6 +34,7 @@
         signupButton?.classList.remove('text-white');
     }
     function removeFocus() {
+	    if (window.innerWidth < 500) return;
         parentLogin?.classList.add('bg-white');
         signupButton?.classList.add('text-white');
         parentLogin?.classList.remove('bg-sky-100');
@@ -61,10 +65,10 @@
         <a href="https://zielalfino.agerrstudio.com" class="specialbutton h-full hidden tablet:flex justify-center items-center cursor-pointer px-5 text-zinc-800 rounded-xl border border-slate-300">
             <span class="text-zinc-800">Contact Me</span>
         </a>
-        <div bind:this={parentLogin} class="group p-1 h-[56px] phone:h-full flex justify-center items-center space-x-1 bg-white rounded-e-xl phone:rounded-xl phone:border phone:border-slate-300">
+        <div bind:this={parentLogin} class="group p-2 phone:p-1 h-[56px] phone:h-full flex justify-center items-center space-x-2 phone:space-x-1 bg-white rounded-e-xl phone:rounded-xl phone:border phone:border-slate-300">
             <button bind:this={loginButton} onclick={openLoginModal} onmouseenter={addHover} onmouseleave={removeHover} onfocus={addFocus} onblur={removeFocus} 
-            class="h-full text-base phone:text-sm flex justify-center items-center cursor-pointer px-5 phone:px-3 rounded-lg text-zinc-800">Log In</button>
-            <button bind:this={signupButton} onclick={openSigninModal} class="agerrbggradient specialbutton h-full text-base phone:text-sm flex justify-center items-center cursor-pointer px-5 phone:px-3 rounded-lg font-bold text-white">Sign Up</button>
+            class="h-full text-base phone:text-sm flex justify-center items-center cursor-pointer px-3 rounded-lg text-zinc-800 max-phone:focus-visible:bg-sky-100 max-phone:focus-visible:ring-2 max-phone:focus-visible:ring-sky-500">Log In</button>
+            <button bind:this={signupButton} onclick={openSigninModal} class="agerrbggradient specialbutton h-full text-base phone:text-sm flex justify-center items-center cursor-pointer px-3.5 phone:px-3 rounded-lg font-bold text-white">Sign Up</button>
         </div>
     </div>
 </nav>

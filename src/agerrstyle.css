@@ -26,6 +26,14 @@
 
 
 
+
+/* 
+    ====================
+    
+        NAV STYLE
+    
+    ====================
+*/
 .agerr nav * {
     @apply phone:transition-all
 }

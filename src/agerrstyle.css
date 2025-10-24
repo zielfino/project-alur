@@ -1,0 +1,46 @@
+@import 'tailwindcss';
+
+@theme {
+    --breakpoint-phone: 500px;
+    --breakpoint-tablet: 700px;
+    --breakpoint-laptop: 900px;
+    --breakpoint-desktop: 1100px;
+    --breakpoint-large: 1300px;  
+}
+/* .agerr footer  {
+    @apply transition-all duration-300
+} */
+.agerr footer {
+    @apply w-full flex flex-col items-center justify-center bg-slate-50 z-20 select-none whitespace-nowrap
+}
+.agerr footer .text {
+    @apply text-xs font-semibold tracking-wide
+}
+.agerr footer .fullwiddhcover {
+    @apply bg-white w-full flex justify-center border-y border-slate-300 py-2
+}
+.agerr footer .container{
+    @apply px-8 w-full max-w-[900px] text-slate-800
+}
+.agerr footer .links  {
+    @apply grid max-phone:grid-cols-2 phone:grid-cols-9 tablet:grid-cols-11 laptop:grid-cols-12 
+}
+.agerr footer .links .title {
+    @apply mb-4 text-base font-bold text-slate-700
+}
+.agerr footer .links > .link {
+    @apply phone:col-span-2 my-4
+}
+/* .agerr footer .links .link ul  {
+    @apply font-semibold text-xs tracking-wide
+} */
+.agerr footer .links .link ul li {
+    @apply my-1.5 text-slate-800/50
+}
+.agerr footer .links .link ul li a {
+    @apply text-slate-800
+}
+
+.agerr a {
+    @apply hover:underline focus-visible:underline focus-visible:decoration-sky-400 focus-visible:decoration-2 active:text-sky-400
+}

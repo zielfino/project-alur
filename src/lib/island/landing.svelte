@@ -13,6 +13,7 @@
 	import { fade } from 'svelte/transition';
 	import { quadOut } from 'svelte/easing';
 	import Icon from '@iconify/svelte';
+	import { onMount } from 'svelte';
     function openSigninModal() {
         isLoginModalOpen.set(true); 
         isSigningUpMode.set(true); 
@@ -29,24 +30,45 @@
     let value7:boolean = $state(false)
     let value8:boolean = $state(false)
     let value9:boolean = $state(false)
-    // let showimgcard:string = $state('test')
+    
+	let isTablet = $state(false);
+	function checkWidth() {
+		isTablet = window.matchMedia("(min-width: 700px)").matches;
+	}
 
-    // import img1 from ;
-	// import img2 from ;
-	// import img3 from ;
-	// import img4 from ;
-	// import img5 from ;
-	// import img6 from ;
-	// import img7 from ;
-	// import img8 from ;
-	// import img9 from ;
-
-	// const images = [ img1, img2, img3, img4, img5, img6, img7, img8, img9];
+	onMount(() => {
+		checkWidth();
+		window.addEventListener("resize", checkWidth);
+		return () => window.removeEventListener("resize", checkWidth);
+	});
     
 	// $effect(() => {
-	// 	showimgcard = localcard > 0 ? images[localcard - 1] : "";
+	// 	if (isTablet) {
+	// 		button1value = true;
+	// 		button2value = true;
+	// 		button3value = true;
+	// 	} else {
+	// 		button1value = true;
+	// 		button2value = false;
+	// 		button3value = false;
+	// 	}
 	// });
 </script>
+
+<style>
+	@keyframes marquee {
+		0% {
+			transform: translateX(0);
+		}
+		100% {
+			transform: translateX(-1200px);
+		}
+	}
+
+	.animate-marquee {
+		animation: marquee 10s linear infinite;
+	}
+</style>
 
 <main class="bg-white flex flex-col items-center justify-center nodrag relative overflow-hidden">
 
@@ -58,7 +80,7 @@
 
 
     <!-- HERO SECTION -->
-    <main class="agerrcontainer z-1 select-none py-[15vh] phone:py-16 ">
+    <main class="agerrcontainer z-1 select-none py-[15vh] phone:pt-16 phone:pb-32 tablet:py-16">
         <section class="flex flex-col justify-center items-center mt-[150px]">
             <h1 class="text-4xl phone:text-6xl tablet:text-[76px] font-outfit font-bold tracking-tight leading-none mb-1">Find Your Flow.</h1>
             <p class="tracking-wide text-xs tablet:text-base text-slate-700 text-center">
@@ -74,7 +96,7 @@
 
 
     <!-- SHOW UP CONTENT -->
-    <section class="w-full h-[650px] relative flex justify-center">
+    <section class="w-full h-[600px] phone:h-[500px] tablet:h-[650px] relative flex justify-center">
         
         <!-- Gradient Backgound -->
         <div class="h-full w-full relative flex justify-center">
@@ -82,127 +104,196 @@
             <div class="absolute -translate-x-[15vw] top-16 blur-[128px] h-150 w-150 bg-gradient-to-tr rounded-full from-teal-200 to-purple-200"></div>
         </div>
 
-        <!-- Image -->
-        <div class="absolute -translate-x-[5vw] top-16 p-2 border-1 border-white rounded-3xl bg-gradient-to-tl from-sky-100/50 to-purple-100/50
-        mask-luminance mask-b-from-white mask-b-from-70% mask-b-to-black mask-b-to-100%">
-            <div class="w-[800px] h-[500px] relative">
-                {#if localcard === 0}
-                    <div transition:fade={{duration: 150, easing: quadOut}} class="absolute top-0 left-0 bg-white rounded-2xl w-[800px] h-[500px]"></div>
-                {:else if localcard === 1}
-                    <enhanced:img src="$lib/assets/cardimg/cc3e5d90.png" alt="card show img" transition:fade={{duration: 300}} class="absolute top-0 left-0 bg-white rounded-2xl w-[800px] h-[500px]" />
-                {:else if localcard === 2}
-                    <enhanced:img src="$lib/assets/cardimg/6N0BXf2.png" alt="card show img" transition:fade={{duration: 300}} class="absolute top-0 left-0 bg-white rounded-2xl w-[800px] h-[500px]" />
-                {:else if localcard === 3}
-                    <enhanced:img src="$lib/assets/cardimg/ZePLSCW.png" alt="card show img" transition:fade={{duration: 300}} class="absolute top-0 left-0 bg-white rounded-2xl w-[800px] h-[500px]" />
-                {:else if localcard === 4}
-                    <enhanced:img src="$lib/assets/cardimg/wQAul6y.png" alt="card show img" transition:fade={{duration: 300}} class="absolute top-0 left-0 bg-white rounded-2xl w-[800px] h-[500px]" />
-                {:else if localcard === 5}
-                    <enhanced:img src="$lib/assets/cardimg/MYLIq7U.png" alt="card show img" transition:fade={{duration: 300}} class="absolute top-0 left-0 bg-white rounded-2xl w-[800px] h-[500px]" />
-                {:else if localcard === 6}
-                    <enhanced:img src="$lib/assets/cardimg/er5QHYU.png" alt="card show img" transition:fade={{duration: 300}} class="absolute top-0 left-0 bg-white rounded-2xl w-[800px] h-[500px]" />
-                {:else if localcard === 7}
-                    <enhanced:img src="$lib/assets/cardimg/BCw3R2V.png" alt="card show img" transition:fade={{duration: 300}} class="absolute top-0 left-0 bg-white rounded-2xl w-[800px] h-[500px]" />
-                {:else if localcard === 8}
-                    <enhanced:img src="$lib/assets/cardimg/394b52e0.png" alt="card show img" transition:fade={{duration: 300}} class="absolute top-0 left-0 bg-white rounded-2xl w-[800px] h-[500px]" />
-                {:else if localcard === 9}
-                    <enhanced:img src="$lib/assets/cardimg/0kTFlR5.jpeg" alt="card show img" transition:fade={{duration: 300}} class="absolute top-0 left-0 bg-white rounded-2xl w-[800px] h-[500px]" />
-                {/if}
+        <!-- FEATURE -->
+        {#if isTablet}
+            <!-- Image -->
+            <div class="absolute -translate-x-[5vw] top-32 tablet:top-24 laptop:top-16 p-2 border-1 border-white rounded-3xl bg-gradient-to-tl from-sky-100/50 to-purple-100/50
+            mask-luminance mask-b-from-white mask-b-from-70% mask-b-to-black mask-b-to-100%">
+                <div class="w-[400px] tablet:w-[550px] laptop:w-[700px] desktop:w-[800px] aspect-[8/5] relative">
+                    {#if localcard === 0}
+                        <div transition:fade={{duration: 150, easing: quadOut}} class="absolute top-0 left-0 bg-white rounded-2xl w-[400px] tablet:w-[550px] laptop:w-[700px] desktop:w-[800px] aspect-[8/5]"></div>
+                    {:else if localcard === 1}
+                        <enhanced:img src="$lib/assets/cardimg/cc3e5d90.png" alt="card show img" transition:fade={{duration: 300}} class="absolute top-0 left-0 bg-white rounded-2xl w-[400px] tablet:w-[550px] laptop:w-[700px] desktop:w-[800px] aspect-[8/5]" />
+                    {:else if localcard === 2}
+                        <enhanced:img src="$lib/assets/cardimg/6N0BXf2.png" alt="card show img" transition:fade={{duration: 300}} class="absolute top-0 left-0 bg-white rounded-2xl w-[400px] tablet:w-[550px] laptop:w-[700px] desktop:w-[800px] aspect-[8/5]" />
+                    {:else if localcard === 3}
+                        <enhanced:img src="$lib/assets/cardimg/ZePLSCW.png" alt="card show img" transition:fade={{duration: 300}} class="absolute top-0 left-0 bg-white rounded-2xl w-[400px] tablet:w-[550px] laptop:w-[700px] desktop:w-[800px] aspect-[8/5]" />
+                    {:else if localcard === 4}
+                        <enhanced:img src="$lib/assets/cardimg/wQAul6y.png" alt="card show img" transition:fade={{duration: 300}} class="absolute top-0 left-0 bg-white rounded-2xl w-[400px] tablet:w-[550px] laptop:w-[700px] desktop:w-[800px] aspect-[8/5]" />
+                    {:else if localcard === 5}
+                        <enhanced:img src="$lib/assets/cardimg/MYLIq7U.png" alt="card show img" transition:fade={{duration: 300}} class="absolute top-0 left-0 bg-white rounded-2xl w-[400px] tablet:w-[550px] laptop:w-[700px] desktop:w-[800px] aspect-[8/5]" />
+                    {:else if localcard === 6}
+                        <enhanced:img src="$lib/assets/cardimg/er5QHYU.png" alt="card show img" transition:fade={{duration: 300}} class="absolute top-0 left-0 bg-white rounded-2xl w-[400px] tablet:w-[550px] laptop:w-[700px] desktop:w-[800px] aspect-[8/5]" />
+                    {:else if localcard === 7}
+                        <enhanced:img src="$lib/assets/cardimg/BCw3R2V.png" alt="card show img" transition:fade={{duration: 300}} class="absolute top-0 left-0 bg-white rounded-2xl w-[400px] tablet:w-[550px] laptop:w-[700px] desktop:w-[800px] aspect-[8/5]" />
+                    {:else if localcard === 8}
+                        <enhanced:img src="$lib/assets/cardimg/394b52e0.png" alt="card show img" transition:fade={{duration: 300}} class="absolute top-0 left-0 bg-white rounded-2xl w-[400px] tablet:w-[550px] laptop:w-[700px] desktop:w-[800px] aspect-[8/5]" />
+                    {:else if localcard === 9}
+                        <enhanced:img src="$lib/assets/cardimg/0kTFlR5.jpeg" alt="card show img" transition:fade={{duration: 300}} class="absolute top-0 left-0 bg-white rounded-2xl w-[400px] tablet:w-[550px] laptop:w-[700px] desktop:w-[800px] aspect-[8/5]" />
+                    {/if}
+                </div>
             </div>
-        </div>
 
-        <!-- Card -->
-        <div class="absolute translate-x-[25vw] p-2 border-1 border-white rounded-2xl bg-gradient-to-tl from-sky-100/50 to-purple-100/50">
-            <div class="bg-white agerrborder z-5 text-center p-4">
-                <h2 class="agerrh2 mt-3">Choose your need</h2>
-                <p class="tracking-wide text-slate-700 text-xs">i wont sell ur data, btw :) trust me</p>
-                <div class="grid grid-cols-3 gap-3 w-full my-4">
-                    <button onclick={() => {localcard = 1; value1 = !value1}} class="agerrtablebutton">
-                        <div class="absolute top-1.5 right-1.5 ring-1 ring-slate-300 w-4 aspect-square rounded-sm flex justify-center items-center">
-                            <div class="absolute {value1 ? '' : 'hidden '}">
-                                <Icon icon="mingcute:check-2-fill" />
+            <!-- Card -->
+            <div class="absolute translate-x-[25vw] p-2 border-1 border-white rounded-2xl bg-gradient-to-tl from-sky-100/50 to-purple-100/50">
+                <div class="bg-white agerrborder z-5 text-center p-4">
+                    <h2 class="text-2xl laptop:text-[32px] font-outfit font-bold leading-none mb-2 mt-3">Choose your need</h2>
+                    <p class="tracking-wide text-slate-700 text-[10px] laptop:text-xs">i wont sell ur data, btw :) trust me</p>
+                    <div class="grid grid-cols-3 gap-3 w-full my-4">
+                        <button onclick={() => {localcard = 1; value1 = !value1}} class="tablebutton">
+                            <div class="absolute top-1.5 right-1.5 ring-1 ring-slate-300 w-4 aspect-square rounded-sm flex justify-center items-center">
+                                <div class="absolute {value1 ? '' : 'hidden '}">
+                                    <Icon icon="mingcute:check-2-fill" />
+                                </div>
                             </div>
-                        </div>
-                        <div class="text-3xl flex justify-center text-slate-300"><Icon icon="mingcute:list-check-2-fill"/></div>
-                        <div class="text-xs">Task</div>
-                    </button>
-                    <button onclick={() => {localcard = 2; value2 = !value2}} class="agerrtablebutton">
-                        <div class="absolute top-1.5 right-1.5 ring-1 ring-slate-300 w-4 aspect-square rounded-sm flex justify-center items-center">
-                            <div class="absolute {value2 ? '' : 'hidden '}">
-                                <Icon icon="mingcute:check-2-fill" />
+                            <div class="text-3xl flex justify-center text-slate-300"><Icon icon="mingcute:list-check-2-fill"/></div>
+                            <div class="text-[10px] laptop:text-xs">Task</div>
+                        </button>
+                        <button onclick={() => {localcard = 2; value2 = !value2}} class="tablebutton">
+                            <div class="absolute top-1.5 right-1.5 ring-1 ring-slate-300 w-4 aspect-square rounded-sm flex justify-center items-center">
+                                <div class="absolute {value2 ? '' : 'hidden '}">
+                                    <Icon icon="mingcute:check-2-fill" />
+                                </div>
                             </div>
-                        </div>
-                        <div class="text-3xl flex justify-center text-slate-300"><Icon icon="mingcute:dashboard-2-fill"/></div>
-                        <div class="text-xs">Dashboard</div>
-                    </button>
-                    <button onclick={() => {localcard = 3; value3 = !value3}} class="agerrtablebutton">
-                        <div class="absolute top-1.5 right-1.5 ring-1 ring-slate-300 w-4 aspect-square rounded-sm flex justify-center items-center">
-                            <div class="absolute {value3 ? '' : 'hidden '}">
-                                <Icon icon="mingcute:check-2-fill" />
+                            <div class="text-3xl flex justify-center text-slate-300"><Icon icon="mingcute:dashboard-2-fill"/></div>
+                            <div class="text-[10px] laptop:text-xs">Dashboard</div>
+                        </button>
+                        <button onclick={() => {localcard = 3; value3 = !value3}} class="tablebutton">
+                            <div class="absolute top-1.5 right-1.5 ring-1 ring-slate-300 w-4 aspect-square rounded-sm flex justify-center items-center">
+                                <div class="absolute {value3 ? '' : 'hidden '}">
+                                    <Icon icon="mingcute:check-2-fill" />
+                                </div>
                             </div>
-                        </div>
-                        <div class="text-3xl flex justify-center text-slate-300"><Icon icon="mingcute:align-top-fill"/></div>
-                        <div class="text-xs">Kanban</div>
-                    </button>
-                    <button onclick={() => {localcard = 4; value4 = !value4}} class="agerrtablebutton">
-                        <div class="absolute top-1.5 right-1.5 ring-1 ring-slate-300 w-4 aspect-square rounded-sm flex justify-center items-center">
-                            <div class="absolute {value4 ? '' : 'hidden '}">
-                                <Icon icon="mingcute:check-2-fill" />
+                            <div class="text-3xl flex justify-center text-slate-300"><Icon icon="mingcute:align-top-fill"/></div>
+                            <div class="text-[10px] laptop:text-xs">Kanban</div>
+                        </button>
+                        <button onclick={() => {localcard = 4; value4 = !value4}} class="tablebutton">
+                            <div class="absolute top-1.5 right-1.5 ring-1 ring-slate-300 w-4 aspect-square rounded-sm flex justify-center items-center">
+                                <div class="absolute {value4 ? '' : 'hidden '}">
+                                    <Icon icon="mingcute:check-2-fill" />
+                                </div>
                             </div>
-                        </div>
-                        <div class="text-3xl flex justify-center text-slate-300"><Icon icon="mingcute:alarm-1-fill"/></div>
-                        <div class="text-xs">Reminder</div>
-                    </button>
-                    <button onclick={() => {localcard = 5; value5 = !value5}} class="agerrtablebutton">
-                        <div class="absolute top-1.5 right-1.5 ring-1 ring-slate-300 w-4 aspect-square rounded-sm flex justify-center items-center">
-                            <div class="absolute {value5 ? '' : 'hidden '}">
-                                <Icon icon="mingcute:check-2-fill" />
+                            <div class="text-3xl flex justify-center text-slate-300"><Icon icon="mingcute:alarm-1-fill"/></div>
+                            <div class="text-[10px] laptop:text-xs">Reminder</div>
+                        </button>
+                        <button onclick={() => {localcard = 5; value5 = !value5}} class="tablebutton">
+                            <div class="absolute top-1.5 right-1.5 ring-1 ring-slate-300 w-4 aspect-square rounded-sm flex justify-center items-center">
+                                <div class="absolute {value5 ? '' : 'hidden '}">
+                                    <Icon icon="mingcute:check-2-fill" />
+                                </div>
                             </div>
-                        </div>
-                        <div class="text-3xl flex justify-center text-slate-300"><Icon icon="mingcute:pig-money-fill"/></div>
-                        <div class="text-xs">Saving</div>
-                    </button>
-                    <button onclick={() => {localcard = 6; value6 = !value6}} class="agerrtablebutton">
-                        <div class="absolute top-1.5 right-1.5 ring-1 ring-slate-300 w-4 aspect-square rounded-sm flex justify-center items-center">
-                            <div class="absolute {value6 ? '' : 'hidden '}">
-                                <Icon icon="mingcute:check-2-fill" />
+                            <div class="text-3xl flex justify-center text-slate-300"><Icon icon="mingcute:pig-money-fill"/></div>
+                            <div class="text-[10px] laptop:text-xs">Saving</div>
+                        </button>
+                        <button onclick={() => {localcard = 6; value6 = !value6}} class="tablebutton">
+                            <div class="absolute top-1.5 right-1.5 ring-1 ring-slate-300 w-4 aspect-square rounded-sm flex justify-center items-center">
+                                <div class="absolute {value6 ? '' : 'hidden '}">
+                                    <Icon icon="mingcute:check-2-fill" />
+                                </div>
                             </div>
-                        </div>
-                        <div class="text-3xl flex justify-center text-slate-300"><Icon icon="mingcute:bank-card-fill"/></div>
-                        <div class="text-xs">Outcome</div>
-                    </button>
-                    <button onclick={() => {localcard = 7; value7 = !value7}} class="agerrtablebutton">
-                        <div class="absolute top-1.5 right-1.5 ring-1 ring-slate-300 w-4 aspect-square rounded-sm flex justify-center items-center">
-                            <div class="absolute {value7 ? '' : 'hidden '}">
-                                <Icon icon="mingcute:check-2-fill" />
+                            <div class="text-3xl flex justify-center text-slate-300"><Icon icon="mingcute:bank-card-fill"/></div>
+                            <div class="text-[10px] laptop:text-xs">Outcome</div>
+                        </button>
+                        <button onclick={() => {localcard = 7; value7 = !value7}} class="tablebutton">
+                            <div class="absolute top-1.5 right-1.5 ring-1 ring-slate-300 w-4 aspect-square rounded-sm flex justify-center items-center">
+                                <div class="absolute {value7 ? '' : 'hidden '}">
+                                    <Icon icon="mingcute:check-2-fill" />
+                                </div>
                             </div>
-                        </div>
-                        <div class="text-3xl flex justify-center text-slate-300"><Icon icon="mingcute:black-board-2-fill"/></div>
-                        <div class="text-xs">Whiteboard</div>
-                    </button>
-                    <button onclick={() => {localcard = 8; value8 = !value8}} class="agerrtablebutton">
-                        <div class="absolute top-1.5 right-1.5 ring-1 ring-slate-300 w-4 aspect-square rounded-sm flex justify-center items-center">
-                            <div class="absolute {value8 ? '' : 'hidden '}">
-                                <Icon icon="mingcute:check-2-fill" />
+                            <div class="text-3xl flex justify-center text-slate-300"><Icon icon="mingcute:black-board-2-fill"/></div>
+                            <div class="text-[10px] laptop:text-xs">Whiteboard</div>
+                        </button>
+                        <button onclick={() => {localcard = 8; value8 = !value8}} class="tablebutton">
+                            <div class="absolute top-1.5 right-1.5 ring-1 ring-slate-300 w-4 aspect-square rounded-sm flex justify-center items-center">
+                                <div class="absolute {value8 ? '' : 'hidden '}">
+                                    <Icon icon="mingcute:check-2-fill" />
+                                </div>
                             </div>
-                        </div>
-                        <div class="text-3xl flex justify-center text-slate-300"><Icon icon="mingcute:clipboard-fill"/></div>
-                        <div class="text-xs">Notes</div>
-                    </button>
-                    <button onclick={() => {localcard = 9; value9 = !value9}} class="agerrtablebutton">
-                        <div class="absolute top-1.5 right-1.5 ring-1 ring-slate-300 w-4 aspect-square rounded-sm flex justify-center items-center">
-                            <div class="absolute {value9 ? '' : 'hidden '}">
-                                <Icon icon="mingcute:check-2-fill" />
+                            <div class="text-3xl flex justify-center text-slate-300"><Icon icon="mingcute:clipboard-fill"/></div>
+                            <div class="text-[10px] laptop:text-xs">Notes</div>
+                        </button>
+                        <button onclick={() => {localcard = 9; value9 = !value9}} class="tablebutton">
+                            <div class="absolute top-1.5 right-1.5 ring-1 ring-slate-300 w-4 aspect-square rounded-sm flex justify-center items-center">
+                                <div class="absolute {value9 ? '' : 'hidden '}">
+                                    <Icon icon="mingcute:check-2-fill" />
+                                </div>
                             </div>
-                        </div>
-                        <div class="text-3xl flex justify-center text-slate-300"><Icon icon="mingcute:book-2-fill"/></div>
-                        <div class="text-xs">Journal</div>
+                            <div class="text-3xl flex justify-center text-slate-300"><Icon icon="mingcute:book-2-fill"/></div>
+                            <div class="text-[10px] laptop:text-xs">Journal</div>
+                        </button>
+                    </div>
+                    <button onclick={openSigninModal} class="agerrbggradient button border border-slate-300 rounded-lg py-4 w-full text-center text-base font-outfit font-semibold tracking-wide text-white cursor-pointer">
+                        Lets Start
                     </button>
                 </div>
-                <button onclick={openSigninModal} class="agerrbggradient button border border-slate-300 rounded-lg py-4 w-full text-center text-base font-outfit font-semibold tracking-wide text-white cursor-pointer">
-                    Lets Start
-                </button>
             </div>
-        </div>
+        {/if}
+
+        {#if !isTablet}
+            <div class="absolute w-[90%] max-w-[500px]">
+                <div class="absolute z-10 w-full text-center -top-2 text-2xl font-outfit font-bold">
+                    <div class="drop-shadow-lg drop-shadow-white">Features</div>
+                </div>
+                <div class="p-2 border-1 border-white rounded-3xl bg-gradient-to-tl from-sky-100/50 to-purple-100/50
+                mask-luminance mask-b-from-white mask-b-from-50% mask-b-to-black mask-b-to-95%">
+                    <div class="w-full grid grid-cols-3 phone:grid-cols-4 gap-4 p-8 bg-white rounded-2xl">
+                        <div class="flex justify-center items-center flex-col aspect-square">
+                            <div class="text-5xl mb-2"><Icon icon="mingcute:book-2-fill"/></div>
+                            <div class="text-xs capitalize">Notes</div>
+                        </div>
+                        <div class="flex justify-center items-center flex-col aspect-square">
+                            <div class="text-5xl mb-2"><Icon icon="mingcute:book-2-fill"/></div>
+                            <div class="text-xs capitalize">Notes</div>
+                        </div>
+                        <div class="flex justify-center items-center flex-col aspect-square">
+                            <div class="text-5xl mb-2"><Icon icon="mingcute:book-2-fill"/></div>
+                            <div class="text-xs capitalize">Notes</div>
+                        </div>
+                        <div class="flex justify-center items-center flex-col aspect-square">
+                            <div class="text-5xl mb-2"><Icon icon="mingcute:book-2-fill"/></div>
+                            <div class="text-xs capitalize">Notes</div>
+                        </div>
+                        <div class="flex justify-center items-center flex-col aspect-square">
+                            <div class="text-5xl mb-2"><Icon icon="mingcute:book-2-fill"/></div>
+                            <div class="text-xs capitalize">Notes</div>
+                        </div>
+                        <div class="flex justify-center items-center flex-col aspect-square">
+                            <div class="text-5xl mb-2"><Icon icon="mingcute:book-2-fill"/></div>
+                            <div class="text-xs capitalize">Notes</div>
+                        </div>
+                        <div class="flex justify-center items-center flex-col aspect-square">
+                            <div class="text-5xl mb-2"><Icon icon="mingcute:book-2-fill"/></div>
+                            <div class="text-xs capitalize">Notes</div>
+                        </div>
+                        <div class="flex justify-center items-center flex-col aspect-square">
+                            <div class="text-5xl mb-2"><Icon icon="mingcute:book-2-fill"/></div>
+                            <div class="text-xs capitalize">Notes</div>
+                        </div>
+                        <div class="flex justify-center items-center flex-col aspect-square">
+                            <div class="text-5xl mb-2"><Icon icon="mingcute:book-2-fill"/></div>
+                            <div class="text-xs capitalize">Notes</div>
+                        </div>
+                        <div class="flex justify-center items-center flex-col aspect-square">
+                            <div class="text-5xl mb-2"><Icon icon="mingcute:book-2-fill"/></div>
+                            <div class="text-xs capitalize">Notes</div>
+                        </div>
+                        <div class="flex justify-center items-center flex-col aspect-square">
+                            <div class="text-5xl mb-2"><Icon icon="mingcute:book-2-fill"/></div>
+                            <div class="text-xs capitalize">Notes</div>
+                        </div>
+                        <div class="flex justify-center items-center flex-col aspect-square">
+                            <div class="text-5xl mb-2"><Icon icon="mingcute:book-2-fill"/></div>
+                            <div class="text-xs capitalize">Notes</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="w-full flex justify-center items-center -translate-y-12">
+                    <div class="text-base font-outfit font-semibold tracking-wide px-4 py-3 text-slate-800">
+                        and much more...
+                    </div>
+                </div>
+            </div>
+        {/if}
 
     </section>
 
@@ -211,32 +302,43 @@
     <!-- FLEX -->
     <section class="w-full h-[200px] relative flex justify-center z-10">
         <!-- Erase Backgound -->
-        <div class="absolute bg-white w-full h-96 z-10 -top-24 blur-3xl"></div>
+        <div class="absolute bg-white w-full h-0 phone:h-96 z-10 -top-24 blur-3xl"></div>
         <!-- The Flex -->
         <section class="agerrlongercontainer z-15">
             <p class="agerrh4 text-[16px] text-center z-5 text-slate-500">Powering bussiness projects for certain company</p>
-            <div class="h-16 flex items-center justify-center space-x-12 mask-x-from-80% mask-x-to-100% text-slate-500">
-                <div class="text-5xl font-black font-eb">Vintage</div>
-                <div class="text-5xl font-black font-open-sans">BrainEvo</div>
-                <div class="text-5xl font-black font-eb">agerr.co</div>
-                <div class="text-5xl font-black font-outfit italic">NEXTDOOR</div>
-                <div class="text-5xl font-black font-coming">Comic</div>
+            <div class="mask-x-from-80% mask-x-to-100%">
+                <div class="animate-marquee flex">
+                    <div class="h-16 flex items-center justify-between min-w-[1200px] pr-12 text-slate-500">
+                        <div class="text-5xl font-black font-eb">Vintage</div>
+                        <div class="text-5xl font-black font-open-sans">BrainEvo</div>
+                        <div class="text-5xl font-black font-eb">agerr.co</div>
+                        <div class="text-5xl font-black font-outfit italic">NEXTDOOR</div>
+                        <div class="text-5xl font-black font-coming">Comic</div>
+                    </div>
+                    <div class="h-16 flex items-center justify-between min-w-[1200px] pr-12 text-slate-500">
+                        <div class="text-5xl font-black font-eb">Vintage</div>
+                        <div class="text-5xl font-black font-open-sans">BrainEvo</div>
+                        <div class="text-5xl font-black font-eb">agerr.co</div>
+                        <div class="text-5xl font-black font-outfit italic">NEXTDOOR</div>
+                        <div class="text-5xl font-black font-coming">Comic</div>
+                    </div>
+                </div>
             </div>
         </section>
     </section>
 
     <!-- FEATURE -->
-    <section class="w-full h-[1350px] flex flex-col justify-center items-center bg-purple-50">    
+    <section class="w-full min-h-[1350px] flex flex-col justify-center items-center bg-purple-50">    
         <!-- Cards -->
-        <section class="agerrcontainer z-15 my-16 grid grid-cols-2 gap-2">
-            <div class="relative w-full rounded-2xl border border-slate-200 p-8 h-[500px] bg-gradient-to-br from-sky-50 to-indigo-50 overflow-hidden">
+        <section class="agerrcontainer z-15 my-16 flex flex-col justify-center items-center tablet:grid tablet:grid-cols-2 gap-2">
+            <div class="relative w-full max-w-[400px] rounded-2xl border border-slate-200 p-8 h-[500px] bg-gradient-to-br from-sky-50 to-indigo-50 overflow-hidden">
                 <div class="absolute w-full left-0 bottom-0 flex justify-center">
                     <div class="bg-sky-400 h-[360px] w-[calc(400px-4rem)] rounded-t-2xl drop-shadow-xl/30"></div>
                 </div>
                 <h2 class="agerrh2">Tired of the Chaos?</h2>
                 <p class="agerrp text-slate-700 leading-normal align-middle">Trust me, u wont made it if <br> you not organize ur things.</p>
             </div>
-            <div class="relative w-full rounded-2xl p-8 h-[500px] bg-gradient-to-br from-zinc-800 to-slate-900">
+            <div class="relative w-full max-w-[400px] rounded-2xl p-8 h-[500px] bg-gradient-to-br from-zinc-800 to-slate-900">
                 <div class="absolute w-full left-0 bottom-0 flex justify-center">
                     <div class="bg-sky-400 h-[280px] w-[calc(400px-4rem)] rounded-t-2xl"></div>
                 </div>
@@ -264,19 +366,21 @@
 
         <!-- Box Feature -->
         <section class="agerrlongestcontainer space-x-12 mask-x-from-80% mask-x-to-100%
-        grid grid-cols-10 gap-2 -translate-y-[50px]">
-            <div aria-label="boxfeature" class="agerrnonboxfeature mask-t-from-0% mask-t-to-50%"></div>
-            <div aria-label="boxfeature" class="agerrnonboxfeature mask-t-from-0% mask-t-to-50%"></div>
-            <div aria-label="boxfeature" class="agerrnonboxfeature mask-t-from-0% mask-t-to-50%"></div>
-            <div aria-label="boxfeature" class="agerrnonboxfeature mask-t-from-0% mask-t-to-50%"></div>
-            <div aria-label="boxfeature" class="agerrnonboxfeature mask-t-from-0% mask-t-to-50%"></div>
-            <div aria-label="boxfeature" class="agerrnonboxfeature mask-t-from-0% mask-t-to-50%"></div>
-            <div aria-label="boxfeature" class="agerrnonboxfeature mask-t-from-0% mask-t-to-50%"></div>
-            <div aria-label="boxfeature" class="agerrnonboxfeature mask-t-from-0% mask-t-to-50%"></div>
-            <div aria-label="boxfeature" class="agerrnonboxfeature mask-t-from-0% mask-t-to-50%"></div>
-            <div aria-label="boxfeature" class="agerrnonboxfeature mask-t-from-0% mask-t-to-50%"></div>
-            <button aria-label="boxfeature" class="agerrboxfeature"></button>
-            <button aria-label="boxfeature" class="agerrboxfeature"></button>
+        grid grid-cols-6 tablet:grid-cols-10 gap-2 tablet:-translate-y-[50px]">
+            {#if isTablet}
+                <div aria-label="boxfeature" class="agerrnonboxfeature mask-t-from-0% mask-t-to-50%"></div>
+                <div aria-label="boxfeature" class="agerrnonboxfeature mask-t-from-0% mask-t-to-50%"></div>
+                <div aria-label="boxfeature" class="agerrnonboxfeature mask-t-from-0% mask-t-to-50%"></div>
+                <div aria-label="boxfeature" class="agerrnonboxfeature mask-t-from-0% mask-t-to-50%"></div>
+                <div aria-label="boxfeature" class="agerrnonboxfeature mask-t-from-0% mask-t-to-50%"></div>
+                <div aria-label="boxfeature" class="agerrnonboxfeature mask-t-from-0% mask-t-to-50%"></div>
+                <div aria-label="boxfeature" class="agerrnonboxfeature mask-t-from-0% mask-t-to-50%"></div>
+                <div aria-label="boxfeature" class="agerrnonboxfeature mask-t-from-0% mask-t-to-50%"></div>
+                <div aria-label="boxfeature" class="agerrnonboxfeature mask-t-from-0% mask-t-to-50%"></div>
+                <div aria-label="boxfeature" class="agerrnonboxfeature mask-t-from-0% mask-t-to-50%"></div>
+                <button aria-label="boxfeature" class="agerrboxfeature"></button>
+                <button aria-label="boxfeature" class="agerrboxfeature"></button>
+            {/if}
             <button aria-label="boxfeature" class="agerrboxfeature"></button>
             <button aria-label="boxfeature" class="agerrboxfeature col-span-2 row-span-2 relative overflow-hidden">
                 <div class="absolute w-24 h-24 bg-red-300 -top-16 rounded-full blur-3xl"></div>
@@ -288,14 +392,16 @@
                 <div>test</div>
                 <div>test</div>
             </button>
-            <button aria-label="boxfeature" class="agerrboxfeature"></button>
-            <button aria-label="boxfeature" class="agerrboxfeature"></button>
-            <button aria-label="boxfeature" class="agerrboxfeature"></button>
-            <button aria-label="boxfeature" class="agerrboxfeature"></button>
-            <button aria-label="boxfeature" class="agerrboxfeature"></button>
-            <button aria-label="boxfeature" class="agerrboxfeature"></button>
-            <button aria-label="boxfeature" class="agerrboxfeature"></button>
-            <button aria-label="boxfeature" class="agerrboxfeature"></button>
+            {#if isTablet}
+                <button aria-label="boxfeature" class="agerrboxfeature"></button>
+                <button aria-label="boxfeature" class="agerrboxfeature"></button>
+                <button aria-label="boxfeature" class="agerrboxfeature"></button>
+                <button aria-label="boxfeature" class="agerrboxfeature"></button>
+                <button aria-label="boxfeature" class="agerrboxfeature"></button>
+                <button aria-label="boxfeature" class="agerrboxfeature"></button>
+                <button aria-label="boxfeature" class="agerrboxfeature"></button>
+                <button aria-label="boxfeature" class="agerrboxfeature"></button>
+            {/if}
             <button aria-label="boxfeature" class="agerrboxfeature"></button>
             <button aria-label="boxfeature" class="agerrboxfeature"></button>
             <button aria-label="boxfeature" class="agerrboxfeature"></button>
@@ -313,22 +419,24 @@
             <button aria-label="boxfeature" class="agerrboxfeature"></button>
             <button aria-label="boxfeature" class="agerrboxfeature"></button>
             <button aria-label="boxfeature" class="agerrboxfeature"></button>
-            <button aria-label="boxfeature" class="agerrboxfeature"></button>
-            <button aria-label="boxfeature" class="agerrboxfeature"></button>
-            <button aria-label="boxfeature" class="agerrboxfeature"></button>
-            <button aria-label="boxfeature" class="agerrboxfeature"></button>
-            <button aria-label="boxfeature" class="agerrboxfeature"></button>
-            <button aria-label="boxfeature" class="agerrboxfeature"></button>
-            <div aria-label="boxfeature" class="agerrnonboxfeature mask-b-from-0% mask-b-to-50%"></div>
-            <div aria-label="boxfeature" class="agerrnonboxfeature mask-b-from-0% mask-b-to-50%"></div>
-            <div aria-label="boxfeature" class="agerrnonboxfeature mask-b-from-0% mask-b-to-50%"></div>
-            <div aria-label="boxfeature" class="agerrnonboxfeature mask-b-from-0% mask-b-to-50%"></div>
-            <div aria-label="boxfeature" class="agerrnonboxfeature mask-b-from-0% mask-b-to-50%"></div>
-            <div aria-label="boxfeature" class="agerrnonboxfeature mask-b-from-0% mask-b-to-50%"></div>
-            <div aria-label="boxfeature" class="agerrnonboxfeature mask-b-from-0% mask-b-to-50%"></div>
-            <div aria-label="boxfeature" class="agerrnonboxfeature mask-b-from-0% mask-b-to-50%"></div>
-            <div aria-label="boxfeature" class="agerrnonboxfeature mask-b-from-0% mask-b-to-50%"></div>
-            <div aria-label="boxfeature" class="agerrnonboxfeature mask-b-from-0% mask-b-to-50%"></div>
+            {#if isTablet}
+                <button aria-label="boxfeature" class="agerrboxfeature"></button>
+                <button aria-label="boxfeature" class="agerrboxfeature"></button>
+                <button aria-label="boxfeature" class="agerrboxfeature"></button>
+                <button aria-label="boxfeature" class="agerrboxfeature"></button>
+                <button aria-label="boxfeature" class="agerrboxfeature"></button>
+                <button aria-label="boxfeature" class="agerrboxfeature"></button>
+                <div aria-label="boxfeature" class="agerrnonboxfeature mask-b-from-0% mask-b-to-50%"></div>
+                <div aria-label="boxfeature" class="agerrnonboxfeature mask-b-from-0% mask-b-to-50%"></div>
+                <div aria-label="boxfeature" class="agerrnonboxfeature mask-b-from-0% mask-b-to-50%"></div>
+                <div aria-label="boxfeature" class="agerrnonboxfeature mask-b-from-0% mask-b-to-50%"></div>
+                <div aria-label="boxfeature" class="agerrnonboxfeature mask-b-from-0% mask-b-to-50%"></div>
+                <div aria-label="boxfeature" class="agerrnonboxfeature mask-b-from-0% mask-b-to-50%"></div>
+                <div aria-label="boxfeature" class="agerrnonboxfeature mask-b-from-0% mask-b-to-50%"></div>
+                <div aria-label="boxfeature" class="agerrnonboxfeature mask-b-from-0% mask-b-to-50%"></div>
+                <div aria-label="boxfeature" class="agerrnonboxfeature mask-b-from-0% mask-b-to-50%"></div>
+                <div aria-label="boxfeature" class="agerrnonboxfeature mask-b-from-0% mask-b-to-50%"></div>
+            {/if}
         </section>
     </section>
 </main>

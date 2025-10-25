@@ -1,7 +1,42 @@
 <script lang="ts">
 	import Logosvg from "$lib/assets/logosvg.svelte";
+	import Icon from "@iconify/svelte";
+	import { slide } from "svelte/transition";
+    import { quadOut } from 'svelte/easing';
+	import { onMount } from "svelte";
 
     const year = new Date().getFullYear();
+
+    let button1: HTMLElement | null = null;
+    let button2: HTMLElement | null = null;
+    let button3: HTMLElement | null = null;
+
+    let button1value: boolean = $state(true)
+    let button2value: boolean = $state(false)
+    let button3value: boolean = $state(false)
+
+	let isTablet = $state(false);
+	function checkWidth() {
+		isTablet = window.matchMedia("(min-width: 700px)").matches;
+	}
+
+	onMount(() => {
+		checkWidth();
+		window.addEventListener("resize", checkWidth);
+		return () => window.removeEventListener("resize", checkWidth);
+	});
+    
+	$effect(() => {
+		if (isTablet) {
+			button1value = true;
+			button2value = true;
+			button3value = true;
+		} else {
+			button1value = true;
+			button2value = false;
+			button3value = false;
+		}
+	});
 </script>
 
 <footer>
@@ -17,7 +52,7 @@
 
             <!-- TAGLINE -->
             <div class="">
-                Organize all your <br class="phone:hidden"> project, find a flow.
+                Organize your project,<br class="phone:hidden"> find your own flow.
             </div>
 
         </div>
@@ -29,54 +64,84 @@
         <!-- LINKS -->
         <div class="links">
 
-            <!-- BLANKSPACE -->
-            <div class="max-phone:hidden col-span-1 tablet:col-span-3 laptop:col-span-4 order-2"></div>
+            <!-- DROPDOWN -->
+            <div class="link">
+                <button class="title" disabled={isTablet} bind:this={button2} onclick={() => { if (!isTablet) button2value = !button2value}}>
+                    More From agerr <div class="tablet:hidden transition-transform duration-300 ease-out {button2value ? 'rotate-180' : ''}"><Icon icon="mingcute:down-fill"/></div>
+                </button>
+                {#if button2value}
+                    <ul transition:slide={{ duration: 300, easing: quadOut }}>
+                        <li><a href="https://agerrstudio.com"><div class="max-tablet:w-full">agerr.studio</div></a></li>
+                        <li>agerr.blog</li>
+                        <li>agerr.store</li>
+                        <li>NECOFE</li>
+                        <li><a href="https://kasatara.agerrstudio.com"><div class="max-tablet:w-full">KASATARA</div></a></li>
+                    </ul>
+                {/if}
+            </div>
+            <div class="link">
+                <button class="title" disabled={isTablet} bind:this={button1} onclick={() => { if (!isTablet) button1value = !button1value}}>
+                    Product <div class="tablet:hidden transition-transform duration-300 ease-out {button1value ? 'rotate-180' : ''}"><Icon icon="mingcute:down-fill"/></div>
+                </button>
+                {#if button1value}
+                    <ul transition:slide={{ duration: 300, easing: quadOut }}>
+                        <li>What is Alur?</li>
+                        <li>The Feature</li>
+                        <li>Documentation</li>
+                        <li>Whats Comming</li>
+                    </ul>
+                {/if}
+            </div>
+            <div class="link">
+                <button class="title" disabled={isTablet} bind:this={button3} onclick={() => { if (!isTablet) button3value = !button3value}}>
+                    Get in Touch <div class="tablet:hidden transition-transform duration-300 ease-out {button3value ? 'rotate-180' : ''}"><Icon icon="mingcute:down-fill"/></div>
+                </button>
+                {#if button3value}
+                    <ul transition:slide={{ duration: 300, easing: quadOut }}>
+                        <li><a href="https://zielalfino.com/"><div class="max-tablet:w-full">Contact</div></a></li>
+                        <li>Support</li>
+                        <li>Partners</li>
+                    </ul>
+                {/if}
+            </div>
 
-            <!-- LINK -->
-            <div class="link order-1 phone:order-1">
-                <h4 class="title">Project Alur</h4>
-                <ul>
-                    <li><a href="/">About</a></li>
-                    <li><a href="/">Privacy</a></li>
-                    <li><a href="/">Contact</a></li>
-                    <li><a href="/">Terms</a></li>
-                </ul>
+            <!-- WITH LOGO -->
+            <div class="link max-tablet:flex max-tablet:justify-center">
+                <div class="max-tablet:hidden"><h4 class="title">Connect <div class="tablet:hidden"><Icon icon="mingcute:down-fill"/></div></h4></div>
+                <div class="grid grid-cols-6 tablet:grid-cols-3 text-3xl tablet:text-2xl gap-5 w-fit transition-all duration-300 {button3value ? 'max-tablet:mt-1' : 'max-tablet:mt-8'}">
+                    <a href="https://www.instagram.com/zielfino" class="tablet:h-[24px] tablet:w-[24px]"><Icon icon={isTablet ? 'ph:instagram-logo' : 'ph:instagram-logo'}/></a>
+                    <a href="https://github.com/zielfino" class="tablet:h-[24px] tablet:w-[24px]"><Icon icon={isTablet ? 'ph:github-logo' : 'ph:github-logo'}/></a>
+                    <a href="https://discord.com/invite/syJjTyKhhb" class="tablet:h-[24px] tablet:w-[24px]"><Icon icon={isTablet ? 'ph:discord-logo' : 'ph:discord-logo'}/></a>
+                    <a href="https://x.com/zielfino_" class="tablet:h-[24px] tablet:w-[24px]"><Icon icon={isTablet ? 'ph:x-logo' : 'ph:x-logo'}/></a>
+                    <a href="https://dribbble.com/zielfino" class="tablet:h-[24px] tablet:w-[24px]"><Icon icon={isTablet ? 'ph:dribbble-logo' : 'ph:dribbble-logo'}/></a>
+                    <a href="https://www.linkedin.com/in/zielfino/" class="tablet:h-[24px] tablet:w-[24px]"><Icon icon={isTablet ? 'ph:linkedin-logo' : 'ph:linkedin-logo'}/></a>
+                </div>
             </div>
-            <div class="link order-3">
-                <h4 class="title">Projects</h4>
-                <ul>
-                    <li>NECOFE</li>
-                    <li><a href="https://kasatara.agerrstudio.com">KASATARA</a></li>
-                    <li><a href="/">Project Alur</a></li>
-                </ul>
-            </div>
-            <div class="link order-4">
-                <h4 class="title">agerr site</h4>
-                <ul>
-                    <li><a href="https://agerrstudio.com">agerr.studio</a></li>
-                    <li>agerr.blog</li>
-                    <li>agerr.store</li>
-                </ul>
-            </div>
-            <div class="link order-2 phone:order-5">
-                <h4 class="title">My Links</h4>
-                <ul>
-                    <li><a href="https://www.linkedin.com/in/zielfino/">LinkedIn</a></li>
-                    <li><a href="https://github.com/zielfino">Github</a></li>
-                    <li><a href="https://dribbble.com/zielfino">Dribble</a></li>
-                    <li><a href="https://zielalfino.com/">Website</a></li>
-                </ul>
-            </div>
+            
         </div>
-        
+
+        <!-- STRAIGHT -->
+        <div class="straightline">
+            <div class="notlast"><a href="/"><div class="w-full">Privacy</div></a></div>
+            <div class="notlast"><a href="/"><div class="w-full">Terms</div></a></div>
+            <div class="notlast"><a href="/login"><div class="w-full">Log In</div></a></div>
+            <div class="notlast"><a href="/"><div class="w-full">Feedback</div></a></div>
+            <div class="notlast"><a href="/"><div class="w-full">Disclaimer</div></a></div>
+            <div class="max-tablet:my-4"><a href="/"><div class="w-full">Contact</div></a></div>
+        </div>
+
         <!-- COPYRIGTH -->
-        <div class="font-semibold text-xs text-slate-800 italic max-phone:mt-4">
-           <span> © {year} agerr.studio. All right reserved</span>
+        <div class="font-normal text-sm tablet:text-xs text-slate-800 text-start mt-4 tablet:text-center max-tablet:ml-6 max-tablet:my-12">
+           <span> © {year} agerr.studio. All rights reserved.</span>
         </div>
+
 
         <!-- REFERENCE -->
         <div class="text-center font-[400] text-xs text-slate-800/50 mb-2 mt-16 phone:mt-12 tracking-wider">
-            <span>landing reference: <a href="https://clickup.com/">ClickUp</a> & <a href="https://www.contentful.com/">Contenful</a></span>
+            <div>Landing Reference: <a href="https://clickup.com/">ClickUp</a> & <a href="https://www.contentful.com/">Contenful</a></div>
+            <div class="text-wrap">
+                Every <b>pixel, line, and layout</b> you see here <br> is thoughtfully built by <b><a href="https://agerrstudio.com/">agerr.studio</a></b>.
+            </div>
         </div>
         
     </div>

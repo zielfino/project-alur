@@ -59,7 +59,7 @@
         <div class="w-18 phone:pr-3 phone:mr-3">
             <Logosvg/>
         </div>
-        <div class="text text-zinc-800 hidden phone:block">Organize All<br>Your Project</div>
+        <div class="text text-zinc-800 hidden phone:block mb-0.5">Organize All<br>Your Project</div>
     </a>
     <div class="phone:flex phone:space-x-2 phone:h-full -translate-x-[1px]">
         <a href="https://zielalfino.agerrstudio.com" class="specialbutton h-full hidden tablet:flex justify-center items-center cursor-pointer px-5 text-zinc-800 rounded-xl border border-slate-300">

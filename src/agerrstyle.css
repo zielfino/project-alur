@@ -13,7 +13,7 @@
 }
 
 .agerr a {
-    @apply focus-visible:decoration-sky-400 focus-visible:decoration-2 active:text-sky-400
+    @apply focus-visible:decoration-sky-400 focus-visible:decoration-2 active:text-sky-400 focus-visible:text-sky-400
 }
 
 .agerr button {
@@ -61,29 +61,36 @@
     @apply hover:underline focus-visible:underline
 }
 .agerr footer .text {
-    @apply text-xs font-semibold tracking-wide
+    @apply text-sm tablet:text-xs tracking-wide
 }
 .agerr footer .fullwiddhcover {
-    @apply bg-white w-full flex justify-center border-y border-slate-300 py-2
+    @apply bg-white w-full flex justify-center border-y border-slate-300 py-2 max-tablet:pl-4
 }
 .agerr footer .container{
-    @apply px-8 w-full max-w-[900px] text-slate-800
+    @apply tablet:px-8 w-full max-w-[900px] text-slate-800
 }
 .agerr footer .links  {
-    @apply grid max-phone:grid-cols-2 phone:grid-cols-9 tablet:grid-cols-11 laptop:grid-cols-12 
+    /* @apply grid max-phone:grid-cols-2 phone:grid-cols-9 tablet:grid-cols-11 laptop:grid-cols-12  */
+    @apply tablet:flex tablet:justify-between
 }
 .agerr footer .links .title {
-    @apply mb-4 text-base font-bold text-slate-800
+    @apply tablet:mb-4 text-base font-bold text-slate-800 max-tablet:border-b max-tablet:border-slate-300 max-tablet:px-4 max-tablet:pb-4 max-tablet:flex max-tablet:justify-between max-tablet:items-center text-start w-full focus-visible:text-sky-400
 }
 .agerr footer .links > .link {
-    @apply phone:col-span-2 my-4
+    @apply my-4 min-w-[115px]
 }
-/* .agerr footer .links .link ul  {
-    @apply font-semibold text-xs tracking-wide
-} */
+.agerr footer .links .link ul  {
+    @apply max-tablet:px-6 max-tablet:pb-7 max-tablet:pt-3.5
+}
 .agerr footer .links .link ul li {
-    @apply my-1.5 text-slate-800/50
+    @apply py-[3px] text-slate-800/40 max-tablet:my-2
 }
 .agerr footer .links .link ul li a {
-    @apply text-slate-800/75 active:text-sky-400
+    @apply text-slate-800 active:text-sky-400 focus-visible:text-sky-400
+}
+.agerr footer .straightline {
+    @apply w-full tablet:flex tablet:justify-center font-normal text-sm mt-12 max-tablet:pl-6 
+}
+.agerr footer .straightline .notlast {
+    @apply tablet:border-r-1 tablet:border-slate-300 tablet:mr-4 tablet:pr-4 max-tablet:my-4
 }

@@ -10,10 +10,42 @@
 	import MainNav from './mainNav.svelte';
 
     import { isLoginModalOpen, isSigningUpMode } from '$lib/stores/uiStore';
+	import { fade } from 'svelte/transition';
+	import { quadOut } from 'svelte/easing';
+	import Icon from '@iconify/svelte';
     function openSigninModal() {
         isLoginModalOpen.set(true); 
         isSigningUpMode.set(true); 
     }
+
+    let localcard:number = $state(0)
+
+    let value1:boolean = $state(false)
+    let value2:boolean = $state(false)
+    let value3:boolean = $state(false)
+    let value4:boolean = $state(false)
+    let value5:boolean = $state(false)
+    let value6:boolean = $state(false)
+    let value7:boolean = $state(false)
+    let value8:boolean = $state(false)
+    let value9:boolean = $state(false)
+    // let showimgcard:string = $state('test')
+
+    // import img1 from ;
+	// import img2 from ;
+	// import img3 from ;
+	// import img4 from ;
+	// import img5 from ;
+	// import img6 from ;
+	// import img7 from ;
+	// import img8 from ;
+	// import img9 from ;
+
+	// const images = [ img1, img2, img3, img4, img5, img6, img7, img8, img9];
+    
+	// $effect(() => {
+	// 	showimgcard = localcard > 0 ? images[localcard - 1] : "";
+	// });
 </script>
 
 <main class="bg-white flex flex-col items-center justify-center nodrag relative overflow-hidden">
@@ -51,61 +83,119 @@
         </div>
 
         <!-- Image -->
-        <div class="absolute -translate-x-[5vw] top-16 p-2 border border-white rounded-3xl bg-gradient-to-tl from-sky-100/50 to-purple-100/50 blur-xs
+        <div class="absolute -translate-x-[5vw] top-16 p-2 border-1 border-white rounded-3xl bg-gradient-to-tl from-sky-100/50 to-purple-100/50
         mask-luminance mask-b-from-white mask-b-from-70% mask-b-to-black mask-b-to-100%">
-            <div class="bg-white rounded-2xl w-[800px] h-[500px]"></div>
+            <div class="w-[800px] h-[500px] relative">
+                {#if localcard === 0}
+                    <div transition:fade={{duration: 150, easing: quadOut}} class="absolute top-0 left-0 bg-white rounded-2xl w-[800px] h-[500px]"></div>
+                {:else if localcard === 1}
+                    <enhanced:img src="$lib/assets/cardimg/cc3e5d90.png" alt="card show img" transition:fade={{duration: 300}} class="absolute top-0 left-0 bg-white rounded-2xl w-[800px] h-[500px]" />
+                {:else if localcard === 2}
+                    <enhanced:img src="$lib/assets/cardimg/6N0BXf2.png" alt="card show img" transition:fade={{duration: 300}} class="absolute top-0 left-0 bg-white rounded-2xl w-[800px] h-[500px]" />
+                {:else if localcard === 3}
+                    <enhanced:img src="$lib/assets/cardimg/ZePLSCW.png" alt="card show img" transition:fade={{duration: 300}} class="absolute top-0 left-0 bg-white rounded-2xl w-[800px] h-[500px]" />
+                {:else if localcard === 4}
+                    <enhanced:img src="$lib/assets/cardimg/wQAul6y.png" alt="card show img" transition:fade={{duration: 300}} class="absolute top-0 left-0 bg-white rounded-2xl w-[800px] h-[500px]" />
+                {:else if localcard === 5}
+                    <enhanced:img src="$lib/assets/cardimg/MYLIq7U.png" alt="card show img" transition:fade={{duration: 300}} class="absolute top-0 left-0 bg-white rounded-2xl w-[800px] h-[500px]" />
+                {:else if localcard === 6}
+                    <enhanced:img src="$lib/assets/cardimg/er5QHYU.png" alt="card show img" transition:fade={{duration: 300}} class="absolute top-0 left-0 bg-white rounded-2xl w-[800px] h-[500px]" />
+                {:else if localcard === 7}
+                    <enhanced:img src="$lib/assets/cardimg/BCw3R2V.png" alt="card show img" transition:fade={{duration: 300}} class="absolute top-0 left-0 bg-white rounded-2xl w-[800px] h-[500px]" />
+                {:else if localcard === 8}
+                    <enhanced:img src="$lib/assets/cardimg/394b52e0.png" alt="card show img" transition:fade={{duration: 300}} class="absolute top-0 left-0 bg-white rounded-2xl w-[800px] h-[500px]" />
+                {:else if localcard === 9}
+                    <enhanced:img src="$lib/assets/cardimg/0kTFlR5.jpeg" alt="card show img" transition:fade={{duration: 300}} class="absolute top-0 left-0 bg-white rounded-2xl w-[800px] h-[500px]" />
+                {/if}
+            </div>
         </div>
 
         <!-- Card -->
-        <div class="absolute translate-x-[25vw] p-2 border border-white rounded-2xl bg-gradient-to-tl from-sky-100/50 to-purple-100/50">
+        <div class="absolute translate-x-[25vw] p-2 border-1 border-white rounded-2xl bg-gradient-to-tl from-sky-100/50 to-purple-100/50">
             <div class="bg-white agerrborder z-5 text-center p-4">
                 <h2 class="agerrh2 mt-3">Choose your need</h2>
                 <p class="tracking-wide text-slate-700 text-xs">i wont sell ur data, btw :) trust me</p>
                 <div class="grid grid-cols-3 gap-3 w-full my-4">
-                    <button class="agerrtablebutton">
-                        <div class="absolute top-1.5 right-1.5 ring-1 ring-slate-300 w-4 aspect-square rounded-sm"></div>
-                        <div>test</div>
-                        <div>test</div>
+                    <button onclick={() => {localcard = 1; value1 = !value1}} class="agerrtablebutton">
+                        <div class="absolute top-1.5 right-1.5 ring-1 ring-slate-300 w-4 aspect-square rounded-sm flex justify-center items-center">
+                            <div class="absolute {value1 ? '' : 'hidden '}">
+                                <Icon icon="mingcute:check-2-fill" />
+                            </div>
+                        </div>
+                        <div class="text-3xl flex justify-center text-slate-300"><Icon icon="mingcute:list-check-2-fill"/></div>
+                        <div class="text-xs">Task</div>
                     </button>
-                    <button class="agerrtablebutton">
-                        <div class="absolute top-1.5 right-1.5 ring-1 ring-slate-300 w-4 aspect-square rounded-sm"></div>
-                        <div>test</div>
-                        <div>test</div>
+                    <button onclick={() => {localcard = 2; value2 = !value2}} class="agerrtablebutton">
+                        <div class="absolute top-1.5 right-1.5 ring-1 ring-slate-300 w-4 aspect-square rounded-sm flex justify-center items-center">
+                            <div class="absolute {value2 ? '' : 'hidden '}">
+                                <Icon icon="mingcute:check-2-fill" />
+                            </div>
+                        </div>
+                        <div class="text-3xl flex justify-center text-slate-300"><Icon icon="mingcute:dashboard-2-fill"/></div>
+                        <div class="text-xs">Dashboard</div>
                     </button>
-                    <button class="agerrtablebutton">
-                        <div class="absolute top-1.5 right-1.5 ring-1 ring-slate-300 w-4 aspect-square rounded-sm"></div>
-                        <div>test</div>
-                        <div>test</div>
+                    <button onclick={() => {localcard = 3; value3 = !value3}} class="agerrtablebutton">
+                        <div class="absolute top-1.5 right-1.5 ring-1 ring-slate-300 w-4 aspect-square rounded-sm flex justify-center items-center">
+                            <div class="absolute {value3 ? '' : 'hidden '}">
+                                <Icon icon="mingcute:check-2-fill" />
+                            </div>
+                        </div>
+                        <div class="text-3xl flex justify-center text-slate-300"><Icon icon="mingcute:align-top-fill"/></div>
+                        <div class="text-xs">Kanban</div>
                     </button>
-                    <button class="agerrtablebutton">
-                        <div class="absolute top-1.5 right-1.5 ring-1 ring-slate-300 w-4 aspect-square rounded-sm"></div>
-                        <div>test</div>
-                        <div>test</div>
+                    <button onclick={() => {localcard = 4; value4 = !value4}} class="agerrtablebutton">
+                        <div class="absolute top-1.5 right-1.5 ring-1 ring-slate-300 w-4 aspect-square rounded-sm flex justify-center items-center">
+                            <div class="absolute {value4 ? '' : 'hidden '}">
+                                <Icon icon="mingcute:check-2-fill" />
+                            </div>
+                        </div>
+                        <div class="text-3xl flex justify-center text-slate-300"><Icon icon="mingcute:alarm-1-fill"/></div>
+                        <div class="text-xs">Reminder</div>
                     </button>
-                    <button class="agerrtablebutton">
-                        <div class="absolute top-1.5 right-1.5 ring-1 ring-slate-300 w-4 aspect-square rounded-sm"></div>
-                        <div>test</div>
-                        <div>test</div>
+                    <button onclick={() => {localcard = 5; value5 = !value5}} class="agerrtablebutton">
+                        <div class="absolute top-1.5 right-1.5 ring-1 ring-slate-300 w-4 aspect-square rounded-sm flex justify-center items-center">
+                            <div class="absolute {value5 ? '' : 'hidden '}">
+                                <Icon icon="mingcute:check-2-fill" />
+                            </div>
+                        </div>
+                        <div class="text-3xl flex justify-center text-slate-300"><Icon icon="mingcute:pig-money-fill"/></div>
+                        <div class="text-xs">Saving</div>
                     </button>
-                    <button class="agerrtablebutton">
-                        <div class="absolute top-1.5 right-1.5 ring-1 ring-slate-300 w-4 aspect-square rounded-sm"></div>
-                        <div>test</div>
-                        <div>test</div>
+                    <button onclick={() => {localcard = 6; value6 = !value6}} class="agerrtablebutton">
+                        <div class="absolute top-1.5 right-1.5 ring-1 ring-slate-300 w-4 aspect-square rounded-sm flex justify-center items-center">
+                            <div class="absolute {value6 ? '' : 'hidden '}">
+                                <Icon icon="mingcute:check-2-fill" />
+                            </div>
+                        </div>
+                        <div class="text-3xl flex justify-center text-slate-300"><Icon icon="mingcute:bank-card-fill"/></div>
+                        <div class="text-xs">Outcome</div>
                     </button>
-                    <button class="agerrtablebutton">
-                        <div class="absolute top-1.5 right-1.5 ring-1 ring-slate-300 w-4 aspect-square rounded-sm"></div>
-                        <div>test</div>
-                        <div>test</div>
+                    <button onclick={() => {localcard = 7; value7 = !value7}} class="agerrtablebutton">
+                        <div class="absolute top-1.5 right-1.5 ring-1 ring-slate-300 w-4 aspect-square rounded-sm flex justify-center items-center">
+                            <div class="absolute {value7 ? '' : 'hidden '}">
+                                <Icon icon="mingcute:check-2-fill" />
+                            </div>
+                        </div>
+                        <div class="text-3xl flex justify-center text-slate-300"><Icon icon="mingcute:black-board-2-fill"/></div>
+                        <div class="text-xs">Whiteboard</div>
                     </button>
-                    <button class="agerrtablebutton">
-                        <div class="absolute top-1.5 right-1.5 ring-1 ring-slate-300 w-4 aspect-square rounded-sm"></div>
-                        <div>test</div>
-                        <div>test</div>
+                    <button onclick={() => {localcard = 8; value8 = !value8}} class="agerrtablebutton">
+                        <div class="absolute top-1.5 right-1.5 ring-1 ring-slate-300 w-4 aspect-square rounded-sm flex justify-center items-center">
+                            <div class="absolute {value8 ? '' : 'hidden '}">
+                                <Icon icon="mingcute:check-2-fill" />
+                            </div>
+                        </div>
+                        <div class="text-3xl flex justify-center text-slate-300"><Icon icon="mingcute:clipboard-fill"/></div>
+                        <div class="text-xs">Notes</div>
                     </button>
-                    <button class="agerrtablebutton">
-                        <div class="absolute top-1.5 right-1.5 ring-1 ring-slate-300 w-4 aspect-square rounded-sm"></div>
-                        <div>test</div>
-                        <div>test</div>
+                    <button onclick={() => {localcard = 9; value9 = !value9}} class="agerrtablebutton">
+                        <div class="absolute top-1.5 right-1.5 ring-1 ring-slate-300 w-4 aspect-square rounded-sm flex justify-center items-center">
+                            <div class="absolute {value9 ? '' : 'hidden '}">
+                                <Icon icon="mingcute:check-2-fill" />
+                            </div>
+                        </div>
+                        <div class="text-3xl flex justify-center text-slate-300"><Icon icon="mingcute:book-2-fill"/></div>
+                        <div class="text-xs">Journal</div>
                     </button>
                 </div>
                 <button onclick={openSigninModal} class="agerrbggradient button border border-slate-300 rounded-lg py-4 w-full text-center text-base font-outfit font-semibold tracking-wide text-white cursor-pointer">

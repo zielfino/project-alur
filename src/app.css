@@ -103,7 +103,7 @@ a.link {
 }
 
 .agerrtablebutton {
-    @apply w-[100px] aspect-5/4 bg-white rounded-lg cursor-pointer border border-slate-300 relative hover:drop-shadow-lg/10 hover:-translate-y-0.25 focus-visible:drop-shadow-lg/10 focus-visible:-translate-y-0.25
+    @apply w-[100px] aspect-8/7 bg-white rounded-lg cursor-pointer border border-slate-300 relative hover:drop-shadow-lg/10 hover:-translate-y-0.25 focus-visible:drop-shadow-lg/10 focus-visible:-translate-y-0.25 active:translate-0 active:drop-shadow-none
 }
 
 .agerrboxfeature {

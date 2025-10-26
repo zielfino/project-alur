@@ -75,7 +75,7 @@
 
 
 {#if $isLoginModalOpen}
-    <div transition:fade={{ duration: 150, easing: quadOut }} class="bgbackdrop flex">    
+    <div transition:fade={{ duration: 150, easing: quadOut }} class="bgbackdrop flex" onclick={() => isLoginModalOpen.set(false)}>    
         <Login />
     </div>
 {/if}

@@ -75,7 +75,6 @@
     @apply tablet:px-8 w-full max-w-[900px] text-slate-800
 }
 .agerr footer .links  {
-    /* @apply grid max-phone:grid-cols-2 phone:grid-cols-9 tablet:grid-cols-11 laptop:grid-cols-12  */
     @apply tablet:flex tablet:justify-between
 }
 .agerr footer .links .title {

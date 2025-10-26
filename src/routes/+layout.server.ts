@@ -1,6 +1,7 @@
 // src/routes/+layout.server.ts (atau src/routes/+layout.server.ts tergantung struktur)
 import type { LayoutServerLoad } from './$types';
 import { getPool } from '$lib/server/database';
+import pkg from '../../package.json';
 
 export const load: LayoutServerLoad = async ({ locals: { getSession } }) => {
 	const session = await getSession();
@@ -20,5 +21,5 @@ export const load: LayoutServerLoad = async ({ locals: { getSession } }) => {
 		}
 	}
 
-	return { session, profile };
+	return { session, profile, version: pkg.version };
 };

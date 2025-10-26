@@ -89,6 +89,8 @@
 	
 	import ConfirmModal from '$lib/component/ConfirmModal.svelte';
 	import IsLoading from '$lib/component/isLoading.svelte';
+	
+	// import { version } from '$lib/stores/app';
 </script>
 
 <svelte:head>
@@ -98,6 +100,9 @@
 </svelte:head>
 
 <section class="agerr">
+	<section class="top-0 lef-0 px-1 py-0.5 z-500 fixed font-semibold text-white bg-zinc-800">
+		v{data.version}
+	</section>
 	<ErrorNotification />
 	{@render children?.()}
 	<IsLoading/>

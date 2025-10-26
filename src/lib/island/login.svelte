@@ -5,6 +5,7 @@
 	import { goto, invalidateAll } from '$app/navigation';
 	import { supabase } from '$lib/supabaseClient';
    	import { isLoginModalOpen, isSigningUpMode } from '$lib/stores/uiStore';
+	import Logosvg from '$lib/assets/logosvg.svelte';
 	let name = $state('');
 	let email = $state('');
 	let password = $state('');
@@ -59,8 +60,14 @@
     let nameInput: HTMLInputElement | null = $state(null);
 </script>
 
-<section class="w-[800px] bg-white h-[500px] agerrborder overflow-hidden {$page.url.pathname === '/login' ? 'w-full h-full flex' : 'grid grid-cols-5'}">
-	<div class="p-4 pr-0 bg-white text-slate-900 flex flex-col items-center {$page.url.pathname === '/login' ? 'w-[500px]' : 'col-span-2'}">
+<section class="w-[340px] tablet:w-[640px] laptop:min-w-[800px] bg-white h-[500px] overflow-hidden {$page.url.pathname === '/login' ? 'w-full h-full flex justify-center tablet:w-full' : 'grid grid-cols-2 tablet:grid-cols-4 laptop:grid-cols-5 agerrborder'}"
+ 	onclick={(e) => e.stopPropagation()} >
+	<div class="p-4 tablet:pr-0 bg-white text-slate-900 flex flex-col items-center {$page.url.pathname === '/login' ? 'w-[500px]' : 'col-span-2'}">
+		{#if $page.url.pathname === '/login'}
+            <div class="w-24 mb-6 mt-2 tablet:hidden">
+				<Logosvg/>
+			</div>
+		{/if}
 		<div class="grid grid-cols-2 gap-2 items-center mb-4 relative w-full">
 			<div class="absolute h-[50px] w-[calc(50%-0.25rem)] agerrbggradient	 rounded-lg duration-200 ease-in-out {$isSigningUpMode ? 'translate-x-[calc(100%+0.5rem)]' : ''}"></div>
 			<button disabled={!$isSigningUpMode} class="z-1 font-semibold font-outfit tracking-wider h-[50px] rounded-lg {!$isSigningUpMode ? 'text-white' : 'cursor-pointer text-slate-900 hover:underline focus-visible:underline'}" onclick={() => (isSigningUpMode.set(false))}>Login</button>
@@ -122,7 +129,7 @@
 			{/if}
 		</div>
 	</div>
-	<div class="relative agerrbggradient rounded-lg m-4 duration-1000 ease-in-out {$page.url.pathname === '/login' ? 'w-full' : 'col-span-3'}">
+	<div class="relative agerrbggradient rounded-lg m-4 duration-1000 ease-in-out max-tablet:hidden {$page.url.pathname === '/login' ? 'w-full' : 'col-span-2 laptop:col-span-3'}">
 		{#if $page.url.pathname === '/'}
 			<button onclick={() => isLoginModalOpen.set(false)} class="cursor-pointer text-2xl absolute top-3.5 right-4 text-white duration-300 hover:rotate-90 ease-out aspect-square w-8 flex justify-center items-center rounded-full"><Icon icon="fa7-solid:close" class="" /></button>
 		{/if}

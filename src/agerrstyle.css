@@ -79,7 +79,7 @@
     @apply tablet:flex tablet:justify-between
 }
 .agerr footer .links .title {
-    @apply tablet:mb-4 text-base font-bold text-slate-800 max-tablet:border-b max-tablet:border-slate-300 max-tablet:px-4 max-tablet:pb-4 max-tablet:flex max-tablet:justify-between max-tablet:items-center text-start w-full focus-visible:text-sky-400
+    @apply tablet:mb-4 text-base font-bold text-slate-800 max-tablet:border-b max-tablet:border-slate-300 max-tablet:px-4 max-tablet:pb-4 max-tablet:flex max-tablet:justify-between max-tablet:items-center text-start w-full focus-visible:text-sky-400 max-tablet:cursor-pointer
 }
 .agerr footer .links > .link {
     @apply my-4 min-w-[115px]

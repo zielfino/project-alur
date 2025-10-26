@@ -107,11 +107,11 @@ a.link {
 }
 
 .agerrboxfeature {
-    @apply w-full aspect-square bg-white rounded-lg cursor-pointer border border-slate-300 relative hover:drop-shadow-xl/10 hover:-translate-y-1 focus-visible:drop-shadow-xl/10 focus-visible:-translate-y-1 flex flex-col justify-center items-center hover:ring hover:ring-indigo-500 focus-visible:ring focus-visible:ring-indigo-500
+    @apply w-full aspect-square bg-white rounded-lg cursor-pointer border border-slate-300 relative hover:drop-shadow-xl/10 hover:-translate-y-1 focus:drop-shadow-xl/10 focus:-translate-y-1 flex flex-col justify-center items-center hover:ring hover:ring-indigo-500 focus:ring focus:ring-indigo-500 active:translate-0 active:drop-shadow-none
 }
 
 .agerrnonboxfeature {
-    @apply w-full aspect-square bg-white rounded-lg border border-slate-300 relative
+    @apply w-full aspect-square bg-white rounded-lg border border-slate-300 relative active:translate-0 active:drop-shadow-none
 }
 
 .lableinput {

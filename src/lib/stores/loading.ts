@@ -16,6 +16,8 @@ export type LoadingState = {
 	createpassword: boolean;
 	deleteaccount: boolean;
 	logout: boolean;
+	signin: boolean;
+	login: boolean;
 };
 
 const initialState: LoadingState = {
@@ -34,6 +36,8 @@ const initialState: LoadingState = {
 	createpassword: false,
 	deleteaccount: false,
 	logout: false,
+	signin: false,
+	login: false,
 };
 
 function createLoadingStore() {

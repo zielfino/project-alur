@@ -6,12 +6,14 @@
 	import { supabase } from '$lib/supabaseClient';
    	import { isLoginModalOpen, isSigningUpMode } from '$lib/stores/uiStore';
 	import Logosvg from '$lib/assets/logosvg.svelte';
+	import { isLoading } from '$lib/stores/loading';
 	let name = $state('');
 	let email = $state('');
 	let password = $state('');
 	let isSigningUp = $state(isSigningUpMode)
 
 	async function handleEmailLogin() {
+		isLoading.start('login')
 		console.log('--- LOGIN FRONTEND: Login button clicked. Sending data to API... ---');
 		const response = await fetch('/api/auth/signin', {
 			method: 'POST',
@@ -22,13 +24,16 @@
 		if (response.ok) {
 			await invalidateAll();
 			await goto('/');
+			isLoading.stop('login')
 		} else {
 			const result = await response.json();
 			alert('Error logging in: ' + result.message);
+			isLoading.stop('login')
 		}
 	}
 
 	async function handleEmailSignup() {
+		isLoading.start('signin')
 		// CHECKPOINT SIGNUP 1 (Frontend): Tombol signup diklik.
 		console.log('--- SIGNUP FRONTEND: Signup button clicked. Sending data to API... ---');
 
@@ -46,10 +51,12 @@
 			// Jika API mengembalikan sukses, tampilkan pesannya.
 			console.log('--- SIGNUP FRONTEND: SUCCESS - API returned success ---');
 			alert(result.message);
+			isLoading.stop('signin')
 		} else {
 			// Jika API mengembalikan error, tampilkan pesannya.
 			console.error('--- SIGNUP FRONTEND: FAILED - API returned an error:', result.error, '---');
 			alert('Error signing up: ' + result.error);
+			isLoading.stop('signin')
 		}
 	}
 
@@ -61,7 +68,8 @@
 </script>
 
 <section class="w-[340px] tablet:w-[640px] laptop:min-w-[800px] bg-white h-[500px] overflow-hidden {$page.url.pathname === '/login' ? 'w-full h-full flex justify-center tablet:w-full' : 'grid grid-cols-2 tablet:grid-cols-4 laptop:grid-cols-5 agerrborder'}"
- 	onclick={(e) => e.stopPropagation()} >
+onclick={(e) => e.stopPropagation()} >
+ 	<!-- > -->
 	<div class="p-4 tablet:pr-0 bg-white text-slate-900 flex flex-col items-center {$page.url.pathname === '/login' ? 'w-[500px]' : 'col-span-2'}">
 		{#if $page.url.pathname === '/login'}
             <div class="w-24 mb-6 mt-2 tablet:hidden">
@@ -76,7 +84,7 @@
 		<form class="flex flex-col gap-2.5 text-slate-800 w-[300px] h-full {$page.url.pathname === '/login' ? 'justify-center' : ''}">
 			{#if $isSigningUpMode}
 				<div class="relative group">
-					<button tabindex="-1" onclick={() => { if (nameInput) nameInput.focus(); }} class="agerrh5 absolute top-0.5 left-1 duration-300 ease-in-out
+					<button tabindex="-1" onclick={() => { if (nameInput) nameInput.focus(); }} class="agerrh5 pointer-events-none absolute top-0.5 left-1 duration-300 ease-in-out
 					{name !== '' ? '' : ' lableinput'}">Name</button>
 					<div class="button bg-slate-200 py-2 px-3 rounded-lg w-full flex items-center gap-2 mt-5">
 						<Icon icon="fa7-solid:user" class="" />
@@ -85,7 +93,7 @@
 				</div>
 			{/if}
 			<div class="relative group">
-				<button tabindex="-1"  onclick={() => { if (emailInput) emailInput.focus(); }} class="agerrh5 absolute top-0.5 left-1 duration-300 ease-in-out
+				<button tabindex="-1"  onclick={() => { if (emailInput) emailInput.focus(); }} class="agerrh5 pointer-events-none absolute top-0.5 left-1 duration-300 ease-in-out
 				{email !== '' ? '' : ' lableinput'}">Email</button>
 				<div class="button bg-slate-200 py-2 px-3 rounded-lg w-full flex items-center gap-2 mt-5">
 					<Icon icon="fa7-solid:envelope" class="" />
@@ -93,7 +101,7 @@
 				</div>
 			</div>
 			<div class="relative group">
-				<button tabindex="-1" onclick={() => { if (passwordInput) passwordInput.focus(); }} class="agerrh5 absolute top-0.5 left-1 duration-300 ease-in-out
+				<button tabindex="-1" onclick={() => { if (passwordInput) passwordInput.focus(); }} class="agerrh5 pointer-events-none absolute top-0.5 left-1 duration-300 ease-in-out
 				{password !== '' ? '' : ' lableinput'}">Password</button>
 				<div class="button bg-slate-200 py-2 px-3 rounded-lg w-full flex items-center gap-2 mt-5">
 					<Icon icon="fa7-solid:key" class="" />

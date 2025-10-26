@@ -297,7 +297,7 @@
                             <div class="text-xs capitalize">Double</div>
                         </div>
                         <div class="flex justify-center items-center flex-col aspect-square">
-                            <div class="text-5xl mb-2 text-slate-800"><Icon icon="mingcute:terminal-box-fill"/></div>
+                            <div class="text-5xl mb-2 text-slate-600"><Icon icon="mingcute:terminal-box-fill"/></div>
                             <div class="text-xs capitalize">Terminal</div>
                         </div>
                     </div>
@@ -396,149 +396,149 @@
                     <div aria-label="boxfeature" class="agerrnonboxfeature mask-t-from-0% mask-t-to-50%"></div>
                     <div aria-label="boxfeature" class="agerrnonboxfeature mask-t-from-0% mask-t-to-50%"></div>
                     <button aria-label="boxfeature" class="agerrboxfeature">
-                        <div class="text-5xl mb-2 text-slate-800"><Icon icon="ph:bookmarks-simple-duotone"/></div>
+                        <div class="text-5xl mb-2 text-slate-600"><Icon icon="ph:bookmarks-simple-duotone"/></div>
                         <div class="text-xs capitalize">Bookmark</div>
                     </button>
                 {/if}
                 <button aria-label="boxfeature" class="agerrboxfeature">
-                    <div class="text-5xl mb-2 text-slate-800"><Icon icon="ph:newspaper-clipping-duotone"/></div>
+                    <div class="text-5xl mb-2 text-slate-600"><Icon icon="ph:newspaper-clipping-duotone"/></div>
                     <div class="text-xs capitalize">Newspaper</div>
                 </button>
             {/if}
             <button aria-label="boxfeature" class="agerrboxfeature">
-                <div class="text-5xl mb-2 text-slate-800"><Icon icon="ph:chart-line-up-duotone"/></div>
+                <div class="text-5xl mb-2 text-slate-600"><Icon icon="ph:chart-line-up-duotone"/></div>
                 <div class="text-xs capitalize">Cart</div>
             </button>
             {#if isReadPhone}
                 <button aria-label="boxfeature" class="agerrboxfeature">
-                        <div class="text-5xl mb-2 text-slate-800"><Icon icon="ph:newspaper-clipping-duotone"/></div>
+                        <div class="text-5xl mb-2 text-slate-600"><Icon icon="ph:newspaper-clipping-duotone"/></div>
                         <div class="text-xs capitalize">Newspaper</div>
                     </button>
                 <button aria-label="boxfeature" class="agerrboxfeature">
-                        <div class="text-5xl mb-2 text-slate-800"><Icon icon="ph:money-wavy-duotone"/></div>
+                        <div class="text-5xl mb-2 text-slate-600"><Icon icon="ph:money-wavy-duotone"/></div>
                         <div class="text-xs capitalize">Economy</div>
                     </button>
                 <button aria-label="boxfeature" class="agerrboxfeature">
-                        <div class="text-5xl mb-2 text-slate-800"><Icon icon="ph:chalkboard-simple-duotone"/></div>
+                        <div class="text-5xl mb-2 text-slate-600"><Icon icon="ph:chalkboard-simple-duotone"/></div>
                         <div class="text-xs capitalize">Whiteboard</div>
                     </button>
             {/if}
             <button aria-label="boxfeature" class="agerrboxfeature col-span-2 row-span-2 relative overflow-hidden">
-                <div class="absolute w-24 h-24 bg-red-300 -top-16 rounded-full blur-3xl"></div>
-                <div class="text-8xl mb-2 text-red-800"><Icon icon="ph:align-top-duotone"/></div>
-                <div class="text-lg capitalize text-red-800">Kanban</div>
+                <div class="absolute w-24 h-24 bg-rose-300 -top-16 rounded-full blur-3xl"></div>
+                <div class="text-8xl mb-2 text-rose-400"><Icon icon="ph:align-top-duotone"/></div>
+                <div class="text-lg capitalize text-rose-400">Kanban</div>
             </button>
             <button aria-label="boxfeature" class="agerrboxfeature col-span-2 row-span-2 relative overflow-hidden">
                 <div class="absolute w-24 h-24 bg-indigo-300 -top-16 rounded-full blur-3xl"></div>
-                <div class="text-8xl mb-2 text-indigo-800"><Icon icon="ph:list-checks-duotone"/></div>
-                <div class="text-lg capitalize text-indigo-800">Checkklist</div>
+                <div class="text-8xl mb-2 text-indigo-400"><Icon icon="ph:list-checks-duotone"/></div>
+                <div class="text-lg capitalize text-indigo-400">Checkklist</div>
             </button>
             {#if isTablet}
                 <button aria-label="boxfeature" class="agerrboxfeature">
-                    <div class="text-5xl mb-2 text-slate-800"><Icon icon="ph:chalkboard-simple-duotone"/></div>
+                    <div class="text-5xl mb-2 text-slate-600"><Icon icon="ph:chalkboard-simple-duotone"/></div>
                     <div class="text-xs capitalize">Whiteboard</div>
                 </button>
                 <button aria-label="boxfeature" class="agerrboxfeature">
-                    <div class="text-5xl mb-2 text-slate-800"><Icon icon="ph:money-wavy-duotone"/></div>
+                    <div class="text-5xl mb-2 text-slate-600"><Icon icon="ph:money-wavy-duotone"/></div>
                     <div class="text-xs capitalize">Economy</div>
                 </button>
                 <button aria-label="boxfeature" class="agerrboxfeature">
-                    <div class="text-5xl mb-2 text-slate-800"><Icon icon="ph:airplane-duotone"/></div>
+                    <div class="text-5xl mb-2 text-slate-600"><Icon icon="ph:airplane-duotone"/></div>
                     <div class="text-xs capitalize">Offline Mode</div>
                 </button>
                 <button aria-label="boxfeature" class="agerrboxfeature">
-                    <div class="text-5xl mb-2 text-slate-800"><Icon icon="ph:lock-laminated-open-duotone"/></div>
+                    <div class="text-5xl mb-2 text-slate-600"><Icon icon="ph:lock-laminated-open-duotone"/></div>
                     <div class="text-xs capitalize">Locked</div>
                 </button>
                 {#if isLaptop}
                     <button aria-label="boxfeature" class="agerrboxfeature">
-                        <div class="text-5xl mb-2 text-slate-800"><Icon icon="ph:pencil-simple-duotone"/></div>
+                        <div class="text-5xl mb-2 text-slate-600"><Icon icon="ph:pencil-simple-duotone"/></div>
                         <div class="text-xs capitalize">Edit</div>
                     </button>
                     <button aria-label="boxfeature" class="agerrboxfeature">
-                        <div class="text-5xl mb-2 text-slate-800"><Icon icon="ph:clipboard-text-duotone"/></div>
+                        <div class="text-5xl mb-2 text-slate-600"><Icon icon="ph:clipboard-text-duotone"/></div>
                         <div class="text-xs capitalize">Clipboard</div>
                     </button>
                     <button aria-label="boxfeature" class="agerrboxfeature">
-                        <div class="text-5xl mb-2 text-slate-800"><Icon icon="ph:airplay-duotone"/></div>
+                        <div class="text-5xl mb-2 text-slate-600"><Icon icon="ph:airplay-duotone"/></div>
                         <div class="text-xs capitalize">Airplay</div>
                     </button>
                     <button aria-label="boxfeature" class="agerrboxfeature">
-                        <div class="text-5xl mb-2 text-slate-800"><Icon icon="ph:alien-duotone"/></div>
+                        <div class="text-5xl mb-2 text-slate-600"><Icon icon="ph:alien-duotone"/></div>
                         <div class="text-xs capitalize">Alien</div>
                     </button>                
                 {/if}
             {/if}
             {#if isPhone}
                 <button aria-label="boxfeature" class="agerrboxfeature">
-                        <div class="text-5xl mb-2 text-slate-800"><Icon icon="ph:android-logo-duotone"/></div>
+                        <div class="text-5xl mb-2 text-slate-600"><Icon icon="ph:android-logo-duotone"/></div>
                         <div class="text-xs capitalize">Android</div>
                     </button>
                 <button aria-label="boxfeature" class="agerrboxfeature">
-                        <div class="text-5xl mb-2 text-slate-800"><Icon icon="ph:briefcase-duotone"/></div>
+                        <div class="text-5xl mb-2 text-slate-600"><Icon icon="ph:briefcase-duotone"/></div>
                         <div class="text-xs capitalize">Work</div>
                     </button>
                 <button aria-label="boxfeature" class="agerrboxfeature">
-                        <div class="text-5xl mb-2 text-slate-800"><Icon icon="ph:calendar-dots-duotone"/></div>
+                        <div class="text-5xl mb-2 text-slate-600"><Icon icon="ph:calendar-dots-duotone"/></div>
                         <div class="text-xs capitalize">Calendar</div>
                     </button>
                 <button aria-label="boxfeature" class="agerrboxfeature">
-                        <div class="text-5xl mb-2 text-slate-800"><Icon icon="ph:cat-duotone"/></div>
+                        <div class="text-5xl mb-2 text-slate-600"><Icon icon="ph:cat-duotone"/></div>
                         <div class="text-xs capitalize">Cat</div>
                     </button>
             {/if}
             <button aria-label="boxfeature" class="agerrboxfeature col-span-2 row-span-2 relative overflow-hidden">
                 <div class="absolute w-24 h-24 bg-purple-300 -top-16 rounded-full blur-3xl"></div>
-                <div class="text-8xl mb-2 text-purple-800"><Icon icon="ph:envelope-duotone"/></div>
-                <div class="text-lg capitalize text-purple-800">Invite User</div>
+                <div class="text-8xl mb-2 text-purple-500"><Icon icon="ph:envelope-duotone"/></div>
+                <div class="text-lg capitalize text-purple-500">Invite User</div>
             </button>
             <button aria-label="boxfeature" class="agerrboxfeature col-span-2 row-span-2 relative overflow-hidden">
                 <div class="absolute w-24 h-24 bg-pink-300 -top-16 rounded-full blur-3xl"></div>
-                <div class="text-8xl mb-2 text-pink-800"><Icon icon="ph:clipboard-text-duotone"/></div>
-                <div class="text-lg capitalize text-pink-800">Share Board</div>
+                <div class="text-8xl mb-2 text-pink-500"><Icon icon="ph:clipboard-text-duotone"/></div>
+                <div class="text-lg capitalize text-pink-500">Share Board</div>
             </button>
             <button aria-label="boxfeature" class="agerrboxfeature">
-                        <div class="text-5xl mb-2 text-slate-800"><Icon icon="ph:paper-plane-right-duotone"/></div>
+                        <div class="text-5xl mb-2 text-slate-600"><Icon icon="ph:paper-plane-right-duotone"/></div>
                         <div class="text-xs capitalize">Messages</div>
                     </button>
             <button aria-label="boxfeature" class="agerrboxfeature">
-                        <div class="text-5xl mb-2 text-slate-800"><Icon icon="ph:push-pin-duotone"/></div>
+                        <div class="text-5xl mb-2 text-slate-600"><Icon icon="ph:push-pin-duotone"/></div>
                         <div class="text-xs capitalize">Pinned</div>
                     </button>
             <button aria-label="boxfeature" class="agerrboxfeature">
-                        <div class="text-5xl mb-2 text-slate-800"><Icon icon="ph:clipboard-text-duotone"/></div>
+                        <div class="text-5xl mb-2 text-slate-600"><Icon icon="ph:clipboard-text-duotone"/></div>
                         <div class="text-xs capitalize">Form</div>
                     </button>
             {#if isReadPhone}
                 <button aria-label="boxfeature" class="agerrboxfeature">
-                    <div class="text-5xl mb-2 text-slate-800"><Icon icon="ph:airplane-duotone"/></div>
+                    <div class="text-5xl mb-2 text-slate-600"><Icon icon="ph:airplane-duotone"/></div>
                     <div class="text-xs capitalize">Offline Mode</div>
                 </button>
             {/if}
             {#if isTablet}
                 <button aria-label="boxfeature" class="agerrboxfeature">
-                        <div class="text-5xl mb-2 text-slate-800"><Icon icon="ph:drop-duotone"/></div>
+                        <div class="text-5xl mb-2 text-slate-600"><Icon icon="ph:drop-duotone"/></div>
                         <div class="text-xs capitalize">Drop</div>
                     </button>
                 <button aria-label="boxfeature" class="agerrboxfeature">
-                        <div class="text-5xl mb-2 text-slate-800"><Icon icon="ph:eye-duotone"/></div>
+                        <div class="text-5xl mb-2 text-slate-600"><Icon icon="ph:eye-duotone"/></div>
                         <div class="text-xs capitalize">Invisible</div>
                     </button>
                 <button aria-label="boxfeature" class="agerrboxfeature">
-                        <div class="text-5xl mb-2 text-slate-800"><Icon icon="ph:fast-forward-duotone"/></div>
+                        <div class="text-5xl mb-2 text-slate-600"><Icon icon="ph:fast-forward-duotone"/></div>
                         <div class="text-xs capitalize">Fast Forward</div>
                     </button>
                 {#if isLaptop}
                     <button aria-label="boxfeature" class="agerrboxfeature">
-                        <div class="text-5xl mb-2 text-slate-800"><Icon icon="ph:globe-simple-duotone"/></div>
+                        <div class="text-5xl mb-2 text-slate-600"><Icon icon="ph:globe-simple-duotone"/></div>
                         <div class="text-xs capitalize">Website</div>
                     </button>
                     <button aria-label="boxfeature" class="agerrboxfeature">
-                        <div class="text-5xl mb-2 text-slate-800"><Icon icon="ph:taxi-duotone"/></div>
+                        <div class="text-5xl mb-2 text-slate-600"><Icon icon="ph:taxi-duotone"/></div>
                         <div class="text-xs capitalize">Taxi</div>
                     </button>
                     <button aria-label="boxfeature" class="agerrboxfeature">
-                        <div class="text-5xl mb-2 text-slate-800"><Icon icon="ph:volleyball-duotone"/></div>
+                        <div class="text-5xl mb-2 text-slate-600"><Icon icon="ph:volleyball-duotone"/></div>
                         <div class="text-xs capitalize">Volley</div>
                     </button>                
                     <div aria-label="boxfeature" class="agerrnonboxfeature mask-b-from-0% mask-b-to-50%"></div>

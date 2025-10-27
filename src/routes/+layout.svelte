@@ -100,7 +100,7 @@
 </svelte:head>
 
 <section class="agerr">
-	<section class="top-0 lef-0 px-1 py-0.5 z-500 fixed font-semibold text-white bg-zinc-800">
+	<section class="top-0 lef-0 px-1 py-0.5 z-500 fixed font-semibold text-zinc-800 bg-white/75">
 		v{data.version}
 	</section>
 	<ErrorNotification />

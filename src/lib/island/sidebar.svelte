@@ -296,6 +296,26 @@
 	$effect(() => {
         currentpage = $page.url.pathname;
 	});
+
+    
+    
+	let isReadPhone = $state(false);
+    let isPhone = $state(false);
+	let isTablet = $state(false);
+	let isLaptop = $state(false);
+
+	function checkWidth() {
+		isReadPhone = window.matchMedia("(max-width: 500px)").matches;
+        isPhone = window.matchMedia("(min-width: 500px)").matches;
+		isTablet = window.matchMedia("(min-width: 700px)").matches;
+		isLaptop = window.matchMedia("(min-width: 900px)").matches;
+	}
+
+	onMount(() => {
+		checkWidth();
+		window.addEventListener("resize", checkWidth);
+		return () => window.removeEventListener("resize", checkWidth);
+	});
 </script>
 
 <section class="h-[100dvh] py-4
@@ -365,7 +385,7 @@
         </div>
 
 
-        <div class="flex flex-col h-full overflow-y-scroll justify-start overflow-scroll-hidden mask-t-from-96% mask-t-to-100% mask-b-from-90% mask-b-to-100% space-y-1">
+        <div class="flex flex-col h-full overflow-y-scroll justify-start overflow-scroll-hidden space-y-1">
             <!-- <div class="w-full h-3 bg-blue-700 opacity-0">,</div> -->
 
             
@@ -473,24 +493,24 @@
 -->
 {#if showCreateModal}
     <section class="z-50 fixed w-full h-[100dvh] top-0 right-0 bg-zinc-900/30 overflow-hidden cursor-default"
-	transition:fade={{duration: 150}} onclick={() => showCreateModal=false}>
-	<!-- transition:fade={{duration: 150}}> -->
+    transition:fade={{duration: 150}} onclick={() => showCreateModal=false}>
+    <!-- transition:fade={{duration: 150}}> -->
         <div class="bg-white p-4 rounded-xl min-w-[300px] w-full max-w-[300px] h-[145px] relative translate-y-[27dvh] translate-x-4"
-		transition:fly={{ y: 100, duration: 300, opacity: 0 }} onclick={(e) => e.stopPropagation()} >
-		<!-- transition:fly={{ y: 100, duration: 300, opacity: 0 }}> -->
-			<!-- <section class="flex justify-between w-full">
+        transition:fly={{ y: 100, duration: 300, opacity: 0 }} onclick={(e) => e.stopPropagation()} >
+        <!-- transition:fly={{ y: 100, duration: 300, opacity: 0 }}> -->
+            <!-- <section class="flex justify-between w-full">
                 <div class="space-x-2 flex">           
                     <div class="h-[28px] text-[18px] font-outfit leading-none tracking-wide font-semibold flex justify-center items-center ml-1">Add Board</div>
                 </div>
-				<button onclick={() => showCreateModal=false} class="aspect-square rounded-full cursor-pointer hover:rotate-90 duration-500 ease-out">
+                <button onclick={() => showCreateModal=false} class="aspect-square rounded-full cursor-pointer hover:rotate-90 duration-500 ease-out">
                     <Icon icon="mingcute:close-fill" class="text-2xl"/>
                 </button>
-			</section> -->
-			<form onsubmit={handleCreateBoard} class="flex flex-col gap-4 overflow-y-auto overflow-x-hidden pt-2">
-				<div>
-					<label for="board-name">Board Name</label>
+            </section> -->
+            <form onsubmit={handleCreateBoard} class="flex flex-col gap-4 overflow-y-auto overflow-x-hidden pt-2">
+                <div>
+                    <label for="board-name">Board Name</label>
                     <input id="board-name" type="text" bind:value={newBoardName} required class="w-full border rounded p-2" maxlength="50"/>
-				</div>
+                </div>
                 
                 <section class="flex flex-row space-x-2 absolute bottom-4 left-4">
                     <button type="submit" class="bg-sky-500 text-white hover:bg-sky-400 disabled:bg-sky-400 cursor-pointer h-[40px] w-[calc((300px-32px-4px)/2)] font-semibold rounded-md">
@@ -500,7 +520,7 @@
                         Close
                     </button>
                 </section>
-			</form>
+            </form>
         </div>
     </section>
 {/if}
@@ -513,26 +533,26 @@
 -->
 {#if $showEditBoardModal && selectedBoard}
     <section class="z-50 fixed w-full h-[100dvh] top-0 right-0 bg-zinc-900/30 flex justify-center items-center overflow-hidden cursor-default backdrop-blur-xs"
-	transition:fade={{duration: 150}} onclick={() => $showEditBoardModal=false}>
-	<!-- transition:fade={{duration: 150}}> -->
+    transition:fade={{duration: 150}} onclick={() => $showEditBoardModal=false}>
+    <!-- transition:fade={{duration: 150}}> -->
         <div class="bg-white p-4 rounded-xl min-w-[300px] w-full max-w-[400px] h-[500px] relative"
-		transition:fly={{ y: 100, duration: 300, opacity: 0 }} onclick={(e) => e.stopPropagation()} >
-		<!-- transition:fly={{ y: 100, duration: 300, opacity: 0 }}> -->
+        transition:fly={{ y: 100, duration: 300, opacity: 0 }} onclick={(e) => e.stopPropagation()} >
+        <!-- transition:fly={{ y: 100, duration: 300, opacity: 0 }}> -->
             
-			<section class="flex justify-between w-full">
+            <section class="flex justify-between w-full">
                 <div class="space-x-2 flex">           
                     <div class="h-[28px] text-[18px] font-outfit leading-none tracking-wide font-semibold flex justify-center items-center ml-1">Board Settings</div>
                 </div>
-				<button onclick={() => $showEditBoardModal=false} class="aspect-square rounded-full cursor-pointer hover:rotate-90 duration-500 ease-out">
+                <button onclick={() => $showEditBoardModal=false} class="aspect-square rounded-full cursor-pointer hover:rotate-90 duration-500 ease-out">
                     <Icon icon="mingcute:close-fill" class="text-2xl"/>
                 </button>
-			</section>
+            </section>
 
-			<form onsubmit={handleUpdateBoard}>
-				<div class="mt-2">
-					<label for="board-name">Board Name</label>
+            <form onsubmit={handleUpdateBoard}>
+                <div class="mt-2">
+                    <label for="board-name">Board Name</label>
                     <input id="board-name" type="text" bind:value={editingBoardName} required class="w-full border rounded-md p-2" maxlength="50"/>
-				</div>
+                </div>
                 <div class="flex justify-between w-full mt-4 absolute bottom-4">
                     <div class="flex flex-row space-x-2 left-4">
                         <button class="bg-sky-500 text-white hover:bg-sky-400 disabled:bg-sky-400 cursor-pointer h-[40px] w-[calc((300px-32px-4px)/2)] font-semibold rounded-md">
@@ -546,12 +566,12 @@
                         <Icon icon="mingcute:delete-2-line" class="text-2xl"/>
                     </button>
                 </div>
-			</form>
+            </form>
 
-			<h3 class="mt-4">Members</h3>
+            <h3 class="mt-4">Members</h3>
 
-			<form onsubmit={handleInviteMember} class="flex w-full justify-between mb-2">
-				<input type="text" bind:value={newMemberUsername} placeholder="enter @username" maxlength="50" class="w-full border rounded-md p-2 mr-2" />
+            <form onsubmit={handleInviteMember} class="flex w-full justify-between mb-2">
+                <input type="text" bind:value={newMemberUsername} placeholder="enter @username" maxlength="50" class="w-full border rounded-md p-2 mr-2" />
                 <div class="rounded-s-md w-[200px] pr-2
                 {!newMemberRole ? 'bg-gray-200 text-gray-800 hover:bg-gray-300' : 
                 newMemberRole === 3 ? 'bg-rose-100 text-rose-700 hover:bg-rose-200' : 
@@ -566,11 +586,11 @@
                 <button type="submit" class="bg-sky-500 text-white hover:bg-sky-400 disabled:bg-sky-400 cursor-pointer h-[40px] aspect-square font-semibold rounded-e-md flex justify-center items-center">
                     <Icon icon="mingcute:user-add-line" class="text-xl"/>
                 </button>
-			</form>
-			
-			<table class="w-full">
+            </form>
+            
+            <table class="w-full">
                 <tbody class="w-full">
-				    {#each members as member}
+                    {#each members as member}
                         <tr class="w-full flex text-nowrap space-x-2 items-center pb-1 mb-1 border-b-1 border-slate-300">
                             <td class="aspect-square h-10 w-10"><img src={member.avatar_url} alt="userporfile" class="h-10 rounded-full"></td>
                             <td class="line-clamp-1 min-w-[160px] text-start">@{member.username}</td>
@@ -592,7 +612,7 @@
                         </tr>
                     {/each}
                 </tbody>
-			</table>
+            </table>
         </div>
     </section>
 {/if}

@@ -22,6 +22,8 @@
 	} from "$lib/stores/uiStore";
 	import { pushError } from "$lib/stores/errorNotification.js";
 	import { isConfirm } from "$lib/stores/confirmStore.js";
+	import { onMount } from "svelte";
+	import DashboardNav from "$lib/island/dashboardNav.svelte";
 
 	/** ---------------------------------------------
 	 * TYPES
@@ -281,10 +283,27 @@
 	$effect(() => {
 		board = data.board;
 	});
+	let isTablet = $state(false);
+	let isPortrait = $state(true);
+
+	function checkWidth() {
+		isTablet = window.matchMedia("(min-width: 700px)").matches;
+		isPortrait = window.matchMedia("(orientation: portrait)").matches;
+	}
+
+	onMount(() => {
+		checkWidth();
+		window.addEventListener("resize", checkWidth);
+		window.addEventListener("orientationchange", checkWidth);
+		return () => {
+			window.removeEventListener("resize", checkWidth);
+			window.removeEventListener("orientationchange", checkWidth);
+		};
+	});
 </script>
 
 
-<main class="flex"> 
+<main class="flex dashboard"> 
 	{#if board.owner_username !== data.profile?.username && statusPerm}
 		<div class="absolute w-full flex justify-center">
 			<div class="bg-gray-100 ring-1 ring-gray-300 rounded-lg text-sm mt-4 flex z-10 gap-4">
@@ -295,8 +314,8 @@
 			</div>
 		</div>
 	{/if}
-    <Sidebar data={data} />
-    <section class="px-4 w-full flex flex-col relative justify-center
+	<DashboardNav data={data}/>
+    <section class=" w-full flex flex-col relative justify-center {!isPortrait || isTablet ? 'px-4' : 'px-2 pt-16 h-screen'}
     {$sidebar ? 'max-w-[calc(100%-256px-10px)]' : $isHovered ? 'max-w-[calc(100%-192px-10px)]' : 'max-w-[calc(100%-72px-10px)]'}">
         <div class="h-full max-h-[75px] flex flex-col justify-center pl-10 pt-8 pb-2 ">
             <h2 class="agerrh2">{board.name}</h2>

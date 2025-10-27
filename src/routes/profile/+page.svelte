@@ -283,6 +283,7 @@
 		// tapi invalidateAll memastikan UI langsung update.
 	}
    	import { sidebar, sidebarIsHovered as isHovered } from '$lib/stores/uiStore';
+	import DashboardNav from '$lib/island/dashboardNav.svelte';
 
 
 
@@ -309,10 +310,29 @@
     let oldPasswordInput: HTMLInputElement | null = $state(null);
     let newPasswordInput: HTMLInputElement | null = $state(null);
     let confirmPasswordInput: HTMLInputElement | null = $state(null);
+
+	
+	let isTablet = $state(false);
+	let isPortrait = $state(true);
+
+	function checkWidth() {
+		isTablet = window.matchMedia("(min-width: 700px)").matches;
+		isPortrait = window.matchMedia("(orientation: portrait)").matches;
+	}
+
+	onMount(() => {
+		checkWidth();
+		window.addEventListener("resize", checkWidth);
+		window.addEventListener("orientationchange", checkWidth);
+		return () => {
+			window.removeEventListener("resize", checkWidth);
+			window.removeEventListener("orientationchange", checkWidth);
+		};
+	});
 </script>
-<main class="flex">
-    <Sidebar data={data} />
-    <section class="p-4 w-full">
+<main class="flex dashboard">
+	<DashboardNav data={data}/>
+    <section class="w-full {!isPortrait || isTablet ? 'p-4' : 'p-2 pt-16 h-screen'}">
 			
 		<div class="col-span-9 w-full max-h-full rounded-xl p-8">
 			{#if message}

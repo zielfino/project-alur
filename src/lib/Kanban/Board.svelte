@@ -106,7 +106,7 @@
 </script>
 
 <section
-	class="w-full h-[640px] ml-6 outline-none cursor-default flex overflow-x-auto overflow-y-hidden"
+	class="w-full h-[640px] ml-6 outline-none cursor-default flex overflow-x-auto overflow-y-hidden board"
 	use:dndzone={{ items: board.columns, flipDurationMs, type: 'column', dragDisabled: isDndDisabled }}
 	onconsider={handleDndConsiderColumns}
 	onfinalize={handleDndFinalizeColumns}

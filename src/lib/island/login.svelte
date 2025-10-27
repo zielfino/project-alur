@@ -20,7 +20,6 @@
 			headers: { 'Content-Type': 'application/json' },
 			body: JSON.stringify({ email, password })
 		});
-
 		if (response.ok) {
 			await invalidateAll();
 			await goto('/');
@@ -105,7 +104,7 @@ onclick={(e) => e.stopPropagation()} >
 				{password !== '' ? '' : ' lableinput'}">Password</button>
 				<div class="button bg-slate-200 py-2 px-3 rounded-lg w-full flex items-center gap-2 mt-5">
 					<Icon icon="fa7-solid:key" class="" />
-					<input type="text" bind:this={passwordInput} bind:value={password} class="w-full h-full" />
+					<input type="password" bind:this={passwordInput} bind:value={password} class="w-full h-full" />
 				</div>
 			</div>
 

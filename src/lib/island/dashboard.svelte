@@ -5,6 +5,9 @@
 
 
     import { onMount } from 'svelte';
+	import Navbar from "./navbar.svelte";
+	import { fade } from "svelte/transition";
+	import DashboardNav from "./dashboardNav.svelte";
 
     // Definisikan tipe data untuk sebuah board
     type Board = {
@@ -190,63 +193,38 @@
 			alert('Failed to remove member.');
 		}
 	}
+    
+	let isReadPhone = $state(false);
+    let isPhone = $state(false);
+	let isTablet = $state(false);
+	let isLaptop = $state(false);
+	let isPortrait = $state(true);
+
+	function checkWidth() {
+		isReadPhone = window.matchMedia("(max-width: 500px)").matches;
+        isPhone = window.matchMedia("(min-width: 500px)").matches;
+		isTablet = window.matchMedia("(min-width: 700px)").matches;
+		isLaptop = window.matchMedia("(min-width: 900px)").matches;
+		isPortrait = window.matchMedia("(orientation: portrait)").matches;
+	}
+
+	onMount(() => {
+		checkWidth();
+		window.addEventListener("resize", checkWidth);
+		window.addEventListener("orientationchange", checkWidth);
+		return () => {
+			window.removeEventListener("resize", checkWidth);
+			window.removeEventListener("orientationchange", checkWidth);
+		};
+	});
 </script>
 
-<main class="flex">
-    <Sidebar data={data} />
-    <section class="p-4 w-full">
+<main class="flex dashboard">
+	<DashboardNav data={data}/>
+
+    <section class=" w-full {!isPortrait || isTablet ? 'p-4' : 'p-2 pt-16 h-screen'}">
         <div class="bg-red-400 w-full h-full rounded-xl">
             <h1>Welcome to your Dashboard</h1>
-
-
-
-
-        <!-- BOARDDSS -->
-        <!-- <h1>Your Boards</h1> -->
-
-        <!-- <button onclick={() => (showCreateModal = true)}>+ Create New Board</button> -->
-		<!-- {#if showCreateModal}
-            <div class="absolute top-0 right-0">
-				<h2>Create a new board</h2>
-				<form onsubmit={handleCreateBoard}>
-					<label for="board-name">Board Name</label>
-					<input id="board-name" type="text" bind:value={newBoardName} required />
-
-					{#if nameValidationError}
-						<p style="color: red; font-size: 12px;">{nameValidationError}</p>
-					{/if}
-
-					<button type="submit" disabled={loading || !!nameValidationError}>
-						{#if loading}Creating...{:else}Create Board{/if}
-					</button>
-
-					{#if apiError}
-						<p style="color: red; margin-top: 10px;">{apiError}</p>
-					{/if}
-				</form>
-			</div>
-        {/if} -->
-
-        <!-- {#if loading}
-            <p>Loading your boards...</p>
-        {:else if error}
-            <p style="color: red;">{error}</p>
-        {:else}
-            <div class="boards-grid">
-                {#each boards as board}
-                    <div class="board-card group">
-                        <a href={`/${data.profile?.username}/${board.slug}`} class="flex-1">
-                            <h3>{board.name}</h3>
-                        </a>
-                        <button onclick={() => openEditBoardModal(board)} class="p-2 rounded hover:bg-black/10 opacity-0 group-hover:opacity-100 transition-opacity">
-                            <Icon icon="mdi:dots-horizontal" />
-                        </button>
-                    </div>
-                {:else}
-                    <p>You haven't created any boards yet.</p>
-                {/each}
-            </div>
-        {/if} -->
         </div>
     </section>
 </main>

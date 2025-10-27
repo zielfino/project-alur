@@ -24,11 +24,27 @@
     @apply fixed w-full h-[100dvh] top-0 bg-slate-800/30 backdrop-blur-xs z-50  justify-center items-center
 }
 
+.agerr .bgbackdroplow {
+    @apply fixed w-full h-[100dvh] top-0 bg-slate-800/30 backdrop-blur-xs z-15  justify-center items-center
+}
+
 
 
 
 .agerr .tablebutton {
     @apply w-[70px] laptop:w-[100px] aspect-[7/8] laptop:aspect-8/7 bg-white rounded-lg cursor-pointer border border-slate-300 relative hover:drop-shadow-lg/10 hover:-translate-y-0.25 focus-visible:drop-shadow-lg/10 focus-visible:-translate-y-0.25 active:translate-0 active:drop-shadow-none
+}
+
+.agerr .dashboard * {
+    @apply transition-all
+}
+
+.agerr .sidebar * {
+    @apply transition-all
+}
+
+.agerr .board * {
+    @apply transition-none
 }
 
 

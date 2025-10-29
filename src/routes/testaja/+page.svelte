@@ -89,10 +89,10 @@
 							</div>
 						</div>
 						<div class="flex space-x-2">
-							<div class="min-h-6 min-w-6 flex opacity-40 justify-center items-center text-lg rounded cursor-grab touch-none">
+							<div class="min-h-6 min-w-6 flex opacity-40 justify-center items-center text-2xl rounded cursor-grab touch-none">
 								<Icon icon="mingcute:add-fill" />
 							</div>
-							<div class="min-h-6 min-w-6 flex opacity-40 justify-center items-center text-2xl rounded cursor-grab touch-none"
+							<div class="min-h-6 min-w-6 px-1 flex opacity-40 justify-center items-center text-3xl rounded cursor-grab touch-none"
 								onpointerdown={startDrag}
 								onpointerup={stopDrag}
 							>
@@ -120,23 +120,68 @@
 						}}
 						onconsider={(e) => handleCardConsider(e, column.id)}
 						onfinalize={(e) => handleCardFinalize(e, column.id)}
-						class="flex flex-col gap-2 min-h-32 
+						class="flex flex-col gap-2 min-h-32 max-h-106 overflow-y-scroll rounded-md overflow-hidden 
 						{column.cards.length ? '' : 'flex justify-center items-center'}"
 					>	
 						{#if column.cards.length }
 							{#each column.cards as card (card.id)}
 								<div
-									class="p-2 bg-gray-100 rounded-md flex justify-between items-center cursor-default w-full"
+									class="p-2 bg-gray-100 rounded-md 	w-full cursor-pointer"
 									animate:flip={{ duration: flipDurationMs }}
 								>
-									<span>{card.title}</span>
-									<div
-										class="min-h-6 min-w-6 flex opacity-70 justify-center items-center text-xl rounded cursor-grab touch-none"
-										onpointerdown={startDrag}
-										onpointerup={stopDrag}
-									>
-										<Icon icon="mingcute:dots-fill" />
+									<div class="flex justify-between mb-2">
+										<div class="space-x-2 flex items-center">
+											{#if card.priority}
+												<div class="rounded-full text-[10px] font-semibold flex justify-center items-center h-[20px] px-2 whitespace-nowrap
+												{card.priority === 5 ? 'bg-red-200 text-red-800' : 
+												card.priority === 4 ? 'bg-orange-200 text-orange-800' : 
+												card.priority === 3 ? 'bg-yellow-200 text-yellow-800' : 
+												card.priority === 2 ? 'bg-lime-200 text-lime-800' : 
+												'bg-green-200 text-green-800'}">
+													{
+													card.priority === 5 ? 'Urgent' : 
+													card.priority === 4 ? 'Priority' :  
+													card.priority === 3 ? 'Regular' :  
+													card.priority === 2 ? 'Optional ' : 'Later'}
+												</div> 
+											{/if}
+											<div class="line-clamp-1 font-semibold text-sm flex items-center justify-center">
+												<p class="line-clamp-1">{card.title}</p>
+											</div>
+										</div>
+										<div
+											class="min-h-6 min-w-6 flex opacity-70 justify-center items-center text-xl rounded cursor-grab touch-none"
+											onpointerdown={startDrag}
+											onpointerup={stopDrag}
+										>
+											<Icon icon="mingcute:dots-fill" />
+										</div>
 									</div>
+
+									{#if card.description}
+										<p class="line-clamp-2 text-slate-600 whitespace-pre-wrap my-3 pl-2 pr-3">{card.description}</p>
+									{/if}
+
+									<!-- Bottom Utility -->
+									{#if card.deadline}
+										<div class="flex items-center space-x-2 mt-2">
+											<span class="flex items-center gap-1 text-xs font-semibold w-min whitespace-nowrap
+											{new Date(card.deadline) < new Date() && card.deadline && card.column_state !== 3 ? 'text-red-500 border-b-1' : 'text-slate-600'}">
+												<Icon icon="solar:calendar-outline" class="text-sm" />
+												{new Date(card.deadline).toLocaleDateString('id-ID', {
+													day: '2-digit',
+													month: 'short',
+													year: 'numeric'
+												})}
+											</span>
+											{#if card.deadline && card.column_state !== 3}
+												<div class="relative flex justify-center items-center">
+													<span class="absolute inline-flex h-4 w-4 animate-ping aspect-square rounded-full bg-red-500 opacity-75"></span>
+													<span class="relative inline-flex size-3 rounded-full bg-red-500"></span>
+												</div>
+											{/if}
+										</div>
+									{/if}
 								</div>
 							{/each}
 						{:else}

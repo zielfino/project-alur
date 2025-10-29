@@ -315,8 +315,8 @@
 		</div>
 	{/if}
 	<DashboardNav data={data}/>
-    <section class=" w-full flex flex-col relative justify-center {!isPortrait || isTablet ? 'px-4' : 'px-2 pt-16 h-screen'}
-    {$sidebar ? 'max-w-[calc(100%-256px-10px)]' : $isHovered ? 'max-w-[calc(100%-192px-10px)]' : 'max-w-[calc(100%-72px-10px)]'}">
+    <section class="w-full flex flex-col relative justify-center {!isPortrait || isTablet ? 'pl-2 laptop:pr-4' : 'pt-16'}
+    {$sidebar ? 'tablet:max-w-[calc(100%-256px-10px+10px)] laptop:max-w-[calc(100%-256px-10px)]' : $isHovered ? 'tablet:max-w-[calc(100%-192px-10px+10px)] laptop:max-w-[calc(100%-192px-10px)]' : 'tablet:max-w-[calc(100%-72px-10px+10px)] laptop:max-w-[calc(100%-72px-10px)]'}">
         <div class="h-full max-h-[75px] flex flex-col justify-center pl-10 pt-8 pb-2 ">
             <h2 class="agerrh2">{board.name}</h2>
         </div>

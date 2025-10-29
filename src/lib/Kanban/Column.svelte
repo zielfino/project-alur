@@ -2,11 +2,12 @@
 	import { flip } from 'svelte/animate';
 	import { dndzone } from 'svelte-dnd-action';
 	import Card from "$lib/Kanban/Card.svelte";
-	import { showAddCardModal, activeColumnId } from '$lib/stores/uiStore';
+	import { showAddCardModal, activeColumnId, dragDisabled } from '$lib/stores/uiStore';
 	import Icon from '@iconify/svelte';
 	import { pushError } from '$lib/stores/errorNotification';
 	import { isLoading } from '$lib/stores/loading';
 	import { isConfirm } from '$lib/stores/confirmStore';
+	import { onMount } from 'svelte';
 
 	const flipDurationMs = 150;
 	// export let column: any;
@@ -117,15 +118,36 @@
 	$effect(() => {
 		isDndDisabled = userRole < 2;
 	});
+
+	
+	let isTablet = $state(false);
+	let isPortrait = $state(true);
+
+	function checkWidth() {
+		isTablet = window.matchMedia("(min-width: 700px)").matches;
+		isPortrait = window.matchMedia("(orientation: portrait)").matches;
+	}
+
+	onMount(() => {
+		checkWidth();
+		window.addEventListener("resize", checkWidth);
+		window.addEventListener("orientationchange", checkWidth);
+		return () => {
+			window.removeEventListener("resize", checkWidth);
+			window.removeEventListener("orientationchange", checkWidth);
+		};
+	});
 </script>
 
-<div class="h-[600px] w-full flex flex-col justify-between ring-1 ring-gray-300 bg-gray-100 rounded-lg overflow-hidden">
-	<div class="flex justify-between items-center p-3
+<div class="h-[300px] tablet:h-[600px] w-full flex tablet:flex-col justify-between ring-1 ring-gray-300 bg-gray-100 rounded-lg overflow-hidden">
+	<div class="flex justify-between items-center max-tablet:[writing-mode:vertical-lr] max-tablet:h-full
+	{ !isPortrait || isTablet ? 'p-3' : 'p-1.5'}
 	{column.state === 3 ? 'bg-emerald-200' : 
 	column.state === 2 ? 'bg-sky-200' : 
-	column.state === 1 ? 'bg-gray-200' : 'bg-red-200'}">
+	column.state === 1 ? 'bg-gray-200' : 'bg-red-200'}"
+	>
 		{#if editingColumnId === column.id && userRole >= 3}
-			<form onsubmit={handleUpdateColumnName} class="w-full flex justify-between group">
+			<form onsubmit={handleUpdateColumnName} class="w-full flex justify-between group h-full">
 				<input
 					type="text"
 					bind:value={editingColumnName}
@@ -138,22 +160,31 @@
 				</button>
 			</form>
 		{:else}
-			<div class="flex w-full justify-between">
+			<div class="flex w-full justify-between h-full">
 				<button class="w-full text-left {userRole >= 3 ? 'cursor-pointer' : 'cursor-default'}" disabled={!(userRole >= 3)} onclick={startEditingColumn}>
-					<h2 class="font-semibold text-gray-700">{column.name}</h2>
+					<h2 class="font-semibold text-gray-700 { !isPortrait || isTablet ? '' : 'mt-3'}">{column.name}</h2>
 				</button>
-				{#if userRole >= 3}
-					<button onclick={handleDeleteColumn} class="aspect-square rounded-full cursor-pointer hover:rotate-90 duration-500 ease-out">
-						<Icon icon="mingcute:close-fill" class="text-lg"/>
-					</button>
-				{/if}
+				<div class="flex items-center justify-center">
+					{#if userRole >= 2 && (isPortrait || !isTablet)}
+						<div class="mb-1.5">
+							<button onclick={() => openAddCardModal(column.id)} class="aspect-square cursor-pointer hover:rotate-90 duration-500 ease-out bg-slate-800/10 p-2 rounded-md">
+								<Icon icon="mingcute:close-fill" class="text-lg rotate-45"/>
+							</button>
+						</div>
+					{/if}
+					{#if userRole >= 3}
+						<button onclick={handleDeleteColumn} class="aspect-square rounded-full cursor-pointer hover:rotate-90 duration-500 ease-out { !isPortrait || isTablet ? '' : 'bg-slate-800/10 p-2 rounded-md'}">
+							<Icon icon="mingcute:close-fill" class="text-lg"/>
+						</button>
+					{/if}
+				</div>
 			</div>
 		{/if}
 		
 	</div>
 
 	<div
-		class="h-[calc(100%-48px)] space-y-2 pt-2 overflow-y-auto overflow-x-hidden flex justify-start items-center flex-col bg-gray-100
+		class="h-[calc(100%-48px)] w-full space-y-2 pt-2 overflow-y-auto overflow-x-hidden flex justify-start items-center flex-col bg-gray-100
 		{userRole >= 2 ? '' : 'mb-2' }"
 		use:dndzone={{ items: column.cards, flipDurationMs, dragDisabled: isDndDisabled }}
 		onconsider={handleDndConsiderCards}
@@ -166,7 +197,7 @@
 		{/each}
 		<div class="h-[30px]"></div>
 	</div>
-	{#if userRole >= 2}
+	{#if userRole >= 2 && (!isPortrait || isTablet)}
 		<div class="bg-gray-100 rounded-b-lg p-2">
 			<button
 				class="text-gray-900 hover:bg-gray-300 p-2 cursor-pointer bg-gray-200 rounded-md w-full"

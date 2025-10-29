@@ -106,13 +106,13 @@
 </script>
 
 <section
-	class="w-full h-[640px] ml-6 outline-none cursor-default flex overflow-x-auto overflow-y-hidden board"
+	class="w-full h-[640px] laptop:ml-6 outline-none cursor-default flex overflow-x-auto overflow-y-hidden board max-tablet:flex-col max-tablet:h-full"
 	use:dndzone={{ items: board.columns, flipDurationMs, type: 'column', dragDisabled: isDndDisabled }}
 	onconsider={handleDndConsiderColumns}
 	onfinalize={handleDndFinalizeColumns}
 >
 	{#each board.columns as column, idx (column.id)}
-		<div class="h-full min-w-[300px] max-w-[300px] m-3 float-left cursor-default" animate:flip="{{ duration: flipDurationMs }}">
+		<div class="h-full min-w-[300px] max-w-[300px] m-3 tablet:float-left cursor-default" animate:flip="{{ duration: flipDurationMs }}">
 			<Column
 				bind:column={board.columns[idx]}
 				userRole={userRole}

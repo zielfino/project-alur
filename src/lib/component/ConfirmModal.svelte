@@ -14,7 +14,7 @@
 {#if message}
 <div
 	class="fixed inset-0 bg-black/40 flex items-center justify-center z-50"
-	transition:fade={{duration: 300, easing: quadOut}}
+	transition:fade={{duration: 200, easing: quadOut}}
 >
 	<div class="bg-white rounded-xl shadow-lg p-6 w-80" in:fly={{ y: 50 }}>
 		<p class="text-slate-800 text-center mb-4 font-semibold">{message}</p>

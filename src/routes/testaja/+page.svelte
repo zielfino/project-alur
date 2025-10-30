@@ -240,7 +240,7 @@
 				BOARD		BOARD		BOARD		BOARD		BOARD		BOARD		BOARD		BOARD
 		========================================================================================================
 -->		
-<section class="flex flex-col gap-4 p-2">
+<section class="flex flex-col justify-center items-center tablet:items-start gap-4 p-2">
 	<h1 class="text-xl font-semibold">{localBoard.name}</h1>
 	{#if localBoard?.columns?.length}
 		<!--  	
@@ -254,12 +254,7 @@
 				type: 'columns', 
 				dragDisabled,
 				flipDurationMs,
-				transformDraggedElement: (el) => {
-					el.style.opacity = "0.6";
-					el.style.outline = '2px dashed #3b82f6';
-					el.style.backgroundColor = 'rgba(147,197,253,0.2)';
-					el.style.borderRadius = '0.5rem';
-				},
+				transformDraggedElement: (el) => {el.style.opacity = "0.6";},
 				dropTargetStyle: {
 					outline: '2px dashed #3b82f6',
 					backgroundColor: 'rgba(147,197,253,0.2)',
@@ -269,13 +264,11 @@
 			}}
 			onconsider={handleColumnConsider}
 			onfinalize={handleColumnFinalize}
-			class="flex flex-col gap-4 overflow-x-auto p-2"
+			class="flex flex-col tablet:flex-row gap-4 overflow-x-auto p-2 w-fit tablet:w-full"
 		>
 			{#each localBoard.columns as column (column.id)}
-				<div
-					class="p-2 border border-gray-300 rounded-xl bg-white w-full max-w-128 min-w-64 flex-shrink-0 min-h-32"
-					animate:flip={{ duration: flipDurationMs }}
-				>
+			<div animate:flip={{ duration: flipDurationMs }}>
+				<div class="p-2 border border-gray-300 rounded-xl bg-white w-full max-w-128 min-w-64 tablet:w-[350px] flex-shrink-0 min-h-32">
 					<div class="flex justify-between items-center mb-2 ml-1">
 						<!-- NAME -->
 						<div class="pl-1 py-2 flex space-x-2">
@@ -330,13 +323,13 @@
 						}}
 						onconsider={(e) => handleCardConsider(e, column.id)}
 						onfinalize={(e) => handleCardFinalize(e, column.id)}
-						class="flex flex-col gap-2 min-h-32 max-h-106 overflow-y-auto rounded-md overflow-hidden 
+						class="flex flex-col gap-2 min-h-32 max-h-106 overflow-y-auto tablet:max-h-full rounded-md overflow-hidden tablet:w-full [&>*]:transition-none [&>*]:duration-0
 						{column.cards.length ? '' : 'flex justify-center items-center'}"
 					>	
 						{#if column.cards.length }
 							{#each column.cards as card (card.id)}
 								<button onclick={() => openEditCardModal(card)}
-									class="p-2 bg-gray-100 rounded-md 	w-full cursor-pointer text-start"
+									class="p-2 bg-gray-100 rounded-md w-full cursor-pointer text-start"
 									animate:flip={{ duration: flipDurationMs }}
 								>
 									<div class="flex justify-between">
@@ -401,6 +394,7 @@
 						{/if}
 					</div>
 				</div>
+			</div>
 			{/each}
 		</div>
 	{:else}
@@ -419,8 +413,8 @@
 	====================================================================================================
 -->
 {#if $showAddCardModal}
-	<section transition:fade={{duration: 300, easing: quadOut}} class="bgbackdrop flex justify-center items-center p-4 hiddenpiece">
-		<form transition:fly={{y: 50}} onsubmit={handleAddCard} class="bg-white min-w-84 min-h-84 w-full max-w-96 rounded-xl flex-col flex justify-between p-3">
+	<section transition:fade={{duration: 200, easing: quadOut}} class="bgbackdrop flex justify-center items-center p-4 hiddenpiece">
+		<form transition:fly={{duration: 200,y: 50}} onsubmit={handleAddCard} class="bg-white min-w-84 min-h-84 w-full max-w-96 rounded-xl flex-col flex justify-between p-3">
 			<div class="">
 				<div class="flex justify-between mb-3">
 					<h3 class="font-semibold text-lg">Add Card</h3>
@@ -483,8 +477,8 @@
 	====================================================================================================
 -->
 {#if $showEditCardModal && $selectedCard?.id}
-	<section transition:fade={{duration: 300, easing: quadOut}} class="bgbackdrop flex !justify-end items-center p-4 pr-0 hiddenpiece">
-        <div class="bg-white relative p-4 rounded-s-xl min-w-[300px] w-full max-w-[500px] h-[95%]" transition:fly={{ x: 300, easing: quadOut }} >
+	<section transition:fade={{duration: 200, easing: quadOut}} class="bgbackdrop flex !justify-end items-center p-4 pr-0 hiddenpiece">
+        <div class="bg-white relative p-4 rounded-s-xl min-w-[300px] w-full max-w-[500px] h-[95%]" transition:fly={{duration: 200, x: 300, easing: quadOut }} >
 				
 			<section class="flex justify-between w-full h-fit">
 				<div class="space-x-2 flex h-[28px]">           
@@ -532,7 +526,7 @@
                         <textarea bind:value={$selectedCard.title} placeholder="Judul" use:autosize rows="1" required onkeydown={handleTextareaKeydown}
                         class="text-[24px] font-outfit mb-1 tracking-wide font-semibold w-full bg-transparent border-none focus:ring-0 resize-none overflow-hidden animate-pulse-agerr hover:animate-none focus:animate-none">{$selectedCard.title}</textarea>
                     </div>
-                    <textarea bind:value={$selectedCard.description} placeholder="Ketik Disini"
+                    <textarea bind:value={$selectedCard.description} placeholder="Ketik Disini"use:autosize rows="15" 
                     class="px-4 w-full agerrp my-4 text-justify animate-pulse-agerr hover:animate-none focus:animate-none resize-none h-[80%]"></textarea>
 					<div transition:fly={{ y: 12, duration: 150, opacity: 0 }} class="grid grid-cols-2 gap-2 absolute bottom-16 w-[calc(100%-32px)]">
                         <div>

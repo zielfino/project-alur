@@ -1,7 +1,9 @@
 <script lang="ts">
+	import { autosize } from '$lib/actions/autosize.js';
+	import { isConfirm } from '$lib/stores/confirmStore.js';
 	import { pushError } from '$lib/stores/errorNotification';
 	import { isLoading } from '$lib/stores/loading';
-	import { activeColumnId, showAddCardModal } from '$lib/stores/uiStore.js';
+	import { showAddCardModal, activeColumnId, showEditCardModal, selectedCard, isEdit, selectedCardWithFormat } from "$lib/stores/uiStore";
 	import Icon from '@iconify/svelte';
 	import { dndzone } from 'svelte-dnd-action';
 	import { flip } from 'svelte/animate';
@@ -71,7 +73,7 @@
 	
 	let newCardTitle = $state('');
 	let newCardDescription = $state('');
-	let newCardDeadline = $state('');
+	let newCardDeadline: string | null = $state(null);
 	let newCardPriority = $state<number | null>(null);
 	let deadlineAddCard = $state<string | null>(null);
 
@@ -85,6 +87,11 @@
 		$showAddCardModal = true;
 		console.log({activeColumnId}, {showAddCardModal})
 	}
+	function openEditCardModal(card: Card) {
+		$selectedCard = { ...card };
+		$showEditCardModal = true;
+		$isEdit = false
+	}
 
 	
 
@@ -94,7 +101,7 @@
 	// 
 	// =====================================================================================================
 	
-	// ADD CARD
+	// CREATE CARD
 	async function handleAddCard() {
 		if (!newCardTitle || !$activeColumnId || !board) return;
 
@@ -146,6 +153,85 @@
 		}
 	}
 
+	// EDIT CARD
+	async function handleUpdateCard() {
+		if (!$selectedCard) return;
+		if (!$selectedCard.title || $selectedCard.title.trim() === "") { $selectedCard.title = "Judul"; }
+
+		isLoading.start("CardEdit", $selectedCard.id);
+
+		try {
+			const response = await fetch("/api/boards/cards", {
+				method: "PUT",
+				body: JSON.stringify($selectedCard),
+			});
+
+			if (response.ok) {
+				board.columns = board.columns.map((col) => ({
+					...col,
+					cards: col.cards.map((c) =>
+						c.id === $selectedCard.id ? $selectedCard : c
+					),
+				}));
+			} else {
+				const data = await response.json().catch(() => ({}));
+				pushError(response.status, data.message || 'Failed to update card.');
+			}
+		} catch (err) {
+			console.error('Error updating card:', err);
+			pushError(500, 'Unexpected error while updating card.');
+			isLoading.stop("CardEdit", $selectedCard.id);
+		} finally {
+			$showEditCardModal = false;
+			isLoading.stop("CardEdit", $selectedCard.id);
+		}
+	}
+
+	// DELTE CARD
+	async function handleDeleteCard(cardId: number) {
+		if (!board) return;
+		if (!(await isConfirm("Are you sure you want to delete this card?"))) return;
+		// if (!confirm("Are you sure you want to delete this card?")) return;
+
+		isLoading.start("CardRemove", cardId);
+
+		try {
+			const response = await fetch("/api/boards/cards", {
+				method: "DELETE",
+				body: JSON.stringify({ id: cardId }),
+			});
+
+			if (response.ok) {
+				board.columns = board.columns.map((col) => ({
+					...col,
+					cards: col.cards.filter((c) => c.id !== cardId),
+				}));
+			} else {
+				const data = await response.json().catch(() => ({}));
+				pushError(response.status, data.message || 'Failed to delete card.');
+			}
+		} catch (err) {
+			console.error('Error deleting card:', err);
+			pushError(500, 'Unexpected error while deleting card.');
+			isLoading.stop("CardRemove", cardId);
+		} finally {
+			$showEditCardModal = false;
+			isLoading.stop("CardRemove", cardId);
+		}
+	}
+
+	// =====================================================================================================
+	//
+	//		HELPER FUNCTION			HELPER FUNCTION			HELPER FUNCTION			HELPER FUNCTION
+	// 
+	// =====================================================================================================
+	
+	function handleTextareaKeydown(event: KeyboardEvent) {
+		if (event.key === 'Enter' && !event.shiftKey) {
+			event.preventDefault();
+			handleUpdateCard();
+		}
+	}
 </script>
 
 
@@ -249,12 +335,12 @@
 					>	
 						{#if column.cards.length }
 							{#each column.cards as card (card.id)}
-								<div
-									class="p-2 bg-gray-100 rounded-md 	w-full cursor-pointer"
+								<button onclick={() => openEditCardModal(card)}
+									class="p-2 bg-gray-100 rounded-md 	w-full cursor-pointer text-start"
 									animate:flip={{ duration: flipDurationMs }}
 								>
 									<div class="flex justify-between">
-										<div class="space-x-2 flex items-center">
+										<div class="flex items-center">
 											{#if card.priority}
 												<div class="rounded-full text-[10px] font-semibold flex justify-center items-center h-[20px] px-2 whitespace-nowrap
 												{card.priority === 5 ? 'bg-red-200 text-red-800' : 
@@ -269,17 +355,17 @@
 													card.priority === 2 ? 'Optional ' : 'Later'}
 												</div> 
 											{/if}
-											<div class="line-clamp-1 font-semibold text-sm flex items-center justify-center">
+											<div class="line-clamp-1 font-semibold text-sm flex items-center justify-center ml-1.5">
 												<p class="line-clamp-1">{card.title}</p>
 											</div>
 										</div>
-										<button tabindex="-1" onclick={(e) => e.stopPropagation()}
+										<div onclick={(e) => e.stopPropagation()}
 											class="min-h-6 min-w-6 flex opacity-70 justify-center items-center text-xl rounded cursor-grab touch-none"
 											onpointerdown={startDrag}
 											onpointerup={stopDrag}
 										>
 											<Icon icon="mingcute:dots-fill" />
-										</button>
+										</div>
 									</div>
 
 									{#if card.description}
@@ -288,7 +374,7 @@
 
 									<!-- Bottom Utility -->
 									{#if card.deadline}
-										<div class="flex items-center space-x-2 mt-2">
+										<div class="flex items-center space-x-2 mt-2 pb-1 pl-1.5">
 											<span class="flex items-center gap-1 text-xs font-semibold w-min whitespace-nowrap
 											{new Date(card.deadline) < new Date() && card.deadline && card.column_state !== 3 ? 'text-red-500 border-b-1' : 'text-slate-600'}">
 												<Icon icon="solar:calendar-outline" class="text-sm" />
@@ -306,7 +392,7 @@
 											{/if}
 										</div>
 									{/if}
-								</div>
+								</button>
 							{/each}
 						{:else}
 							<div class="font-semibold opacity-50 uppercase tracking-wide w-full text-center">
@@ -326,13 +412,19 @@
 	{/if}
 </section>
 
+
+<!-- 
+	====================================================================================================
+		CARD ADD MODAL			CARD ADD MODAL			CARD ADD MODAL			CARD ADD MODAL
+	====================================================================================================
+-->
 {#if $showAddCardModal}
 	<section transition:fade={{duration: 300, easing: quadOut}} class="bgbackdrop flex justify-center items-center p-4 hiddenpiece">
-		<form transition:fly={{y: 50}} onsubmit={handleAddCard} class="bg-white min-w-84 min-h-84 rounded-xl flex-col flex justify-between p-3">
+		<form transition:fly={{y: 50}} onsubmit={handleAddCard} class="bg-white min-w-84 min-h-84 w-full max-w-96 rounded-xl flex-col flex justify-between p-3">
 			<div class="">
 				<div class="flex justify-between mb-3">
 					<h3 class="font-semibold text-lg">Add Card</h3>
-					<button type="button" onclick={() => $showAddCardModal = !$showAddCardModal} class="text-xl aspect-square w-7 rounded-full flex justify-center items-center">
+					<button type="button" onclick={() => $showAddCardModal = !$showAddCardModal} class="text-xl aspect-square w-7 rounded-full flex justify-center items-center cursor-pointer">
 						<Icon icon="mingcute:close-fill"/>
 					</button>
 				</div>
@@ -350,9 +442,8 @@
 					<div class="flex-1">
 						<div class="flex justify-between"><div>Deadline</div></div>
 						<div class="flex justify-center items-center">
-							<input type="date" 
-							bind:value={newCardDeadline	}
-							class="w-full max-w-[130px] h-[36px] rounded-s-md p-2 font-semibold cursor-pointer border border-gray-300 border-e-0" />
+							<input class="w-full h-[36px] rounded-s-md p-2 font-semibold cursor-pointer border border-gray-300 border-e-0" 
+							type="date" bind:value={newCardDeadline	} />
 							<button type="button" class="cursor-pointer border border-gray-300 border-s-0 text-gray-800 hover:bg-gray-300 aspect-square h-[36px] rounded-e-lg flex justify-center items-center" onclick={() => {newCardDeadline	 = null;}}>
 								<Icon icon="mingcute:delete-back-line" class="text-xl" />
 							</button>
@@ -386,9 +477,124 @@
 	</section>
 {/if}
 
-<style>
-	section {
-		min-height: 100vh;
-		background: #f8fafc;
-	}
-</style>
+<!-- 
+	====================================================================================================
+		CARD EDIT MODAL			CARD EDIT MODAL			CARD EDIT MODAL			CARD EDIT MODAL
+	====================================================================================================
+-->
+{#if $showEditCardModal && $selectedCard?.id}
+	<section transition:fade={{duration: 300, easing: quadOut}} class="bgbackdrop flex !justify-end items-center p-4 pr-0 hiddenpiece">
+        <div class="bg-white relative p-4 rounded-s-xl min-w-[300px] w-full max-w-[500px] h-[95%]" transition:fly={{ x: 300, easing: quadOut }} >
+				
+			<section class="flex justify-between w-full h-fit">
+				<div class="space-x-2 flex h-[28px]">           
+					{#if !$isEdit}
+						{#if $selectedCard.deadline !== null && new Date($selectedCard.deadline) < new Date() && $selectedCard.deadline }
+							<div class="rounded-full justify-center items-center flex whitespace-nowrap py-1 px-3
+							font-open-sans font-semibold text-[14px] bg-red-100 text-red-700">
+								Deadline Missed!
+							</div>
+						{/if}
+						{#if $selectedCard.priority !== null}
+							<div class="rounded-full justify-center items-center flex whitespace-nowrap py-1 px-3
+							font-open-sans font-semibold text-[14px]
+							{$selectedCard.priority > 3 ? 'bg-red-100 text-red-700' : 
+							$selectedCard.priority < 3 ? 'bg-green-100 text-green-700' : 
+							'bg-yellow-100 text-yellow-700'}">
+								{$selectedCard.priority === 5 ? 'Urgent' : 
+								$selectedCard.priority === 4 ? 'Priority' :  
+								$selectedCard.priority === 3 ? 'Regular' :  
+								$selectedCard.priority === 2 ? 'Optional ' : 'Later'}
+							</div> 
+						{/if}
+					{:else}
+						<div class="h-[28px] text-[18px] font-outfit leading-none tracking-wide font-semibold flex justify-center items-center ml-1">Edit Card</div>
+					{/if} 
+				</div>
+				<button onclick={() => $showEditCardModal=false} class="aspect-square rounded-full cursor-pointer hover:rotate-90 duration-500 ease-out">
+					<Icon icon="mingcute:close-fill" class="text-2xl"/>
+				</button>
+			</section>
+
+
+			{#if !$isEdit}
+				<section class="p-4 mt-2 h-[calc(100%-80px)] overflow-y-auto overflow-x-hidden mask-b-from-95% mask-b-to-100%">
+					<div class="flex justify-between items-center">
+                        <h3 class="text-[24px] font-outfit mb-1 tracking-wide font-semibold">{$selectedCard.title}</h3>
+                    </div>
+                    {#if $selectedCard.description}
+                        <p class="agerrp my-4 text-justify whitespace-pre-wrap">{$selectedCard.description} </p>
+                    {/if}
+				</section>
+			{:else}
+				<form onsubmit={() => handleUpdateCard()} class="pt-4 mt-2 h-[calc(100%-80px-64px)] overflow-y-auto overflow-x-hidden">
+					<div class="px-4 flex justify-between items-center">
+                        <textarea bind:value={$selectedCard.title} placeholder="Judul" use:autosize rows="1" required onkeydown={handleTextareaKeydown}
+                        class="text-[24px] font-outfit mb-1 tracking-wide font-semibold w-full bg-transparent border-none focus:ring-0 resize-none overflow-hidden animate-pulse-agerr hover:animate-none focus:animate-none">{$selectedCard.title}</textarea>
+                    </div>
+                    <textarea bind:value={$selectedCard.description} placeholder="Ketik Disini"
+                    class="px-4 w-full agerrp my-4 text-justify animate-pulse-agerr hover:animate-none focus:animate-none resize-none h-[80%]"></textarea>
+					<div transition:fly={{ y: 12, duration: 150, opacity: 0 }} class="grid grid-cols-2 gap-2 absolute bottom-16 w-[calc(100%-32px)]">
+                        <div>
+                            <div class="flex justify-between"><div>Deadline</div></div>
+                            <div class="flex justify-center items-center">
+                                <input class="w-full h-[36px] rounded-s-md p-2 font-semibold cursor-pointer border border-gray-300 border-e-0" 
+								type="date" bind:value={$selectedCardWithFormat.deadlineFormatted}/>
+								<button type="button" class="cursor-pointer text-gray-800 hover:bg-gray-300 aspect-square h-[36px] border border-gray-300 border-s-0 rounded-e-lg flex justify-center items-center" onclick={() => {$selectedCard.deadline = null;}}>
+									<Icon icon="mingcute:delete-back-line" class="text-xl" />
+                                </button>
+                            </div>
+                        </div>
+                        <div>
+                            <div>Priority</div>
+                            <div class="flex">
+                                <div class="w-full cursor-pointer font-semibold h-[36px] border border-gray-300 border-e-0 pr-2 rounded-s-lg">
+                                    <select bind:value={$selectedCard.priority} class="w-full p-2 cursor-pointer font-semibold">
+                                        <option class="bg-white text-black" value={1}>1 | Later</option>
+                                        <option class="bg-white text-black" value={2}>2 | Optional</option>
+                                        <option class="bg-white text-black" value={3}>3 | Regular</option>
+                                        <option class="bg-white text-black" value={4}>4 | Priority</option>
+                                        <option class="bg-white text-black" value={5}>5 | Urgent</option>
+                                    </select>
+                                </div>
+								<button type="button" class="cursor-pointer text-gray-800 hover:bg-gray-300 aspect-square h-[36px] border border-gray-300 border-s-0 rounded-e-lg flex justify-center items-center" onclick={() => {$selectedCard.priority = null;}}>
+									<Icon icon="mingcute:delete-back-line" class="text-xl" />
+								</button>
+                            </div>
+                        </div>
+					</div>
+				
+                    <button transition:fly={{ y: 12, duration: 150, opacity: 0 }} disabled={$isLoading.CardEdit[$selectedCard.id]} type="submit" class="absolute bottom-4 right-4 bg-sky-500 text-white hover:bg-sky-400 disabled:bg-sky-400 cursor-pointer h-[40px] w-[96px] font-semibold rounded-md flex justify-center items-center">Save</button>
+				</form>
+                <div class="h-[20%]"></div>
+			{/if}
+            <section class="flex flex-row space-x-2 absolute bottom-4 left-4">
+				{#if data.userRole >= 2}
+					<button class="bg-rose-500 text-white hover:bg-rose-400 disabled:bg-rose-400 w-[116px] cursor-pointer h-[40px] font-semibold rounded-md flex justify-center items-center" onclick={() => handleDeleteCard($selectedCard.id)}>
+						{#if $isLoading.CardRemove[$selectedCard.id]}
+							<Icon icon="mingcute:loading-fill" class="text-xl animate-spin" />
+						{:else}
+							Delete Card
+						{/if}
+					</button>
+					<button class="bg-gray-200 text-gray-800 hover:bg-gray-300 cursor-pointer h-[40px] w-[72px] font-semibold rounded-md"  onclick={() => $isEdit=!$isEdit}>
+						{$isEdit ? 'Back' : 'Edit'}
+					</button>
+				{/if}
+                {#if $selectedCard.deadline && !$isEdit}
+                    <div transition:fly={{ x: -4, duration: 150, opacity: 0 }}>
+                        <h4 class="text-[16px] font-outfit leading-none mb-1 tracking-wide">Deadline : </h4>
+                        <h5 class="text-[14px] font-outfit leading-none tracking-wide font-semibold opacity-50">
+                                {new Date($selectedCard.deadline).toLocaleDateString('id-ID', {
+                                    weekday: 'long',
+                                    day: '2-digit',
+                                    month: 'short',
+                                    year: 'numeric'
+                                })}
+                        </h5>
+                    </div>
+                {/if}
+            </section>
+		</div>
+    </section>
+{/if}

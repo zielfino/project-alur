@@ -11,7 +11,7 @@ import { withLock } from '$lib/server/lock';
  * ------------------------------- */
 export const POST: RequestHandler = async ({ request, locals: { getSession } }) => {
 	const session = await getSession();
-	if (!session) throw error(401, 'Unauthorized');
+	if (!session) throw error(401, 'Permission required!');
 
 	const { title, column_id, description, deadline, priority } = await request.json();
 	if (!title || !column_id) throw error(400, 'Card title and column ID are required.');
@@ -70,7 +70,7 @@ export const POST: RequestHandler = async ({ request, locals: { getSession } }) 
  * ------------------------------- */
 export const PUT: RequestHandler = async ({ request, locals: { getSession } }) => {
 	const session = await getSession();
-	if (!session) throw error(401, 'Unauthorized');
+	if (!session) throw error(401, 'Permission required!');
 
 	const { id, title, description, deadline, priority } = await request.json();
 	if (!id || !title) throw error(400, 'Card ID and title are required.');
@@ -116,7 +116,7 @@ export const PUT: RequestHandler = async ({ request, locals: { getSession } }) =
  * ------------------------------- */
 export const DELETE: RequestHandler = async ({ request, locals: { getSession } }) => {
 	const session = await getSession();
-	if (!session) throw error(401, 'Unauthorized');
+	if (!session) throw error(401, 'Permission required!');
 
 	const { id: cardIdToDelete } = await request.json();
 	if (!cardIdToDelete) throw error(400, 'Card ID is required.');

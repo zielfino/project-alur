@@ -42,6 +42,22 @@
     pointer-events: auto;
 }
 
+.hiddenpiece input[type="date"]::-webkit-calendar-picker-indicator {
+  display: none;
+  -webkit-appearance: none;
+}
+.hiddenpiece input[type="date"] {
+  appearance: none;
+}
+
+.hiddenpiece select {
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  background-image: none;
+}
+
+
 body {
     @apply text-sm font-open-sans text-slate-900 duration-150
 }

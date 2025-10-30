@@ -5,7 +5,7 @@
 </script>
 {#if $isAnyLoading}
     <div transition:fade={{duration: 150}}
-        class="fixed inset-0 z-[9999] bg-black/20 backdrop-blur-sm
+        class="fixed inset-0 z-[500] bg-black/20 backdrop-blur-sm
             flex items-center justify-center cursor-wait
             transition-opacity duration-300 opacity-100
             pointer-events-auto select-none"

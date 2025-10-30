@@ -122,25 +122,25 @@
             mask-luminance mask-b-from-white mask-b-from-70% mask-b-to-black mask-b-to-100%">
                 <div class="w-[400px] tablet:w-[550px] laptop:w-[700px] desktop:w-[800px] aspect-[8/5] relative">
                     {#if localcard === 0}
-                        <img src="https://placehold.co/700x400?text=Ini+Bukan+Template" alt="card show img" transition:fade={{duration: 300}} class="object-cover absolute top-0 left-0 bg-white rounded-2xl w-[400px] tablet:w-[550px] laptop:w-[700px] desktop:w-[800px] aspect-[8/5]" />
+                        <img src="https://placehold.co/700x400?text=Ini+Bukan+Template" alt="card show img" transition:fade={{duration: 300, easing: quadOut}} class="object-cover absolute top-0 left-0 bg-white rounded-2xl w-[400px] tablet:w-[550px] laptop:w-[700px] desktop:w-[800px] aspect-[8/5]" />
                     {:else if localcard === 1}
-                        <enhanced:img src="$lib/assets/cardimg/cc3e5d90.png" alt="card show img" transition:fade={{duration: 300}} class="object-cover absolute top-0 left-0 bg-white rounded-2xl w-[400px] tablet:w-[550px] laptop:w-[700px] desktop:w-[800px] aspect-[8/5]" />
+                        <enhanced:img src="$lib/assets/cardimg/cc3e5d90.png" alt="card show img" transition:fade={{duration: 300, easing: quadOut}} class="object-cover absolute top-0 left-0 bg-white rounded-2xl w-[400px] tablet:w-[550px] laptop:w-[700px] desktop:w-[800px] aspect-[8/5]" />
                     {:else if localcard === 2}
-                        <enhanced:img src="$lib/assets/cardimg/6N0BXf2.png" alt="card show img" transition:fade={{duration: 300}} class="object-cover absolute top-0 left-0 bg-white rounded-2xl w-[400px] tablet:w-[550px] laptop:w-[700px] desktop:w-[800px] aspect-[8/5]" />
+                        <enhanced:img src="$lib/assets/cardimg/6N0BXf2.png" alt="card show img" transition:fade={{duration: 300, easing: quadOut}} class="object-cover absolute top-0 left-0 bg-white rounded-2xl w-[400px] tablet:w-[550px] laptop:w-[700px] desktop:w-[800px] aspect-[8/5]" />
                     {:else if localcard === 3}
-                        <enhanced:img src="$lib/assets/cardimg/ZePLSCW.png" alt="card show img" transition:fade={{duration: 300}} class="object-cover absolute top-0 left-0 bg-white rounded-2xl w-[400px] tablet:w-[550px] laptop:w-[700px] desktop:w-[800px] aspect-[8/5]" />
+                        <enhanced:img src="$lib/assets/cardimg/ZePLSCW.png" alt="card show img" transition:fade={{duration: 300, easing: quadOut}} class="object-cover absolute top-0 left-0 bg-white rounded-2xl w-[400px] tablet:w-[550px] laptop:w-[700px] desktop:w-[800px] aspect-[8/5]" />
                     {:else if localcard === 4}
-                        <enhanced:img src="$lib/assets/cardimg/wQAul6y.png" alt="card show img" transition:fade={{duration: 300}} class="object-cover absolute top-0 left-0 bg-white rounded-2xl w-[400px] tablet:w-[550px] laptop:w-[700px] desktop:w-[800px] aspect-[8/5]" />
+                        <enhanced:img src="$lib/assets/cardimg/wQAul6y.png" alt="card show img" transition:fade={{duration: 300, easing: quadOut}} class="object-cover absolute top-0 left-0 bg-white rounded-2xl w-[400px] tablet:w-[550px] laptop:w-[700px] desktop:w-[800px] aspect-[8/5]" />
                     {:else if localcard === 5}
-                        <enhanced:img src="$lib/assets/cardimg/MYLIq7U.png" alt="card show img" transition:fade={{duration: 300}} class="object-cover absolute top-0 left-0 bg-white rounded-2xl w-[400px] tablet:w-[550px] laptop:w-[700px] desktop:w-[800px] aspect-[8/5]" />
+                        <enhanced:img src="$lib/assets/cardimg/MYLIq7U.png" alt="card show img" transition:fade={{duration: 300, easing: quadOut}} class="object-cover absolute top-0 left-0 bg-white rounded-2xl w-[400px] tablet:w-[550px] laptop:w-[700px] desktop:w-[800px] aspect-[8/5]" />
                     {:else if localcard === 6}
-                        <enhanced:img src="$lib/assets/cardimg/er5QHYU.png" alt="card show img" transition:fade={{duration: 300}} class="object-cover absolute top-0 left-0 bg-white rounded-2xl w-[400px] tablet:w-[550px] laptop:w-[700px] desktop:w-[800px] aspect-[8/5]" />
+                        <enhanced:img src="$lib/assets/cardimg/er5QHYU.png" alt="card show img" transition:fade={{duration: 300, easing: quadOut}} class="object-cover absolute top-0 left-0 bg-white rounded-2xl w-[400px] tablet:w-[550px] laptop:w-[700px] desktop:w-[800px] aspect-[8/5]" />
                     {:else if localcard === 7}
-                        <enhanced:img src="$lib/assets/cardimg/BCw3R2V.png" alt="card show img" transition:fade={{duration: 300}} class="object-cover absolute top-0 left-0 bg-white rounded-2xl w-[400px] tablet:w-[550px] laptop:w-[700px] desktop:w-[800px] aspect-[8/5]" />
+                        <enhanced:img src="$lib/assets/cardimg/BCw3R2V.png" alt="card show img" transition:fade={{duration: 300, easing: quadOut}} class="object-cover absolute top-0 left-0 bg-white rounded-2xl w-[400px] tablet:w-[550px] laptop:w-[700px] desktop:w-[800px] aspect-[8/5]" />
                     {:else if localcard === 8}
-                        <enhanced:img src="$lib/assets/cardimg/394b52e0.png" alt="card show img" transition:fade={{duration: 300}} class="object-cover absolute top-0 left-0 bg-white rounded-2xl w-[400px] tablet:w-[550px] laptop:w-[700px] desktop:w-[800px] aspect-[8/5]" />
+                        <enhanced:img src="$lib/assets/cardimg/394b52e0.png" alt="card show img" transition:fade={{duration: 300, easing: quadOut}} class="object-cover absolute top-0 left-0 bg-white rounded-2xl w-[400px] tablet:w-[550px] laptop:w-[700px] desktop:w-[800px] aspect-[8/5]" />
                     {:else if localcard === 9}
-                        <enhanced:img src="$lib/assets/cardimg/0kTFlR5.jpeg" alt="card show img" transition:fade={{duration: 300}} class="object-cover absolute top-0 left-0 bg-white rounded-2xl w-[400px] tablet:w-[550px] laptop:w-[700px] desktop:w-[800px] aspect-[8/5]" />
+                        <enhanced:img src="$lib/assets/cardimg/0kTFlR5.jpeg" alt="card show img" transition:fade={{duration: 300, easing: quadOut}} class="object-cover absolute top-0 left-0 bg-white rounded-2xl w-[400px] tablet:w-[550px] laptop:w-[700px] desktop:w-[800px] aspect-[8/5]" />
                     {/if}
                 </div>
             </div>

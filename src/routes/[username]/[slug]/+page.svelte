@@ -339,11 +339,11 @@
 -->
 {#if $showAddCardModal}
     <section class="z-50 fixed w-full h-[100dvh] top-0 right-0 bg-zinc-900/30 flex justify-center items-center overflow-hidden cursor-default backdrop-blur-xs"
-	transition:fade={{duration: 150}} onclick={() => $showAddCardModal=false}>
-	<!-- transition:fade={{duration: 150}}> -->
+	transition:fade={{duration: 150}}>
+	<!-- transition:fade={{duration: 150}} onclick={() => $showAddCardModal=false}> -->
         <div class="bg-white p-4 rounded-xl min-w-[300px] w-full max-w-[500px] h-[500px] relative"
-		transition:fly={{ y: 100, duration: 300, opacity: 0 }} onclick={(e) => e.stopPropagation()} >
-		<!-- transition:fly={{ y: 100, duration: 300, opacity: 0 }}> -->
+		transition:fly={{ y: 100, duration: 300, opacity: 0 }}>
+		<!-- transition:fly={{ y: 100, duration: 300, opacity: 0 }} onclick={(e) => e.stopPropagation()} > -->
 			<section class="flex justify-between w-full">
                 <div class="space-x-2 flex">           
                     <div class="h-[28px] text-[18px] font-outfit leading-none tracking-wide font-semibold flex justify-center items-center ml-1">Add Card</div>

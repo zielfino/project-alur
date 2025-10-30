@@ -89,6 +89,7 @@
 	
 	import ConfirmModal from '$lib/component/ConfirmModal.svelte';
 	import IsLoading from '$lib/component/isLoading.svelte';
+	import { isAnyLoading } from '$lib/stores/loading';
 	
 	// import { version } from '$lib/stores/app';
 </script>
@@ -99,7 +100,7 @@
 	<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Caveat:wght@400..700&family=Coming+Soon&family=EB+Garamond:ital,wght@0,400..800;1,400..800&family=Open+Sans:ital,wght@0,300..800;1,300..800&family=Outfit:wght@100..900&display=swap" rel="stylesheet">
 </svelte:head>
 
-<section class="agerr">
+<section class="agerr { $isAnyLoading ? 'overflow-hidden max-h-dvh' : ''}" >
 	<section class="top-0 lef-0 px-1 py-0.5 z-500 fixed font-semibold text-zinc-800 bg-white/75">
 		v{data.version}
 	</section>

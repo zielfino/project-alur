@@ -13,7 +13,7 @@ export const POST: RequestHandler = async ({ request, locals: { getSession } }) 
 	const session = await getSession();
 	if (!session) throw error(401, 'Unauthorized');
 
-	const { name, board_id, state } = await request.json();
+	const { name, board_id, subtext, state } = await request.json();
 	if (!name || !board_id || !state || ![1, 2, 3].includes(state)) {
 		throw error(400, 'Invalid input provided.');
 	}
@@ -54,8 +54,8 @@ export const POST: RequestHandler = async ({ request, locals: { getSession } }) 
 			);
 	
 			const [result] = await connection.execute<ResultSetHeader>(
-				'INSERT INTO columns (board_id, name, state, position) VALUES (?, ?, ?, ?)',
-				[board_id, name, state, newPosition]
+				'INSERT INTO columns (board_id, name, subtext, state, position) VALUES (?, ?, ?, ?, ?)',
+				[board_id, name, subtext, state, newPosition]
 			);
 	
 			await connection.commit();
@@ -67,6 +67,7 @@ export const POST: RequestHandler = async ({ request, locals: { getSession } }) 
 						id: result.insertId,
 						board_id,
 						name,
+						subtext,
 						state,
 						position: newPosition,
 						cards: []
@@ -93,17 +94,29 @@ export const PUT: RequestHandler = async ({ request, locals: { getSession } }) =
 	const session = await getSession();
 	if (!session) throw error(401, 'Unauthorized');
 
-	const { name, column_id } = await request.json();
-	if (!name || !column_id) throw error(400, 'Name and column ID required.');
+	const body = await request.json();
+	const { name, subtext, state, column_id } = body;
+
+	if (!column_id) throw error(400, 'Column ID required.');
+	if (name === undefined && subtext === undefined && state === undefined) {
+		throw error(400, 'At least one of name, subtext, or state must be provided.');
+	}
+
+	// validate state if provided
+	if (state !== undefined) {
+		const s = Number(state);
+		if (!Number.isInteger(s) || s < 1 || s > 3) {
+			throw error(400, 'State must be an integer between 1 and 3.');
+		}
+	}
 
 	const connection = await getDbConnection();
-
 	const lockKey = `${session.user.id}:update-column:${column_id}`;
 
 	return await withLock(lockKey, async () => {
 		try {
 			await connection.beginTransaction();
-	
+
 			// Get board id from column
 			const [rows] = (await connection.execute(
 				'SELECT board_id FROM columns WHERE id = ?',
@@ -113,27 +126,47 @@ export const PUT: RequestHandler = async ({ request, locals: { getSession } }) =
 				await connection.rollback();
 				return json({ success: false, message: 'Column not found.' }, { status: 404 });
 			}
-	
+
 			const boardId = (rows as any)[0].board_id;
 			const userLevel = await userPermission(session.user.id, boardId, 3);
 			if (!userLevel) {
 				await connection.rollback();
 				return json({ success: false, message: 'You do not have permission to manage columns.' }, { status: 403 });
 			}
-	
-			await connection.execute('UPDATE columns SET name = ? WHERE id = ?', [name, column_id]);
+
+			// Build dynamic update
+			const sets: string[] = [];
+			const params: any[] = [];
+			if (name !== undefined) {
+				sets.push('name = ?');
+				params.push(name);
+			}
+			if (subtext !== undefined) {
+				sets.push('subtext = ?');
+				params.push(subtext);
+			}
+			if (state !== undefined) {
+				sets.push('state = ?');
+				params.push(Number(state));
+			}
+			if (sets.length > 0) {
+				const sql = `UPDATE columns SET ${sets.join(', ')} WHERE id = ?`;
+				params.push(column_id);
+				await connection.execute(sql, params);
+			}
+
 			await connection.commit();
-	
 			return json({ success: true });
 		} catch (err) {
 			await connection.rollback();
 			console.error('Failed to update column:', err);
-			throw error(500, 'Failed to update column name.');
+			throw error(500, 'Failed to update column.');
 		} finally {
 			connection.release();
 		}
 	});
 };
+
 
 /** -------------------------------
  *  🗑️ DELETE COLUMN

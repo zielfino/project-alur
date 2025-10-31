@@ -92,6 +92,10 @@
 	import { isAnyLoading } from '$lib/stores/loading';
 	
 	// import { version } from '$lib/stores/app';
+	
+	onMount(() => {
+		window.addEventListener('contextmenu', (e) => e.preventDefault());
+	});
 </script>
 
 <svelte:head>

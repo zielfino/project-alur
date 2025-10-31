@@ -3,8 +3,9 @@
 	import { isConfirm } from '$lib/stores/confirmStore.js';
 	import { pushError } from '$lib/stores/errorNotification';
 	import { isLoading } from '$lib/stores/loading';
-	import { showAddCardModal, activeColumnId, showEditCardModal, selectedCard, isEdit, selectedCardWithFormat } from "$lib/stores/uiStore";
+	import { showAddCardModal, activeColumnId, showEditCardModal, selectedCard, isEdit, selectedCardWithFormat, showAddColumnModal, showEditColumnModal } from "$lib/stores/uiStore";
 	import Icon from '@iconify/svelte';
+	import { onDestroy, onMount } from 'svelte';
 	import { dndzone } from 'svelte-dnd-action';
 	import { flip } from 'svelte/animate';
 	import { quadOut } from 'svelte/easing';
@@ -167,6 +168,12 @@
 		$showEditCardModal = true;
 		$isEdit = false
 	}
+	function openAddColumnModal() {
+		$showAddColumnModal = !$showAddColumnModal
+		newColumnName = ''
+		newColumnSubtext = ''
+		newColumnState = 1
+	}
 
 	
 
@@ -301,6 +308,123 @@
 		}
 	}
 
+	
+
+	// =====================================================================================================
+	//
+	//		COLUMN FUNCTION			COLUMN FUNCTION			COLUMN FUNCTION			COLUMN FUNCTION
+	// 
+	// =====================================================================================================
+
+	let newColumnName = $state('');
+	let newColumnSubtext = $state('');
+	let newColumnState = $state(1);
+	// ADD COLUMN
+	async function handleAddColumn() {
+		if (!localBoard || !newColumnName) return;
+		isLoading.start('BoardAdd')
+
+		const response = await fetch('/api/boards/columns', {
+			method: 'POST',
+			body: JSON.stringify({ name: newColumnName, board_id: board.id, subtext: newColumnSubtext, state: newColumnState })
+		});
+
+		if (response.ok) {
+			const result = await response.json();
+			const newColumn = result.column; // Ambil langsung object kolom-nya
+
+			const updatedColumns = [...localBoard.columns, newColumn];
+			updatedColumns.sort((a, b) => a.state - b.state || a.position - b.position);
+			localBoard.columns = updatedColumns;
+
+			newColumnName = '';
+			newColumnSubtext = '';
+			$showAddColumnModal = false;
+			isLoading.stop('BoardAdd')
+		} else {
+			const result = await response.json();
+			pushError(result.error, result.message);
+			isLoading.stop('BoardAdd')
+		}
+	}
+
+	// DELETE COLUMN
+	async function handleDeleteColumn(columnId: number) {
+		if (!(await isConfirm("Are you sure you want to delete this column?"))) return;
+
+		isLoading.start('ColumnRemove')
+		
+		try {
+			const response = await fetch('/api/boards/columns', {
+				method: 'DELETE',
+				body: JSON.stringify({ column_id: columnId }),
+			});
+
+			if (!response.ok) {
+				const result = await response.json();
+				pushError(result.error, result.message);
+				isLoading.stop('ColumnRemove')
+				showMenu = false;
+			}
+
+			localBoard.columns = localBoard.columns.filter((col) => col.id !== columnId);
+			isLoading.stop('ColumnRemove');
+			showMenu = false;
+
+		} catch (err) {
+			pushError(500, 'Unexpected error while adding card.');
+			isLoading.stop('ColumnRemove')
+			showMenu = false;
+		}
+	}
+	
+	// EDIT COLUMN
+	async function handleEditColumn(e: Event) {
+		e.preventDefault?.();
+		if (!localBoard || !currentColumn) return;
+		isLoading.start('BoardEdit');
+
+		try {
+			const payload = {
+				column_id: currentColumn,
+				name: newColumnName,
+				subtext: newColumnSubtext,
+				state: Number(newColumnState)
+			};
+
+			const response = await fetch('/api/boards/columns', {
+				method: 'PUT',
+				headers: { 'Content-Type': 'application/json' },
+				body: JSON.stringify(payload)
+			});
+
+			const result = await response.json();
+			if (!response.ok) {
+				pushError(result.error || 'server', result.message || 'Failed to update column');
+				isLoading.stop('BoardEdit');
+				return;
+			}
+
+			// update local board
+			const updatedColumns = localBoard.columns.map((col) =>
+				col.id === currentColumn ? { ...col, ...payload } : col
+			);
+
+
+			// DI DISABLE SEMENTARA KARENA SORT TERLALU RUMIT, DAN DEADLINE DI DEPAN MATA
+			// updatedColumns.sort((a, b) => a.state - b.state || a.position - b.position);
+
+
+			localBoard.columns = updatedColumns;
+
+			$showEditColumnModal = false;
+		} catch (err: any) {
+			pushError(500, 'Unexpected error while adding card.');
+		} finally {
+			isLoading.stop('BoardEdit');
+		}
+	}
+
 	// =====================================================================================================
 	//
 	//		HELPER FUNCTION			HELPER FUNCTION			HELPER FUNCTION			HELPER FUNCTION
@@ -313,6 +437,41 @@
 			handleUpdateCard();
 		}
 	}
+
+	let showMenu = $state(false)
+	let pos = $state({ x: 0, y: 0 })
+	let currentColumn: number | null = $state(null);
+
+	function columnRightClick(e: MouseEvent, columnId: number, columnName: string, columnState: number, columnSubtext: string) {
+		currentColumn = columnId
+		newColumnName = columnName
+		newColumnState = columnState
+		newColumnSubtext = columnSubtext
+		e.preventDefault(); // cegah context menu bawaan
+		e.stopPropagation(); // opsional, cegah bubbling
+		console.log('Right click column:', columnId);
+
+		pos = { x: e.clientX, y: e.clientY };
+		showMenu = true;
+	}
+
+	function closeMenu() {
+		showMenu = false;
+	}
+
+	onMount(() => {
+		function handleScroll() {
+			if (showMenu) showMenu = false;
+		}
+
+		// Dengarkan semua scroll dari seluruh dokumen (termasuk nested div)
+		document.addEventListener('scroll', handleScroll, { capture: true });
+
+		onDestroy(() => {
+			document.removeEventListener('scroll', handleScroll, { capture: true });
+		});
+	});
+
 </script>
 
 
@@ -322,7 +481,15 @@
 		========================================================================================================
 -->		
 <section class="flex flex-col justify-center items-center tablet:items-start gap-4 p-2">
-	<h1 class="text-xl font-semibold">{localBoard.name}</h1>
+	<div class="flex justify-center items-center">
+		<h2 class="text-3xl font-bold">{localBoard.name}</h2>
+		<div>
+			<button onclick={() => openAddColumnModal()}
+			class="flex justify-center items-center bg-sky-400 px-3 py-2">
+				<Icon icon="mingcute:add-fill"/>Add Column
+			</button>
+		</div>
+	</div>
 	{#if localBoard?.columns?.length}
 		<!--  	
 				========================================================================================================
@@ -349,22 +516,23 @@
 		>
 			{#each localBoard.columns as column (column.id)}
 			<div animate:flip={{ duration: flipDurationMs }}>
-				<div class="p-2 border border-gray-300 rounded-xl bg-white w-full max-w-128 min-w-64 tablet:w-[350px] flex-shrink-0 min-h-32">
+				<div oncontextmenu={(e) => columnRightClick(e, column.id, column.name, column.state, column.subtext)} onclick={closeMenu} tabindex="-1" role="button" onkeydown={(e) => { if (e.key === 'Enter' || e.key === ' ') closeMenu(); }} class="p-2 border border-gray-300 rounded-xl bg-white w-full max-w-128 min-w-64 tablet:w-[350px] min-h-32">
 					<div class="flex justify-between items-center mb-2 ml-1">
 						<!-- NAME -->
-						<div class="pl-1 py-2 flex space-x-2">
+						<div class="pl-1 py-2 flex space-x-2 w-full text-start">
 							<div class="">
 								<div class="h-3 w-3 mt-2 rounded-full {column.state === 1 ? 'bg-gray-500' : column.state === 2 ? 'bg-sky-500' : column.state === 3 ? 'bg-emerald-500' : ''}"></div>
 							</div>
-							<div>
-								<h2 class="text-xl font-bold font-outfit">{column.name}</h2>
-								<p class="font-semibold opacity-50 text-xs">Subtitle di bawah main title</p>
+							<!-- <pre>{JSON.stringify(column, null, 2)}</pre> -->
+							<div class="flex flex-col text-start">
+								<button onclick={() => {console.log('name')}} class="text-xl font-bold font-outfit select-none cursor-text line-clamp-1 text-start">{column.name}</button>
+								<button onclick={() => {console.log('subtext')}} class="font-semibold opacity-50 text-xs select-none cursor-text line-clamp-1 text-start">{column.subtext || 'Subtitle di bawah main title'}</button>
 							</div>
 						</div>
 
 						<div class="flex space-x-2">
 							<!-- ADD CARD -->
-							<button onclick={() => openAddCardModal(column.id)} class="min-h-6 min-w-6 flex opacity-40 justify-center items-center text-2xl rounded cursor-grab touch-none">
+							<button onclick={() => openAddCardModal(column.id)} class="min-h-6 min-w-6 flex opacity-40 justify-center items-center text-2xl rounded cursor-pointer touch-none">
 								<Icon icon="mingcute:add-fill" />
 							</button>
 
@@ -409,7 +577,7 @@
 					>	
 						{#if column.cards.length }
 							{#each column.cards as card (card.id)}
-								<button onclick={() => openEditCardModal(card)}
+								<button oncontextmenu={(e) => {e.preventDefault(); e.stopPropagation(); console.log('Custom right-click')}} onclick={() => openEditCardModal(card)}
 									class="p-2 bg-gray-100 rounded-md w-full cursor-pointer text-start"
 									animate:flip={{ duration: flipDurationMs }}
 								>
@@ -469,7 +637,7 @@
 								</button>
 							{/each}
 						{:else}
-							<div class="font-semibold opacity-50 uppercase tracking-wide w-full text-center">
+							<div class="font-semibold opacity-50 uppercase tracking-wide w-full text-center select-none">
 								No Tasks
 							</div>
 						{/if}
@@ -480,13 +648,112 @@
 		</div>
 	{:else}
 		<div class="p-2">
-			<button class="p-2 m1 border border-gray-300 rounded-xl bg-white w-full max-w-128 min-w-64 flex-shrink-0 min-h-32 flex justify-center items-center font-semibold tracking-wide uppercase">
-				<div class="flex opacity-50"><Icon icon="mingcute:add-line" class="text-xl mr-2" /> add state</div>
+			<button onclick={() => openAddColumnModal()} class="p-2 m1 border border-gray-300 rounded-xl bg-white w-full max-w-128 min-w-64 flex-shrink-0 min-h-32 flex justify-center items-center font-semibold tracking-wide uppercase cursor-pointer hover:bg-gray-200">
+				<div class="flex opacity-50"><Icon icon="mingcute:add-fill" class="text-base mr-2 select-none" /> add state</div>
 			</button>
 		</div>
 	{/if}
 </section>
 
+
+		
+
+<!-- 
+	====================================================================================================
+		COLUMN CONTEXMENU		COLUMN CONTEXMENU		COLUMN CONTEXMENU		COLUMN CONTEXMENU
+	====================================================================================================
+-->				
+{#if showMenu}
+	<div
+		class="fixed z-50 p-2 border border-gray-300 rounded-xl bg-white w-40 drop-shadow-lg"
+		style="top:{pos.y}px; left:{pos.x}px;"
+	>
+		<button onclick={() => {$showEditColumnModal = !$showEditColumnModal; showMenu = !showMenu}} class="block w-full text-left px-4 py-2 hover:bg-gray-200 cursor-pointer rounded-md">Edit</button>
+		<button onclick={() => handleDeleteColumn(currentColumn)} class="block w-full text-left px-4 py-2 text-red-500 hover:bg-red-500 hover:text-white cursor-pointer rounded-md">Delete</button>
+	</div>
+{/if}
+
+<!-- 
+	====================================================================================================
+		COLUMN ADD MODAL		COLUMN ADD MODAL		COLUMN ADD MODAL		COLUMN ADD MODAL
+	====================================================================================================
+-->
+{#if $showAddColumnModal}
+	<section transition:fade={{duration: 200, easing: quadOut}} class="bgbackdrop flex justify-center items-center p-4 hiddenpiece">
+		<form transition:fly={{duration: 200,y: 50}} onsubmit={handleAddColumn} class="bg-white min-w-84 min-h-84 w-full max-w-96 rounded-xl flex-col flex justify-between p-3">
+			<div class="">
+				<div class="flex justify-between mb-3">
+					<h3 class="font-semibold text-lg">Add Column</h3>
+					<button type="button" onclick={() => $showAddColumnModal = !$showAddColumnModal} class="text-xl aspect-square w-7 rounded-full flex justify-center items-center cursor-pointer">
+						<Icon icon="mingcute:close-fill"/>
+					</button>
+				</div>
+				<div class="mb-2">
+					<label for="column-title">Title</label>
+					<input id="column-title" type="text" bind:value={newColumnName} maxlength="25" required class="w-full border rounded-md border-gray-300 p-2" />
+				</div>
+				<div class="mb-2">
+					<label for="column-subtitle">Subtext</label>
+					<input id="column-subtitle" type="text" bind:value={newColumnSubtext} maxlength="30" required class="w-full border rounded-md border-gray-300 p-2" />
+				</div>
+				<div class="mb-2">
+					<div>State</div>
+					<select id="column-state" bind:value={newColumnState} class="w-full border rounded-md border-gray-300 p-2">
+						<option value={1}>Not Started</option>
+						<option value={2}>In Progress</option>
+						<option value={3}>Finished</option>
+					</select>
+				</div>
+			</div>
+			<div class="flex justify-between mt-2">
+				<button type="submit" class="bg-sky-500 text-white hover:bg-sky-400 disabled:bg-sky-400 cursor-pointer h-[40px] w-full font-semibold rounded-md">
+					Add Column
+				</button>
+			</div>
+		</form>
+	</section>
+{/if}
+
+<!-- 
+	====================================================================================================
+		COLUMN EDIT MODAL		COLUMN EDIT MODAL		COLUMN EDIT MODAL		COLUMN EDIT MODAL
+	====================================================================================================
+-->
+{#if $showEditColumnModal}
+	<section transition:fade={{duration: 200, easing: quadOut}} class="bgbackdrop flex justify-center items-center p-4 hiddenpiece">
+		<form transition:fly={{duration: 200,y: 50}} onsubmit={handleEditColumn} class="bg-white min-w-84 min-h-84 w-full max-w-96 rounded-xl flex-col flex justify-between p-3">
+			<div class="">
+				<div class="flex justify-between mb-3">
+					<h3 class="font-semibold text-lg">Edit Column</h3>
+					<button type="button" onclick={() => $showEditColumnModal = !$showEditColumnModal} class="text-xl aspect-square w-7 rounded-full flex justify-center items-center cursor-pointer">
+						<Icon icon="mingcute:close-fill"/>
+					</button>
+				</div>
+				<div class="mb-2">
+					<label for="column-title">Title</label>
+					<input id="column-title" type="text" bind:value={newColumnName} maxlength="25" required class="w-full border rounded-md border-gray-300 p-2" />
+				</div>
+				<div class="mb-2">
+					<label for="column-subtext">Subtext</label>
+					<input id="column-subtext" type="text" bind:value={newColumnSubtext} maxlength="40" required class="w-full border rounded-md border-gray-300 p-2" />
+				</div>
+				<div class="mb-2">
+					<div>State</div>
+					<select id="column-state" bind:value={newColumnState} class="w-full border rounded-md border-gray-300 p-2">
+						<option value={1}>Not Started</option>
+						<option value={2}>In Progress</option>
+						<option value={3}>Finished</option>
+					</select>
+				</div>
+			</div>
+			<div class="flex justify-between mt-2">
+				<button type="submit" class="bg-sky-500 text-white hover:bg-sky-400 disabled:bg-sky-400 cursor-pointer h-[40px] w-full font-semibold rounded-md">
+					Save
+				</button>
+			</div>
+		</form>
+	</section>
+{/if}
 
 <!-- 
 	====================================================================================================
@@ -519,7 +786,7 @@
 						<div class="flex justify-center items-center">
 							<input class="w-full h-[36px] rounded-s-md p-2 font-semibold cursor-pointer border border-gray-300 border-e-0" 
 							type="date" bind:value={newCardDeadline	} />
-							<button type="button" class="cursor-pointer border border-gray-300 border-s-0 text-gray-800 hover:bg-gray-300 aspect-square h-[36px] rounded-e-lg flex justify-center items-center" onclick={() => {newCardDeadline	 = null;}}>
+							<button type="button" class="cursor-pointer border border-gray-300 border-s-0 text-gray-800 hover:bg-gray-200 aspect-square h-[36px] rounded-e-lg flex justify-center items-center" onclick={() => {newCardDeadline	 = null;}}>
 								<Icon icon="mingcute:delete-back-line" class="text-xl" />
 							</button>
 						</div>
@@ -529,14 +796,14 @@
 						<div class="flex">
 							<div class="w-full rounded-s-md">
 								<select bind:value={newCardPriority} class="w-full p-2 cursor-pointer font-semibold h-[36px] border border-gray-300 border-e-0 pr-2 rounded-s-lg">
-									<option class="bg-white text-black" value={1}>1 | Later</option>
-									<option class="bg-white text-black" value={2}>2 | Optional</option>
-									<option class="bg-white text-black" value={3}>3 | Regular</option>
-									<option class="bg-white text-black" value={4}>4 | Priority</option>
-									<option class="bg-white text-black" value={5}>5 | Urgent</option>
+									<option class="bg-white text-black" value={1}>Later</option>
+									<option class="bg-white text-black" value={2}>Optional</option>
+									<option class="bg-white text-black" value={3}>Regular</option>
+									<option class="bg-white text-black" value={4}>Priority</option>
+									<option class="bg-white text-black" value={5}>Urgent</option>
 								</select>
 							</div>
-							<button type="button" class="cursor-pointer text-gray-800 hover:bg-gray-300 aspect-square h-[36px] border border-gray-300 border-s-0 rounded-e-lg flex justify-center items-center" onclick={() => {newCardPriority = null;}}>
+							<button type="button" class="cursor-pointer text-gray-800 hover:bg-gray-200 aspect-square h-[36px] border border-gray-300 border-s-0 rounded-e-lg flex justify-center items-center" onclick={() => {newCardPriority = null;}}>
 								<Icon icon="mingcute:delete-back-line" class="text-xl" />
 							</button>
 						</div>
@@ -615,7 +882,7 @@
                             <div class="flex justify-center items-center">
                                 <input class="w-full h-[36px] rounded-s-md p-2 font-semibold cursor-pointer border border-gray-300 border-e-0" 
 								type="date" bind:value={$selectedCardWithFormat.deadlineFormatted}/>
-								<button type="button" class="cursor-pointer text-gray-800 hover:bg-gray-300 aspect-square h-[36px] border border-gray-300 border-s-0 rounded-e-lg flex justify-center items-center" onclick={() => {$selectedCard.deadline = null;}}>
+								<button type="button" class="cursor-pointer text-gray-800 hover:bg-gray-200 aspect-square h-[36px] border border-gray-300 border-s-0 rounded-e-lg flex justify-center items-center" onclick={() => {$selectedCard.deadline = null;}}>
 									<Icon icon="mingcute:delete-back-line" class="text-xl" />
                                 </button>
                             </div>
@@ -625,14 +892,14 @@
                             <div class="flex">
                                 <div class="w-full cursor-pointer font-semibold h-[36px] border border-gray-300 border-e-0 pr-2 rounded-s-lg">
                                     <select bind:value={$selectedCard.priority} class="w-full p-2 cursor-pointer font-semibold">
-                                        <option class="bg-white text-black" value={1}>1 | Later</option>
-                                        <option class="bg-white text-black" value={2}>2 | Optional</option>
-                                        <option class="bg-white text-black" value={3}>3 | Regular</option>
-                                        <option class="bg-white text-black" value={4}>4 | Priority</option>
-                                        <option class="bg-white text-black" value={5}>5 | Urgent</option>
+                                        <option class="bg-white text-black" value={1}>Later</option>
+                                        <option class="bg-white text-black" value={2}>Optional</option>
+                                        <option class="bg-white text-black" value={3}>Regular</option>
+                                        <option class="bg-white text-black" value={4}>Priority</option>
+                                        <option class="bg-white text-black" value={5}>Urgent</option>
                                     </select>
                                 </div>
-								<button type="button" class="cursor-pointer text-gray-800 hover:bg-gray-300 aspect-square h-[36px] border border-gray-300 border-s-0 rounded-e-lg flex justify-center items-center" onclick={() => {$selectedCard.priority = null;}}>
+								<button type="button" class="cursor-pointer text-gray-800 hover:bg-gray-200 aspect-square h-[36px] border border-gray-300 border-s-0 rounded-e-lg flex justify-center items-center" onclick={() => {$selectedCard.priority = null;}}>
 									<Icon icon="mingcute:delete-back-line" class="text-xl" />
 								</button>
                             </div>

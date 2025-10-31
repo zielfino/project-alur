@@ -12,6 +12,8 @@ export const showEditCardModal = writable(false);
 export const isEdit = writable(false);
 export const showAddColumnInput = writable(false);
 export const showAddCardModal = writable(false);
+export const showAddColumnModal = writable(false);
+export const showEditColumnModal = writable(false);
 export const activeColumnId = writable<number | null>(null);
 
 export type Card = {

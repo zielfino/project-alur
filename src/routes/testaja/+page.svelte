@@ -14,9 +14,6 @@
 	let { data } = $props();
 	let { board, userRole } = data;
 
-	/** ---------------------------------------------
-	 * TYPES
-	 * --------------------------------------------- */
 	type Card = {
 		id: number;
 		title: string;
@@ -31,16 +28,17 @@
 		name: string;
 		cards: Card[];
 	};
-	
-	let localBoard = $state(board);
-	let dragDisabled = $state(true);
-	const flipDurationMs = 200;
 
 	// =====================================================================================================
 	//
 	//		KANVBAN FUNCT			KANVBAN FUNCT			KANVBAN FUNCT			KANVBAN FUNCT
 	// 
 	// =====================================================================================================
+	
+	let localBoard = $state(board);
+	let dragDisabled = $state(true);
+	const flipDurationMs = 200;
+	
 	function handleColumnConsider(event: CustomEvent) {
 		const newColumns = event.detail.items;
 		localBoard.columns = newColumns;
@@ -146,12 +144,61 @@
 		dragDisabled = true;
 	}
 
+
+
+	// =====================================================================================================
+	//
+	//		MENU FUNCTION			MENU FUNCTION			MENU FUNCTION			MENU FUNCTION
+	// 
+	// =====================================================================================================
+	const showMenu = $state({
+		column: false,
+		card: false,
+		close() {
+			this.column = false;
+			this.card = false;
+		}
+	});
+
+	let pos = $state({ x: 0, y: 0 })
+	let currentColumn: number | null = $state(null);
+	let currentCard: number | null = $state(null);
+
+	function columnRightClick(e: MouseEvent, columnId: number, columnName: string, columnState: number, columnSubtext: string) {
+		showMenu.close()
+		currentColumn = columnId
+		newColumnName = columnName
+		newColumnState = columnState
+		newColumnSubtext = columnSubtext
+		e.preventDefault();
+		e.stopPropagation();
+		// console.log('Right click column:', columnId);
+
+		pos = { x: e.clientX, y: e.clientY };
+		showMenu.column = true;
+		e.preventDefault();
+		e.stopPropagation();
+	}
+
+	function cardRightClick(e: MouseEvent, card: any) {
+		showMenu.close()
+		e.preventDefault();
+		e.stopPropagation();
+
+		$selectedCard = { ...card };
+		currentCard = card.id
+		
+		pos = { x: e.clientX, y: e.clientY };
+		showMenu.card = true;
+
+		// console.log('Right click card:', card.id);
+	}
+
+	function closeMenu() {
+		showMenu.close();
+	}
+
 	
-	let newCardTitle = $state('');
-	let newCardDescription = $state('');
-	let newCardDeadline: string | null = $state('');
-	let newCardPriority = $state<number | null>(null);
-	let deadlineAddCard = $state<string | null>(null);
 
 	// =====================================================================================================
 	//
@@ -159,16 +206,19 @@
 	// 
 	// =====================================================================================================
 	function openAddCardModal(columnId: number) {
+		showMenu.close();
 		$activeColumnId = columnId;
 		$showAddCardModal = true;
 		console.log({activeColumnId}, {showAddCardModal})
 	}
 	function openEditCardModal(card: Card) {
+		showMenu.close();
 		$selectedCard = { ...card };
 		$showEditCardModal = true;
 		$isEdit = false
 	}
 	function openAddColumnModal() {
+		showMenu.close();
 		$showAddColumnModal = !$showAddColumnModal
 		newColumnName = ''
 		newColumnSubtext = ''
@@ -182,6 +232,11 @@
 	//		CRUD FUNCTION			CRUD FUNCTION			CRUD FUNCTION			CRUD FUNCTION
 	// 
 	// =====================================================================================================
+
+	let newCardTitle = $state('');
+	let newCardDescription = $state('');
+	let newCardDeadline: string | null = $state('');
+	let newCardPriority = $state<number | null>(null);
 	
 	// CREATE CARD
 	async function handleAddCard() {
@@ -277,6 +332,7 @@
 
 	// DELTE CARD
 	async function handleDeleteCard(cardId: number) {
+		showMenu.close()
 		if (!board) return;
 		if (!(await isConfirm("Are you sure you want to delete this card?"))) return;
 		// if (!confirm("Are you sure you want to delete this card?")) return;
@@ -319,6 +375,7 @@
 	let newColumnName = $state('');
 	let newColumnSubtext = $state('');
 	let newColumnState = $state(1);
+	
 	// ADD COLUMN
 	async function handleAddColumn() {
 		if (!localBoard || !newColumnName) return;
@@ -350,6 +407,7 @@
 
 	// DELETE COLUMN
 	async function handleDeleteColumn(columnId: number) {
+		showMenu.close()
 		if (!(await isConfirm("Are you sure you want to delete this column?"))) return;
 
 		isLoading.start('ColumnRemove')
@@ -364,22 +422,24 @@
 				const result = await response.json();
 				pushError(result.error, result.message);
 				isLoading.stop('ColumnRemove')
-				showMenu = false;
+				showMenu.close();
 			}
 
 			localBoard.columns = localBoard.columns.filter((col) => col.id !== columnId);
 			isLoading.stop('ColumnRemove');
-			showMenu = false;
+			showMenu.close();
 
 		} catch (err) {
 			pushError(500, 'Unexpected error while adding card.');
 			isLoading.stop('ColumnRemove')
-			showMenu = false;
+			showMenu.close();
 		}
 	}
 	
 	// EDIT COLUMN
 	async function handleEditColumn(e: Event) {
+		columnEditName = false
+		columnEditSubtext = false
 		e.preventDefault?.();
 		if (!localBoard || !currentColumn) return;
 		isLoading.start('BoardEdit');
@@ -431,37 +491,18 @@
 	// 
 	// =====================================================================================================
 	
+	let columnEditName = $state(false)
+	let columnEditSubtext = $state(false)
+
 	function handleTextareaKeydown(event: KeyboardEvent) {
 		if (event.key === 'Enter' && !event.shiftKey) {
 			event.preventDefault();
 			handleUpdateCard();
 		}
 	}
-
-	let showMenu = $state(false)
-	let pos = $state({ x: 0, y: 0 })
-	let currentColumn: number | null = $state(null);
-
-	function columnRightClick(e: MouseEvent, columnId: number, columnName: string, columnState: number, columnSubtext: string) {
-		currentColumn = columnId
-		newColumnName = columnName
-		newColumnState = columnState
-		newColumnSubtext = columnSubtext
-		e.preventDefault(); // cegah context menu bawaan
-		e.stopPropagation(); // opsional, cegah bubbling
-		console.log('Right click column:', columnId);
-
-		pos = { x: e.clientX, y: e.clientY };
-		showMenu = true;
-	}
-
-	function closeMenu() {
-		showMenu = false;
-	}
-
 	onMount(() => {
 		function handleScroll() {
-			if (showMenu) showMenu = false;
+			if (showMenu.column) showMenu.close();
 		}
 
 		// Dengarkan semua scroll dari seluruh dokumen (termasuk nested div)
@@ -480,7 +521,7 @@
 				BOARD		BOARD		BOARD		BOARD		BOARD		BOARD		BOARD		BOARD
 		========================================================================================================
 -->		
-<section class="flex flex-col justify-center items-center tablet:items-start gap-4 p-2">
+<section onclick={closeMenu} tabindex="-1" role="button" onkeydown={(e) => { if (e.key === 'Enter' || e.key === ' ') closeMenu(); }} class="flex flex-col justify-center items-center tablet:items-start gap-4 p-2">
 	<div class="flex justify-center items-center">
 		<h2 class="text-3xl font-bold">{localBoard.name}</h2>
 		<div>
@@ -524,13 +565,27 @@
 								<div class="h-3 w-3 mt-2 rounded-full {column.state === 1 ? 'bg-gray-500' : column.state === 2 ? 'bg-sky-500' : column.state === 3 ? 'bg-emerald-500' : ''}"></div>
 							</div>
 							<!-- <pre>{JSON.stringify(column, null, 2)}</pre> -->
-							<div class="flex flex-col text-start">
-								<button onclick={() => {console.log('name')}} class="text-xl font-bold font-outfit select-none cursor-text line-clamp-1 text-start">{column.name}</button>
-								<button onclick={() => {console.log('subtext')}} class="font-semibold opacity-50 text-xs select-none cursor-text line-clamp-1 text-start">{column.subtext || 'Subtitle di bawah main title'}</button>
+							<div class="flex flex-col text-start w-full [&>*]:transition-none [&>*]:duration-0">
+								{#if columnEditName && currentColumn === column.id}
+									<form onsubmit={handleEditColumn}>
+										<input maxlength="22" type="text" bind:value={newColumnName} class="text-xl font-bold font-outfit select-none cursor-text line-clamp-1 text-start max-w-[230px]" autofocus/>
+									</form>
+								{:else}
+									<button onclick={() => {columnEditName = false; columnEditName = true; currentColumn = column.id; newColumnName = column.name; newColumnSubtext = column.subtext; newColumnState = column.state}} class="text-xl font-bold font-outfit select-none cursor-text line-clamp-1 text-start">{column.name}</button>	
+								{/if}
+								{#if column.subtext}
+									{#if columnEditSubtext && currentColumn === column.id}
+										<form onsubmit={handleEditColumn} class="max-w-[230px]">
+											<input maxlength="40" type="text" bind:value={newColumnSubtext} class="font-semibold opacity-50 text-xs select-none cursor-text line-clamp-1 text-start w-full" autofocus/>
+										</form>
+									{:else}
+										<button onclick={() => {columnEditSubtext = false; columnEditSubtext = true; currentColumn = column.id; newColumnName = column.name; newColumnSubtext = column.subtext; newColumnState = column.state}} class="font-semibold opacity-50 text-xs select-none cursor-text line-clamp-1 text-start">{column.subtext || 'Subtitle di bawah main title'}</button>
+									{/if}
+								{/if}
 							</div>
 						</div>
 
-						<div class="flex space-x-2">
+						<div class="flex space-x-2 [&>*]:transition-none [&>*]:duration-0">
 							<!-- ADD CARD -->
 							<button onclick={() => openAddCardModal(column.id)} class="min-h-6 min-w-6 flex opacity-40 justify-center items-center text-2xl rounded cursor-pointer touch-none">
 								<Icon icon="mingcute:add-fill" />
@@ -577,10 +632,7 @@
 					>	
 						{#if column.cards.length }
 							{#each column.cards as card (card.id)}
-								<button oncontextmenu={(e) => {e.preventDefault(); e.stopPropagation(); console.log('Custom right-click')}} onclick={() => openEditCardModal(card)}
-									class="p-2 bg-gray-100 rounded-md w-full cursor-pointer text-start"
-									animate:flip={{ duration: flipDurationMs }}
-								>
+								<button oncontextmenu={(e) => {cardRightClick(e, card)}} onclick={() => openEditCardModal(card)} class="p-2 bg-gray-100 rounded-md w-full cursor-pointer text-start" animate:flip={{ duration: flipDurationMs }}>
 									<div class="flex justify-between">
 										<div class="flex items-center">
 											{#if card.priority}
@@ -663,13 +715,28 @@
 		COLUMN CONTEXMENU		COLUMN CONTEXMENU		COLUMN CONTEXMENU		COLUMN CONTEXMENU
 	====================================================================================================
 -->				
-{#if showMenu}
+{#if showMenu.column}
 	<div
 		class="fixed z-50 p-2 border border-gray-300 rounded-xl bg-white w-40 drop-shadow-lg"
 		style="top:{pos.y}px; left:{pos.x}px;"
 	>
-		<button onclick={() => {$showEditColumnModal = !$showEditColumnModal; showMenu = !showMenu}} class="block w-full text-left px-4 py-2 hover:bg-gray-200 cursor-pointer rounded-md">Edit</button>
+		<button onclick={() => {$showEditColumnModal = !$showEditColumnModal; showMenu.column = !showMenu.column}} class="block w-full text-left px-4 py-2 hover:bg-gray-200 cursor-pointer rounded-md">Edit</button>
 		<button onclick={() => handleDeleteColumn(currentColumn)} class="block w-full text-left px-4 py-2 text-red-500 hover:bg-red-500 hover:text-white cursor-pointer rounded-md">Delete</button>
+	</div>
+{/if}
+
+<!-- 
+	====================================================================================================
+		CARD CONTEXMENU		CARD CONTEXMENU		CARD CONTEXMENU		CARD CONTEXMENU
+	====================================================================================================
+-->				
+{#if showMenu.card}
+	<div
+		class="fixed z-50 p-2 border border-gray-300 rounded-xl bg-white w-40 drop-shadow-lg"
+		style="top:{pos.y}px; left:{pos.x}px;"
+	>
+		<button onclick={() => {$showEditCardModal = !$showEditCardModal; showMenu.card = !showMenu.card}} class="block w-full text-left px-4 py-2 hover:bg-gray-200 cursor-pointer rounded-md">Edit</button>
+		<button onclick={() => handleDeleteCard(currentCard)} class="block w-full text-left px-4 py-2 text-red-500 hover:bg-red-500 hover:text-white cursor-pointer rounded-md">Delete</button>
 	</div>
 {/if}
 
@@ -694,7 +761,7 @@
 				</div>
 				<div class="mb-2">
 					<label for="column-subtitle">Subtext</label>
-					<input id="column-subtitle" type="text" bind:value={newColumnSubtext} maxlength="30" required class="w-full border rounded-md border-gray-300 p-2" />
+					<input id="column-subtitle" type="text" bind:value={newColumnSubtext} maxlength="40" class="w-full border rounded-md border-gray-300 p-2" />
 				</div>
 				<div class="mb-2">
 					<div>State</div>
@@ -735,7 +802,7 @@
 				</div>
 				<div class="mb-2">
 					<label for="column-subtext">Subtext</label>
-					<input id="column-subtext" type="text" bind:value={newColumnSubtext} maxlength="40" required class="w-full border rounded-md border-gray-300 p-2" />
+					<input id="column-subtext" type="text" bind:value={newColumnSubtext} maxlength="40" class="w-full border rounded-md border-gray-300 p-2" />
 				</div>
 				<div class="mb-2">
 					<div>State</div>
@@ -853,7 +920,7 @@
 						<div class="h-[28px] text-[18px] font-outfit leading-none tracking-wide font-semibold flex justify-center items-center ml-1">Edit Card</div>
 					{/if} 
 				</div>
-				<button onclick={() => $showEditCardModal=false} class="aspect-square rounded-full cursor-pointer hover:rotate-90 duration-500 ease-out">
+				<button onclick={() => $showEditCardModal=!$showEditCardModal} class="aspect-square rounded-full cursor-pointer hover:rotate-90 duration-500 ease-out">
 					<Icon icon="mingcute:close-fill" class="text-2xl"/>
 				</button>
 			</section>
@@ -919,12 +986,12 @@
 							Delete Card
 						{/if}
 					</button>
-					<button class="bg-gray-200 text-gray-800 hover:bg-gray-300 cursor-pointer h-[40px] w-[72px] font-semibold rounded-md"  onclick={() => $isEdit=!$isEdit}>
+					<button class="bg-gray-200 text-gray-800 hover:bg-gray-300 cursor-pointer h-[40px] w-[72px] font-semibold rounded-md mr-2"  onclick={() => $isEdit=!$isEdit}>
 						{$isEdit ? 'Back' : 'Edit'}
 					</button>
 				{/if}
                 {#if $selectedCard.deadline && !$isEdit}
-                    <div transition:fly={{ x: -4, duration: 150, opacity: 0 }}>
+                    <div transition:fly={{ y: 12, duration: 150, opacity: 0 }}>
                         <h4 class="text-[16px] font-outfit leading-none mb-1 tracking-wide">Deadline : </h4>
                         <h5 class="text-[14px] font-outfit leading-none tracking-wide font-semibold opacity-50">
                                 {new Date($selectedCard.deadline).toLocaleDateString('id-ID', {
@@ -937,6 +1004,13 @@
                     </div>
                 {/if}
             </section>
+			{#if !$isEdit}
+				<div transition:fly={{ y: 12, duration: 150, opacity: 0 }} class="absolute bottom-4 right-4 max-phone:hidden">
+					<button class="bg-gray-200 text-gray-800 hover:bg-gray-300 cursor-pointer h-[40px] w-[72px] font-semibold rounded-md" onclick={() => $showEditCardModal=!$showEditCardModal}>
+						Cancel
+					</button>
+				</div>
+			{/if}
 		</div>
     </section>
 {/if}

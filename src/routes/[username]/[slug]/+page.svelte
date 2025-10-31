@@ -416,9 +416,9 @@
 -->
 {#if $showEditCardModal && $selectedCard?.id}
     <section class="z-50 fixed w-full h-[100dvh] top-0 right-0 bg-zinc-900/30 flex justify-end items-center overflow-hidden cursor-default backdrop-blur-xs"
-	transition:fade={{duration: 150}} onclick={() => $showEditCardModal=false}>
+	transition:fade={{duration: 150}}>
         <div class="bg-white p-4 rounded-s-xl min-w-[300px] w-full max-w-[500px] h-[95%] relative"
-		transition:fly={{ x: 300, duration: 300, opacity: 0 }} onclick={(e) => e.stopPropagation()} >
+		transition:fly={{ x: 300, duration: 300, opacity: 0 }}>
 			<section class="flex justify-between w-full">
                 <div class="space-x-2 flex">           
                     {#if !$isEdit}

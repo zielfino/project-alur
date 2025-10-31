@@ -35,32 +35,107 @@
 	let dragDisabled = $state(true);
 	const flipDurationMs = 200;
 
-	// 🔹 DND untuk seluruh kolom
+	// =====================================================================================================
+	//
+	//		KANVBAN FUNCT			KANVBAN FUNCT			KANVBAN FUNCT			KANVBAN FUNCT
+	// 
+	// =====================================================================================================
 	function handleColumnConsider(event: CustomEvent) {
 		const newColumns = event.detail.items;
 		localBoard.columns = newColumns;
 	}
 
-	function handleColumnFinalize(event: CustomEvent) {
+	async function handleColumnFinalize(event: CustomEvent) {
 		const newColumns = event.detail.items;
 		localBoard.columns = newColumns;
 		dragDisabled = true;
+
+		// Update ke server
+		try {
+			const columnIds = newColumns.map((c) => c.id);
+
+			const response = await fetch("/api/boards/columns/move", {
+				method: "POST",
+				headers: { "Content-Type": "application/json" },
+				body: JSON.stringify({ items: columnIds }),
+			});
+
+			if (!response.ok) {
+				const data = await response.json().catch(() => ({}));
+				pushError(response.status, data.message || "Failed to move columns.");
+			}
+		} catch (err) {
+			pushError(0, "Network error occurred.");
+		}
 	}
 
-	// 🔹 DND untuk kartu di dalam kolom tertentu
+	// simpan kolom asal saat drag dimulai
+	let activeColumnIdCard: number | null = null;
+
 	function handleCardConsider(event: CustomEvent, columnId: number) {
 		const newCards = event.detail.items;
+
+		// Simpan kolom asal sementara
+		activeColumnIdCard = columnId;
+
+		// Update posisi card (preview)
 		localBoard.columns = localBoard.columns.map((col) =>
 			col.id === columnId ? { ...col, cards: newCards } : col
 		);
 	}
 
-	function handleCardFinalize(event: CustomEvent, columnId: number) {
+	async function handleCardFinalize(event: CustomEvent, newColumnId: number) {
 		const newCards = event.detail.items;
+		const info = event.detail.info;
+		const cardId = info?.id;
+
+		if (!cardId) return;
+
+		// Ambil kolom asal dari handleCardConsider
+		const oldColumnId = activeColumnIdCard;
+		activeColumnIdCard = null; // reset setelah dipakai
+
+		if (!oldColumnId) {
+			// pushError(400, "Could not determine source column for card move.");
+			return;
+		}
+
+		// Update state lokal (optimistic UI)
 		localBoard.columns = localBoard.columns.map((col) =>
-			col.id === columnId ? { ...col, cards: newCards } : col
+			col.id === newColumnId ? { ...col, cards: newCards } : col
 		);
-		dragDisabled = true;
+
+		// Ambil referensi kolom baru dan lama untuk sync ke server
+		const newColumn = localBoard.columns.find((c) => c.id === newColumnId);
+		const oldColumn = localBoard.columns.find((c) => c.id === oldColumnId);
+
+		if (!newColumn || !oldColumn) {
+			pushError(400, "Invalid column data for card move.");
+			return;
+		}
+
+		try {
+			const payload = {
+				card_id: cardId,
+				new_column_id: newColumnId,
+				items_in_new_column: newColumn.cards.map((c) => c.id),
+				items_in_old_column: oldColumn.cards.map((c) => c.id),
+			};
+
+			const response = await fetch("/api/boards/cards/move", {
+				method: "POST",
+				headers: { "Content-Type": "application/json" },
+				body: JSON.stringify(payload),
+			});
+
+			if (!response.ok) {
+				const data = await response.json().catch(() => ({}));
+				pushError(response.status, data.message || "Failed to move card.");
+				return;
+			}
+		} catch {
+			pushError(0, "Network error occurred.");
+		}
 	}
 
 	function startDrag() {
@@ -73,7 +148,7 @@
 	
 	let newCardTitle = $state('');
 	let newCardDescription = $state('');
-	let newCardDeadline: string | null = $state(null);
+	let newCardDeadline: string | null = $state('');
 	let newCardPriority = $state<number | null>(null);
 	let deadlineAddCard = $state<string | null>(null);
 
@@ -128,9 +203,15 @@
 
 			const { success, card } = await response.json();
 			if (success && card) {
+				// Cari kolom target
 				const columnIndex = board.columns.findIndex((c) => c.id === $activeColumnId);
 				if (columnIndex !== -1) {
-					board.columns[columnIndex].cards = [...board.columns[columnIndex].cards, card];
+					// Update localBoard (UI state)
+					localBoard.columns = localBoard.columns.map((col) =>
+						col.id === $activeColumnId
+							? { ...col, cards: [...col.cards, card] }
+							: col
+					);
 				}
 
 				// Reset form
@@ -167,7 +248,7 @@
 			});
 
 			if (response.ok) {
-				board.columns = board.columns.map((col) => ({
+				localBoard.columns = localBoard.columns.map((col) => ({
 					...col,
 					cards: col.cards.map((c) =>
 						c.id === $selectedCard.id ? $selectedCard : c
@@ -202,7 +283,7 @@
 			});
 
 			if (response.ok) {
-				board.columns = board.columns.map((col) => ({
+				localBoard.columns = localBoard.columns.map((col) => ({
 					...col,
 					cards: col.cards.filter((c) => c.id !== cardId),
 				}));

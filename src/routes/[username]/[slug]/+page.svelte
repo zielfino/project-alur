@@ -863,8 +863,8 @@
 	====================================================================================================
 -->
 {#if $showAddColumnModal}
-	<section onclick={() => $showAddColumnModal=!$showAddColumnModal} transition:fade={{duration: 200, easing: quadOut}} class="bgbackdrop flex justify-center items-center p-4 hiddenpiece">
-		<form onclick={(e) => e.preventDefault()}  transition:fly={{duration: 200,y: 50}} onsubmit={handleAddColumn} class="bg-white min-w-84 min-h-84 w-full max-w-96 rounded-xl flex-col flex justify-between p-3">
+	<section transition:fade={{duration: 200, easing: quadOut}} class="bgbackdrop flex justify-center items-center p-4 hiddenpiece">
+		<form  transition:fly={{duration: 200,y: 50}} onsubmit={handleAddColumn} class="bg-white min-w-84 min-h-84 w-full max-w-96 rounded-xl flex-col flex justify-between p-3">
 			<div class="">
 				<div class="flex justify-between mb-3">
 					<h3 class="font-semibold text-lg">Add Column</h3>
@@ -904,8 +904,8 @@
 	====================================================================================================
 -->
 {#if $showEditColumnModal}
-	<section onclick={() => $showEditColumnModal=!$showEditColumnModal}  transition:fade={{duration: 200, easing: quadOut}} class="bgbackdrop flex justify-center items-center p-4 hiddenpiece">
-		<form onclick={(e) => e.preventDefault()}  transition:fly={{duration: 200,y: 50}} onsubmit={handleEditColumn} class="bg-white min-w-84 min-h-84 w-full max-w-96 rounded-xl flex-col flex justify-between p-3">
+	<section transition:fade={{duration: 200, easing: quadOut}} class="bgbackdrop flex justify-center items-center p-4 hiddenpiece">
+		<form transition:fly={{duration: 200,y: 50}} onsubmit={handleEditColumn} class="bg-white min-w-84 min-h-84 w-full max-w-96 rounded-xl flex-col flex justify-between p-3">
 			<div class="">
 				<div class="flex justify-between mb-3">
 					<h3 class="font-semibold text-lg">Edit Column</h3>
@@ -945,8 +945,8 @@
 	====================================================================================================
 -->
 {#if $showAddCardModal}
-	<section onclick={() => $showAddCardModal=!$showAddCardModal} transition:fade={{duration: 200, easing: quadOut}} class="bgbackdrop flex justify-center items-center p-4 hiddenpiece">
-		<form onclick={(e) => e.preventDefault()}  transition:fly={{duration: 200,y: 50}} onsubmit={handleAddCard} class="bg-white min-w-84 min-h-84 w-full max-w-96 rounded-xl flex-col flex justify-between p-3">
+	<section transition:fade={{duration: 200, easing: quadOut}} class="bgbackdrop flex justify-center items-center p-4 hiddenpiece">
+		<form transition:fly={{duration: 200,y: 50}} onsubmit={handleAddCard} class="bg-white min-w-84 min-h-84 w-full max-w-96 rounded-xl flex-col flex justify-between p-3">
 			<div class="">
 				<div class="flex justify-between mb-3">
 					<h3 class="font-semibold text-lg">Add Card</h3>
@@ -1009,8 +1009,8 @@
 	====================================================================================================
 -->
 {#if $showEditCardModal && $selectedCard?.id}
-	<section onclick={() => $showEditCardModal=!$showEditCardModal} transition:fade={{duration: 200, easing: quadOut}} class="bgbackdrop flex !justify-end items-center p-4 pr-0 hiddenpiece">
-        <div onclick={(e) => e.preventDefault()} class="bg-white relative p-4 rounded-s-xl min-w-[300px] w-full max-w-[500px] h-[95%]" transition:fly={{duration: 200, x: 300, easing: quadOut }} >
+	<section transition:fade={{duration: 200, easing: quadOut}} class="bgbackdrop flex !justify-end items-center p-4 pr-0 hiddenpiece">
+        <div class="bg-white relative p-4 rounded-s-xl min-w-[300px] w-full max-w-[500px] h-[95%]" transition:fly={{duration: 200, x: 300, easing: quadOut }} >
 				
 			<section class="flex justify-between w-full h-fit">
 				<div class="space-x-2 flex h-[28px]">           

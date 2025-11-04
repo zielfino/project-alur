@@ -39,6 +39,10 @@
     @apply transition-all
 }
 
+.agerr .dashboard .boards * {
+    @apply !transition-none
+}
+
 .agerr .sidebar * {
     @apply transition-all
 }

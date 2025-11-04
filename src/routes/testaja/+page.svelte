@@ -1,9 +1,10 @@
 <script lang="ts">
 	import { autosize } from '$lib/actions/autosize.js';
+	import DashboardNav from '$lib/island/dashboardNav.svelte';
 	import { isConfirm } from '$lib/stores/confirmStore.js';
 	import { pushError } from '$lib/stores/errorNotification';
 	import { isLoading } from '$lib/stores/loading';
-	import { showAddCardModal, activeColumnId, showEditCardModal, selectedCard, isEdit, selectedCardWithFormat, showAddColumnModal, showEditColumnModal } from "$lib/stores/uiStore";
+	import { showAddCardModal, activeColumnId, showEditCardModal, selectedCard, isEdit, selectedCardWithFormat, showAddColumnModal, showEditColumnModal, sidebar, sidebarIsHovered } from "$lib/stores/uiStore";
 	import Icon from '@iconify/svelte';
 	import { onDestroy, onMount } from 'svelte';
 	import { dndzone } from 'svelte-dnd-action';
@@ -137,12 +138,29 @@
 		}
 	}
 
-	function startDrag() {
-		dragDisabled = false;
-	}
-	function stopDrag() {
-		dragDisabled = true;
-	}
+	// function startDrag() {
+	// 	console.log('startdrag')
+	// 	dragDisabled = false;
+	// }
+	// function stopDrag() {
+	// 	console.log('stopdrag')
+	// 	dragDisabled = true;
+	// }
+function startDrag() {
+	console.log('startdrag');
+	dragDisabled = false;
+
+	// tambahkan listener global sementara
+	window.addEventListener('pointerup', handleGlobalPointerUp);
+}
+
+function handleGlobalPointerUp() {
+	console.log('stopdrag (global)');
+	dragDisabled = true;
+
+	// hapus listener setelah dipakai
+	window.removeEventListener('pointerup', handleGlobalPointerUp);
+}
 
 
 
@@ -161,17 +179,21 @@
 	});
 
 	let pos = $state({ x: 0, y: 0 })
-	let currentColumn: number | null = $state(null);
-	let currentCard: number | null = $state(null);
+	let currentColumnId: number | null = $state(null);
+	let currentCardId: number | null = $state(null);
+	let currentColumnName: string | null = $state(null);
+	let currentCardName: string | null = $state(null);
 
 	function columnRightClick(e: MouseEvent, columnId: number, columnName: string, columnState: number, columnSubtext: string) {
 		showMenu.close()
-		currentColumn = columnId
+		e.preventDefault();
+		e.stopPropagation();
+
+		currentColumnId = columnId
+		currentColumnName = columnName
 		newColumnName = columnName
 		newColumnState = columnState
 		newColumnSubtext = columnSubtext
-		e.preventDefault();
-		e.stopPropagation();
 		// console.log('Right click column:', columnId);
 
 		pos = { x: e.clientX, y: e.clientY };
@@ -186,7 +208,8 @@
 		e.stopPropagation();
 
 		$selectedCard = { ...card };
-		currentCard = card.id
+		currentCardId = card.id
+		currentCardName = card.title
 		
 		pos = { x: e.clientX, y: e.clientY };
 		showMenu.card = true;
@@ -334,7 +357,7 @@
 	async function handleDeleteCard(cardId: number) {
 		showMenu.close()
 		if (!board) return;
-		if (!(await isConfirm("Are you sure you want to delete this card?"))) return;
+		if (!(await isConfirm(`Are you sure you want to delete ${currentCardName ? `"${currentCardName}"` : 'this card'}?`))) return;
 		// if (!confirm("Are you sure you want to delete this card?")) return;
 
 		isLoading.start("CardRemove", cardId);
@@ -408,7 +431,7 @@
 	// DELETE COLUMN
 	async function handleDeleteColumn(columnId: number) {
 		showMenu.close()
-		if (!(await isConfirm("Are you sure you want to delete this column?"))) return;
+		if (!(await isConfirm(`Are you sure you want to delete ${currentColumnName ? `"${currentColumnName}"` : 'this column'}?`))) return;
 
 		isLoading.start('ColumnRemove')
 		
@@ -441,12 +464,12 @@
 		columnEditName = false
 		columnEditSubtext = false
 		e.preventDefault?.();
-		if (!localBoard || !currentColumn) return;
+		if (!localBoard || !currentColumnId) return;
 		isLoading.start('BoardEdit');
 
 		try {
 			const payload = {
-				column_id: currentColumn,
+				column_id: currentColumnId,
 				name: newColumnName,
 				subtext: newColumnSubtext,
 				state: Number(newColumnState)
@@ -467,7 +490,7 @@
 
 			// update local board
 			const updatedColumns = localBoard.columns.map((col) =>
-				col.id === currentColumn ? { ...col, ...payload } : col
+				col.id === currentColumnId ? { ...col, ...payload } : col
 			);
 
 
@@ -512,200 +535,229 @@
 			document.removeEventListener('scroll', handleScroll, { capture: true });
 		});
 	});
+	
+	let isTablet = $state(false);
+	let isPortrait = $state(true);
 
+	function checkWidth() {
+		isTablet = window.matchMedia("(min-width: 700px)").matches;
+		isPortrait = window.matchMedia("(orientation: portrait)").matches;
+	}
+
+	onMount(() => {
+		checkWidth();
+		window.addEventListener("resize", checkWidth);
+		window.addEventListener("orientationchange", checkWidth);
+		return () => {
+			window.removeEventListener("resize", checkWidth);
+			window.removeEventListener("orientationchange", checkWidth);
+		};
+	});
+
+	$effect(() => {
+		localBoard = data.board;
+	});
 </script>
 
 
-<!--  	
-		========================================================================================================
-				BOARD		BOARD		BOARD		BOARD		BOARD		BOARD		BOARD		BOARD
-		========================================================================================================
--->		
-<section onclick={closeMenu} tabindex="-1" role="button" onkeydown={(e) => { if (e.key === 'Enter' || e.key === ' ') closeMenu(); }} class="flex flex-col justify-center items-center tablet:items-start gap-4 p-2">
-	<div class="flex justify-center items-center">
-		<h2 class="text-3xl font-bold">{localBoard.name}</h2>
-		<div>
-			<button onclick={() => openAddColumnModal()}
-			class="flex justify-center items-center bg-sky-400 px-3 py-2">
-				<Icon icon="mingcute:add-fill"/>Add Column
-			</button>
+<main class="flex dashboard">
+	<DashboardNav data={data}/>
+	<section class="boards w-full flex-1 overflow-hidden flex flex-col relative justify-center {!isPortrait || isTablet ? 'pl-2' : 'pt-16'}">
+		<div class="flex space-x-2 pl-8 pt-8 pb-2 w-full">
+			<!-- <button onclick={() => openAddColumnModal()}
+			class="bg-sky-500 text-white hover:bg-sky-400 disabled:bg-sky-400 cursor-pointer h-[40px] font-semibold rounded-md px-3">
+				<div class="flex justify-center items-center space-x-2"><Icon icon="mingcute:add-fill"/><div>Add Column</div></div>
+			</button> -->
+			<h2 class="agerrh2">{localBoard.name}</h2>
 		</div>
-	</div>
-	{#if localBoard?.columns?.length}
-		<!--  	
-				========================================================================================================
-						COLUMNS		COLUMNS		COLUMNS		COLUMNS		COLUMNS		COLUMNS		COLUMNS		COLUMNS
-				========================================================================================================
-		-->		
-		<div
-			use:dndzone={{
-				items: localBoard.columns,
-				type: 'columns', 
-				dragDisabled,
-				flipDurationMs,
-				transformDraggedElement: (el) => {el.style.opacity = "0.6";},
-				dropTargetStyle: {
-					outline: '2px dashed #3b82f6',
-					backgroundColor: 'rgba(147,197,253,0.2)',
-					borderRadius: '0.5rem',
-					minHeight: '2.5rem',
-				}
-			}}
-			onconsider={handleColumnConsider}
-			onfinalize={handleColumnFinalize}
-			class="flex flex-col tablet:flex-row gap-4 overflow-x-auto p-2 w-fit tablet:w-full"
-		>
-			{#each localBoard.columns as column (column.id)}
-			<div animate:flip={{ duration: flipDurationMs }}>
-				<div oncontextmenu={(e) => columnRightClick(e, column.id, column.name, column.state, column.subtext)} onclick={closeMenu} tabindex="-1" role="button" onkeydown={(e) => { if (e.key === 'Enter' || e.key === ' ') closeMenu(); }} class="p-2 border border-gray-300 rounded-xl bg-white w-full max-w-128 min-w-64 tablet:w-[350px] min-h-32">
-					<div class="flex justify-between items-center mb-2 ml-1">
-						<!-- NAME -->
-						<div class="pl-1 py-2 flex space-x-2 w-full text-start">
-							<div class="">
-								<div class="h-3 w-3 mt-2 rounded-full {column.state === 1 ? 'bg-gray-500' : column.state === 2 ? 'bg-sky-500' : column.state === 3 ? 'bg-emerald-500' : ''}"></div>
-							</div>
-							<!-- <pre>{JSON.stringify(column, null, 2)}</pre> -->
-							<div class="flex flex-col text-start w-full [&>*]:transition-none [&>*]:duration-0">
-								{#if columnEditName && currentColumn === column.id}
-									<form onsubmit={handleEditColumn}>
-										<input maxlength="22" type="text" bind:value={newColumnName} class="text-xl font-bold font-outfit select-none cursor-text line-clamp-1 text-start max-w-[230px]" autofocus/>
-									</form>
-								{:else}
-									<button onclick={() => {columnEditName = false; columnEditName = true; currentColumn = column.id; newColumnName = column.name; newColumnSubtext = column.subtext; newColumnState = column.state}} class="text-xl font-bold font-outfit select-none cursor-text line-clamp-1 text-start">{column.name}</button>	
-								{/if}
-								{#if column.subtext}
-									{#if columnEditSubtext && currentColumn === column.id}
-										<form onsubmit={handleEditColumn} class="max-w-[230px]">
-											<input maxlength="40" type="text" bind:value={newColumnSubtext} class="font-semibold opacity-50 text-xs select-none cursor-text line-clamp-1 text-start w-full" autofocus/>
-										</form>
-									{:else}
-										<button onclick={() => {columnEditSubtext = false; columnEditSubtext = true; currentColumn = column.id; newColumnName = column.name; newColumnSubtext = column.subtext; newColumnState = column.state}} class="font-semibold opacity-50 text-xs select-none cursor-text line-clamp-1 text-start">{column.subtext || 'Subtitle di bawah main title'}</button>
-									{/if}
-								{/if}
-							</div>
-						</div>
-
-						<div class="flex space-x-2 [&>*]:transition-none [&>*]:duration-0">
-							<!-- ADD CARD -->
-							<button onclick={() => openAddCardModal(column.id)} class="min-h-6 min-w-6 flex opacity-40 justify-center items-center text-2xl rounded cursor-pointer touch-none">
-								<Icon icon="mingcute:add-fill" />
-							</button>
-
-							<!-- HANDLE -->
-							<button tabindex="-1" onclick={(e) => e.stopPropagation()} 
-								class="min-h-6 min-w-6 px-1 flex opacity-40 justify-center items-center text-3xl rounded cursor-grab touch-none"
-								onpointerdown={startDrag}
-								onpointerup={stopDrag}
-							>
-								<Icon icon="mingcute:dots-fill" />
-							</button>
-						</div>
-					</div>
-
-
-
+		<div class="pb-6">
+			<!--  	
+					========================================================================================================
+							BOARD		BOARD		BOARD		BOARD		BOARD		BOARD		BOARD		BOARD
+					========================================================================================================
+			-->		
+			<section onclick={closeMenu} tabindex="-1" role="button" onkeydown={(e) => { if (e.key === 'Enter' || e.key === ' ') closeMenu(); }} class="flex flex-col justify-center items-center tablet:items-start gap-4 p-2 tablet:pr-4">
+				{#if localBoard?.columns?.length}
 					<!--  	
 							========================================================================================================
-									CARDS		CARDS		CARDS		CARDS		CARDS		CARDS		CARDS		CARDS
+									COLUMNS		COLUMNS		COLUMNS		COLUMNS		COLUMNS		COLUMNS		COLUMNS		COLUMNS
 							========================================================================================================
 					-->		
 					<div
 						use:dndzone={{
-							items: column.cards,
-							type: `cards`,
+							items: localBoard.columns,
+							type: 'columns', 
 							dragDisabled,
 							flipDurationMs,
-							transformDraggedElement: (el) => {
-								el.style.opacity = "0.6";
-							},
+							transformDraggedElement: (el) => {el.style.opacity = "0.6";},
 							dropTargetStyle: {
 								outline: '2px dashed #3b82f6',
 								backgroundColor: 'rgba(147,197,253,0.2)',
 								borderRadius: '0.5rem',
-								minHeight: '8rem',
+								minHeight: '2.5rem',
 							}
 						}}
-						onconsider={(e) => handleCardConsider(e, column.id)}
-						onfinalize={(e) => handleCardFinalize(e, column.id)}
-						class="flex flex-col gap-2 min-h-32 max-h-106 overflow-y-auto tablet:max-h-full rounded-md overflow-hidden tablet:w-full [&>*]:transition-none [&>*]:duration-0
-						{column.cards.length ? '' : 'flex justify-center items-center'}"
-					>	
-						{#if column.cards.length }
-							{#each column.cards as card (card.id)}
-								<button oncontextmenu={(e) => {cardRightClick(e, card)}} onclick={() => openEditCardModal(card)} class="p-2 bg-gray-100 rounded-md w-full cursor-pointer text-start" animate:flip={{ duration: flipDurationMs }}>
-									<div class="flex justify-between">
-										<div class="flex items-center">
-											{#if card.priority}
-												<div class="rounded-full text-[10px] font-semibold flex justify-center items-center h-[20px] px-2 whitespace-nowrap
-												{card.priority === 5 ? 'bg-red-200 text-red-800' : 
-												card.priority === 4 ? 'bg-orange-200 text-orange-800' : 
-												card.priority === 3 ? 'bg-yellow-200 text-yellow-800' : 
-												card.priority === 2 ? 'bg-lime-200 text-lime-800' : 
-												'bg-green-200 text-green-800'}">
-													{
-													card.priority === 5 ? 'Urgent' : 
-													card.priority === 4 ? 'Priority' :  
-													card.priority === 3 ? 'Regular' :  
-													card.priority === 2 ? 'Optional ' : 'Later'}
-												</div> 
-											{/if}
-											<div class="line-clamp-1 font-semibold text-sm flex items-center justify-center ml-1.5">
-												<p class="line-clamp-1">{card.title}</p>
-											</div>
+						onconsider={handleColumnConsider}
+						onfinalize={handleColumnFinalize}
+						class="flex flex-col tablet:flex-row gap-4 overflow-x-auto p-2 w-fit tablet:w-full min-h-[500px]"
+					>
+						{#each localBoard.columns as column (column.id)}
+						<div animate:flip={{ duration: flipDurationMs }}>
+							<div oncontextmenu={(e) => columnRightClick(e, column.id, column.name, column.state, column.subtext)} onclick={closeMenu} tabindex="-1" role="button" onkeydown={(e) => { if (e.key === 'Enter' || e.key === ' ') closeMenu(); }} class="p-2 border border-gray-300 rounded-xl bg-white w-full max-w-128 min-w-64 tablet:w-[350px] min-h-32">
+								<div class="flex justify-between items-center mb-2 ml-1">
+									<!-- NAME -->
+									<div class="pl-1 py-2 flex space-x-2 w-full text-start">
+										<div class="">
+											<div class="h-3 w-3 mt-2 rounded-full {column.state === 1 ? 'bg-gray-500' : column.state === 2 ? 'bg-sky-500' : column.state === 3 ? 'bg-emerald-500' : ''}"></div>
 										</div>
-										<div onclick={(e) => e.stopPropagation()}
-											class="min-h-6 min-w-6 flex opacity-70 justify-center items-center text-xl rounded cursor-grab touch-none"
+										<!-- <pre>{JSON.stringify(column, null, 2)}</pre> -->
+										<div class="flex flex-col text-start w-full [&>*]:transition-none [&>*]:duration-0">
+											{#if columnEditName && currentColumnId === column.id}
+												<form onsubmit={handleEditColumn}>
+													<input maxlength="22" type="text" bind:value={newColumnName} class="text-xl font-bold font-outfit select-none cursor-text line-clamp-1 text-start max-w-[230px]" autofocus/>
+												</form>
+											{:else}
+												<button onclick={() => {columnEditName = false; columnEditName = true; currentColumnId = column.id; newColumnName = column.name; newColumnSubtext = column.subtext; newColumnState = column.state}} class="text-xl font-bold font-outfit select-none cursor-text line-clamp-1 text-start">{column.name}</button>	
+											{/if}
+											{#if column.subtext}
+												{#if columnEditSubtext && currentColumnId === column.id}
+													<form onsubmit={handleEditColumn} class="max-w-[230px]">
+														<input maxlength="40" type="text" bind:value={newColumnSubtext} class="font-semibold opacity-50 text-xs select-none cursor-text line-clamp-1 text-start w-full" autofocus/>
+													</form>
+												{:else}
+													<button onclick={() => {columnEditSubtext = false; columnEditSubtext = true; currentColumnId = column.id; newColumnName = column.name; newColumnSubtext = column.subtext; newColumnState = column.state}} class="font-semibold opacity-50 text-xs select-none cursor-text line-clamp-1 text-start">{column.subtext || 'Subtitle di bawah main title'}</button>
+												{/if}
+											{/if}
+										</div>
+									</div>
+			
+									<div class="flex space-x-2 [&>*]:transition-none [&>*]:duration-0">
+										<!-- ADD CARD -->
+										<button onclick={() => openAddCardModal(column.id)} class="min-h-6 min-w-6 flex opacity-40 justify-center items-center text-2xl rounded cursor-pointer touch-none">
+											<Icon icon="mingcute:add-fill" />
+										</button>
+			
+										<!-- HANDLE -->
+										<button tabindex="-1" onclick={(e) => e.stopPropagation()} 
+											class="min-h-6 min-w-6 px-1 flex opacity-40 justify-center items-center text-3xl rounded cursor-grab touch-none"
 											onpointerdown={startDrag}
 											onpointerup={stopDrag}
 										>
 											<Icon icon="mingcute:dots-fill" />
-										</div>
+										</button>
 									</div>
-
-									{#if card.description}
-										<p class="line-clamp-2 text-slate-600 whitespace-pre-wrap my-3 pl-2 pr-3">{card.description}</p>
-									{/if}
-
-									<!-- Bottom Utility -->
-									{#if card.deadline}
-										<div class="flex items-center space-x-2 mt-2 pb-1 pl-1.5">
-											<span class="flex items-center gap-1 text-xs font-semibold w-min whitespace-nowrap
-											{new Date(card.deadline) < new Date() && card.deadline && card.column_state !== 3 ? 'text-red-500 border-b-1' : 'text-slate-600'}">
-												<Icon icon="solar:calendar-outline" class="text-sm" />
-												{new Date(card.deadline).toLocaleDateString('id-ID', {
-													day: '2-digit',
-													month: 'short',
-													year: 'numeric'
-												})}
-											</span>
-											{#if new Date(card.deadline) < new Date() && card.deadline && card.column_state !== 3}
-												<div class="relative flex justify-center items-center">
-													<span class="absolute inline-flex h-4 w-4 animate-ping aspect-square rounded-full bg-red-500 opacity-75"></span>
-													<span class="relative inline-flex size-3 rounded-full bg-red-500"></span>
+								</div>
+			
+			
+			
+								<!--  	
+										========================================================================================================
+												CARDS		CARDS		CARDS		CARDS		CARDS		CARDS		CARDS		CARDS
+										========================================================================================================
+								-->		
+								<div
+									use:dndzone={{
+										items: column.cards,
+										type: `cards`,
+										dragDisabled,
+										flipDurationMs,
+										transformDraggedElement: (el) => {
+											el.style.opacity = "0.6";
+										},
+										dropTargetStyle: {
+											outline: '2px dashed #3b82f6',
+											backgroundColor: 'rgba(147,197,253,0.2)',
+											borderRadius: '0.5rem',
+											minHeight: '8rem',
+										}
+									}}
+									onconsider={(e) => handleCardConsider(e, column.id)}
+									onfinalize={(e) => handleCardFinalize(e, column.id)}
+									class="flex flex-col gap-2 min-h-32 max-h-106 overflow-y-auto tablet:max-h-full rounded-md overflow-hidden tablet:w-full [&>*]:transition-none [&>*]:duration-0
+									{column.cards.length ? '' : 'flex justify-center items-center'}"
+								>	
+									{#if column.cards.length }
+										{#each column.cards as card (card.id)}
+											<button oncontextmenu={(e) => {cardRightClick(e, card)}} onclick={() => openEditCardModal(card)} class="p-2 bg-gray-100 rounded-md w-full cursor-pointer text-start" animate:flip={{ duration: flipDurationMs }}>
+												<div class="flex justify-between">
+													<div class="flex items-center">
+														{#if card.priority}
+															<div class="rounded-full text-[10px] font-semibold flex justify-center items-center h-[20px] px-2 whitespace-nowrap
+															{card.priority === 5 ? 'bg-red-200 text-red-800' : 
+															card.priority === 4 ? 'bg-orange-200 text-orange-800' : 
+															card.priority === 3 ? 'bg-yellow-200 text-yellow-800' : 
+															card.priority === 2 ? 'bg-lime-200 text-lime-800' : 
+															'bg-green-200 text-green-800'}">
+																{
+																card.priority === 5 ? 'Urgent' : 
+																card.priority === 4 ? 'Priority' :  
+																card.priority === 3 ? 'Regular' :  
+																card.priority === 2 ? 'Optional ' : 'Later'}
+															</div> 
+														{/if}
+														<div class="line-clamp-1 font-semibold text-sm flex items-center justify-center ml-1.5">
+															<p class="line-clamp-1">{card.title}</p>
+														</div>
+													</div>
+													<div onclick={(e) => e.stopPropagation()}
+														class="min-h-6 min-w-6 flex opacity-70 justify-center items-center text-xl rounded cursor-grab touch-none"
+														onpointerdown={startDrag}
+														onpointerup={stopDrag}
+													>
+														<Icon icon="mingcute:dots-fill" />
+													</div>
 												</div>
-											{/if}
+			
+												{#if card.description}
+													<p class="line-clamp-2 text-slate-600 whitespace-pre-wrap my-3 pl-2 pr-3">{card.description}</p>
+												{/if}
+			
+												<!-- Bottom Utility -->
+												{#if card.deadline}
+													<div class="flex items-center space-x-2 mt-2 pb-1 pl-1.5">
+														<span class="flex items-center gap-1 text-xs font-semibold w-min whitespace-nowrap
+														{new Date(card.deadline) < new Date() && card.deadline && card.column_state !== 3 ? 'text-red-500 border-b-1' : 'text-slate-600'}">
+															<Icon icon="solar:calendar-outline" class="text-sm" />
+															{new Date(card.deadline).toLocaleDateString('id-ID', {
+																day: '2-digit',
+																month: 'short',
+																year: 'numeric'
+															})}
+														</span>
+														{#if new Date(card.deadline) < new Date() && card.deadline && card.column_state !== 3}
+															<div class="relative flex justify-center items-center">
+																<span class="absolute inline-flex h-4 w-4 animate-ping aspect-square rounded-full bg-red-500 opacity-75"></span>
+																<span class="relative inline-flex size-3 rounded-full bg-red-500"></span>
+															</div>
+														{/if}
+													</div>
+												{/if}
+											</button>
+										{/each}
+									{:else}
+										<div class="font-semibold opacity-50 uppercase tracking-wide w-full text-center select-none">
+											No Tasks
 										</div>
 									{/if}
-								</button>
-							{/each}
-						{:else}
-							<div class="font-semibold opacity-50 uppercase tracking-wide w-full text-center select-none">
-								No Tasks
+								</div>
 							</div>
-						{/if}
+						</div>
+						{/each}
+						<button onclick={() => openAddColumnModal()} class="p-2 border border-gray-300 rounded-xl bg-white w-full max-w-128 min-w-64 tablet:w-[350px] min-h-32 h-min flex justify-center items-center font-semibold tracking-wide uppercase cursor-pointer hover:bg-gray-200">
+							<div class="flex items-center justify-center opacity-50"><Icon icon="mingcute:add-fill" class="text-base mr-2 select-none" /> add state</div>
+						</button>
 					</div>
-				</div>
-			</div>
-			{/each}
+				{:else}
+					<div class="p-2">
+						<button onclick={() => openAddColumnModal()} class="p-2 m1 border border-gray-300 rounded-xl bg-white w-full max-w-128 min-w-64 flex-shrink-0 min-h-32 flex justify-center items-center font-semibold tracking-wide uppercase cursor-pointer hover:bg-gray-200">
+							<div class="flex items-center justify-center opacity-50"><Icon icon="mingcute:add-fill" class="text-base mr-2 select-none" /> add state</div>
+						</button>
+					</div>
+				{/if}
+			</section>
 		</div>
-	{:else}
-		<div class="p-2">
-			<button onclick={() => openAddColumnModal()} class="p-2 m1 border border-gray-300 rounded-xl bg-white w-full max-w-128 min-w-64 flex-shrink-0 min-h-32 flex justify-center items-center font-semibold tracking-wide uppercase cursor-pointer hover:bg-gray-200">
-				<div class="flex opacity-50"><Icon icon="mingcute:add-fill" class="text-base mr-2 select-none" /> add state</div>
-			</button>
-		</div>
-	{/if}
-</section>
+	</section>
+</main>
 
 
 		
@@ -721,7 +773,7 @@
 		style="top:{pos.y}px; left:{pos.x}px;"
 	>
 		<button onclick={() => {$showEditColumnModal = !$showEditColumnModal; showMenu.column = !showMenu.column}} class="block w-full text-left px-4 py-2 hover:bg-gray-200 cursor-pointer rounded-md">Edit</button>
-		<button onclick={() => handleDeleteColumn(currentColumn)} class="block w-full text-left px-4 py-2 text-red-500 hover:bg-red-500 hover:text-white cursor-pointer rounded-md">Delete</button>
+		<button onclick={() => handleDeleteColumn(currentColumnId)} class="block w-full text-left px-4 py-2 text-red-500 hover:bg-red-500 hover:text-white cursor-pointer rounded-md">Delete</button>
 	</div>
 {/if}
 
@@ -736,7 +788,7 @@
 		style="top:{pos.y}px; left:{pos.x}px;"
 	>
 		<button onclick={() => {$showEditCardModal = !$showEditCardModal; showMenu.card = !showMenu.card}} class="block w-full text-left px-4 py-2 hover:bg-gray-200 cursor-pointer rounded-md">Edit</button>
-		<button onclick={() => handleDeleteCard(currentCard)} class="block w-full text-left px-4 py-2 text-red-500 hover:bg-red-500 hover:text-white cursor-pointer rounded-md">Delete</button>
+		<button onclick={() => handleDeleteCard(currentCardId)} class="block w-full text-left px-4 py-2 text-red-500 hover:bg-red-500 hover:text-white cursor-pointer rounded-md">Delete</button>
 	</div>
 {/if}
 

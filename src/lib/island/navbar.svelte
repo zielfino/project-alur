@@ -1,12 +1,12 @@
 <script lang="ts">
-	import { goto } from "$app/navigation";
+	import { afterNavigate, goto } from "$app/navigation";
 	import Logosvg from "$lib/assets/logosvg.svelte";
 	import Icon from "@iconify/svelte";
     import { fade, fly } from 'svelte/transition';
 	import { page } from '$app/stores';
 	import profile from '$lib/assets/profile.png';
 	import { onMount } from "svelte";
-	import { boardLoading, showEditBoardModal } from '$lib/stores/uiStore';
+	import { boardLoading, navOpen, showEditBoardModal } from '$lib/stores/uiStore';
 	import { isLoading } from '$lib/stores/loading';
 	import { pushError } from '$lib/stores/errorNotification';
 	import { isConfirm } from '$lib/stores/confirmStore';
@@ -234,12 +234,15 @@
             isLoading.stop('BoardEdit', selectedBoard.id);
         }
     }
-    
-    let navOpen:Boolean = $state(false)
+
     let currentpage = $state($page.url.pathname);
     
 	$effect(() => {
         currentpage = $page.url.pathname;
+	});
+
+	afterNavigate(() => {
+        $navOpen = false
 	});
 
     onMount(async () => {
@@ -265,19 +268,19 @@
 <div class="fixed w-full p-2 z-20">
     <div class="bg-gray-100 ring ring-slate-300 p-2 rounded-xl flex justify-between">
         <button onclick={() => goto('/')} class="w-16 ml-2"><Logosvg /></button>
-        <button onclick={() => {navOpen = !navOpen}} class="p-1 rounded-full cursor-pointer z-50">
+        <button onclick={() => {$navOpen = !$navOpen}} class="p-1 rounded-full cursor-pointer z-50">
             <Icon icon="iconamoon:menu-burger-horizontal-bold" class="text-2xl"/>
         </button>
     </div>
 </div>
 
-{#if navOpen}
-    <button onclick={() => {navOpen = !navOpen}} tabindex="-1" transition:fade={{duration: 150}} class="fixed h-dvh w-full bgbackdroplow p-2 text-amber-50/0">
+{#if $navOpen}
+    <button onclick={() => {$navOpen = !$navOpen}} tabindex="-1" transition:fade={{duration: 150}} class="fixed h-dvh w-full bgbackdroplow p-2 text-amber-50/0">
         test
     </button>
 {/if}
 
-<div class="fixed w-full justify-center flex z-16 px-2 pointer-events-none {navOpen ? '' : 'translate-y-full'}">
+<div class="fixed w-full justify-center flex z-16 px-2 pointer-events-none {$navOpen ? '' : 'translate-y-full'}">
     <div class="h-[calc(100dvh-64px)] mt-[64px] w-full max-w-[500px] pointer-events-auto bg-gray-100 ring ring-slate-300 p-4 rounded-t-xl flex justify-between flex-col">
         <!-- UPPER -->
         <div>

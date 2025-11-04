@@ -6,6 +6,7 @@ export const showCreateModal = writable(false);
 export const showEditBoardModal = writable(false);
 export const isLoginModalOpen = writable(false);
 export const isSigningUpMode = writable(false);
+export const navOpen = writable(false);
 export const sidebar = writable(false);
 export const sidebarIsHovered = writable(false);
 export const showEditCardModal = writable(false);

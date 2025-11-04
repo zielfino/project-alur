@@ -21,7 +21,7 @@ export const POST: RequestHandler = async ({ request, locals: { supabase } }) =>
 		email: email,
 		password: password,
 		options: {
-			emailRedirectTo: 'http://localhost:5173/auth/callback',
+			emailRedirectTo: 'http://alur.agerrstudio.com/auth/callback',
 			data: {
 				// Meneruskan 'name' agar bisa dibaca oleh trigger database kita.
 				name: name,

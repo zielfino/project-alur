@@ -99,6 +99,7 @@
 </script>
 
 <svelte:head>
+	<title>Alur Project</title>
 	<link rel="icon" href={favicon} />
 	<link rel="preconnect" href="https://fonts.googleapis.com">
 	<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Caveat:wght@400..700&family=Coming+Soon&family=EB+Garamond:ital,wght@0,400..800;1,400..800&family=Open+Sans:ital,wght@0,300..800;1,300..800&family=Outfit:wght@100..900&display=swap" rel="stylesheet">

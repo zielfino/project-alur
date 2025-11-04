@@ -1,7 +1,7 @@
 {
 	"name": "project-alur",
 	"private": true,
-	"version": "0.9.1-alpha",
+	"version": "0.9.3-alpha",
 	"type": "module",
 	"scripts": {
 		"dev": "vite dev --host",

@@ -5,7 +5,11 @@ export async function GET({ locals: { supabase } }) {
     const { data, error } = await supabase.auth.signInWithOAuth({
         provider: 'discord',
         options: {
+<<<<<<< HEAD
             redirectTo: 'https://alur.agerrstudio.com/auth/callback'
+=======
+            redirectTo: 'http://alur.agerrstudio.com/auth/callback'
+>>>>>>> 31a734e85866bd8cdf83ca30173f9bbbcf718fc4
         }
     });
 

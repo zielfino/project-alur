@@ -5,7 +5,7 @@ export async function GET({ locals: { supabase } }) {
     const { data, error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
         options: {
-            redirectTo: 'http://alur.agerrstudio.com/auth/callback'
+            redirectTo: 'https://alur.agerrstudio.com/auth/callback'
         }
     });
 

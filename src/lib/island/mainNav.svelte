@@ -62,7 +62,7 @@
         <div class="text text-zinc-800 hidden phone:block mb-0.5">Organize All<br>Your Project</div>
     </a>
     <div class="phone:flex phone:space-x-2 phone:h-full -translate-x-[1px]">
-        <a href="https://zielalfino.agerrstudio.com" class="specialbutton h-full hidden tablet:flex justify-center items-center cursor-pointer px-5 text-zinc-800 rounded-xl border border-slate-300">
+        <a href="https://zielalfino.com" class="specialbutton h-full hidden tablet:flex justify-center items-center cursor-pointer px-5 text-zinc-800 rounded-xl border border-slate-300">
             <span class="text-zinc-800">Contact Me</span>
         </a>
         <div bind:this={parentLogin} class="group p-2 phone:p-1 h-[56px] phone:h-full flex justify-center items-center space-x-2 phone:space-x-1 bg-white rounded-e-xl phone:rounded-xl phone:border phone:border-slate-300">

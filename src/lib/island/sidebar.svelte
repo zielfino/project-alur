@@ -378,7 +378,7 @@
                     <div class="min-w-10 aspect-square flex justify-center items-center ring rounded-full cursor-pointer hover:bg-slate-200">
                         <Icon icon="fa7-solid:magnifying-glass" class="inline-block text-lg" />
                     </div> 
-                    <input type="text" class="w-full {$sidebar || $isHovered ? 'opacity-100' : 'opacity-0'}" bind:this={searchInput} oninput={() => handeSeatchInput()} placeholder="Search" /> 
+                    <input type="text" class="w-full {$sidebar || $isHovered ? 'opacity-100' : 'opacity-0'}" bind:this={searchInput} oninput={() => handeSeatchInput()} placeholder="Fake but cute" /> 
                 </div>
             </div>
             <div class="border-t-2 border-zinc-300 mt-4 mb-2"></div>

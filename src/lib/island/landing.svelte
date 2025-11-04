@@ -35,7 +35,23 @@
     let value7:boolean = $state(false)
     let value8:boolean = $state(false)
     let value9:boolean = $state(false)
-    
+
+    $effect(() => {
+		if (
+			!value1 &&
+			!value2 &&
+			!value3 &&
+			!value4 &&
+			!value5 &&
+			!value6 &&
+			!value7 &&
+			!value8 &&
+			!value9
+		) {
+			localcard = 0
+		}
+	})
+
 	let isReadPhone = $state(false);
     let isPhone = $state(false);
 	let isTablet = $state(false);
@@ -120,27 +136,27 @@
             <!-- Image -->
             <div class="absolute -translate-x-[5vw] top-32 tablet:top-24 laptop:top-16 p-2 border-1 border-white rounded-3xl bg-gradient-to-tl from-sky-100/50 to-purple-100/50
             mask-luminance mask-b-from-white mask-b-from-70% mask-b-to-black mask-b-to-100%">
-                <div class="w-[400px] tablet:w-[550px] laptop:w-[700px] desktop:w-[800px] aspect-[8/5] relative">
+                <div class="w-[400px] tablet:w-[550px] laptop:w-[700px] desktop:w-[800px] aspect-[8/5] relative overflow-hidden rounded-3xl">
                     {#if localcard === 0}
-                        <img src="https://placehold.co/700x400?text=Ini+Bukan+Template" alt="card show img" transition:fade={{duration: 300, easing: quadOut}} class="object-cover absolute top-0 left-0 bg-white rounded-2xl w-[400px] tablet:w-[550px] laptop:w-[700px] desktop:w-[800px] aspect-[8/5]" />
+                        <img src="https://placehold.co/700x400?text=Ini+Bukan+Template" alt="card show img" transition:fade={{duration: 300, easing: quadOut}} draggable="false" class="object-cover absolute top-0 left-0 bg-white rounded-2xl w-[400px] tablet:w-[550px] laptop:w-[700px] desktop:w-[800px] aspect-[8/5]" />
                     {:else if localcard === 1}
-                        <enhanced:img src="$lib/assets/cardimg/cc3e5d90.png" alt="card show img" transition:fade={{duration: 300, easing: quadOut}} class="object-cover absolute top-0 left-0 bg-white rounded-2xl w-[400px] tablet:w-[550px] laptop:w-[700px] desktop:w-[800px] aspect-[8/5]" />
+                        <enhanced:img src="$lib/assets/cardimg/cc3e5d90.png" alt="card show img" transition:fade={{duration: 300, easing: quadOut}} draggable="false" class="object-cover blur-xs absolute top-0 left-0 bg-white rounded-2xl w-[400px] tablet:w-[550px] laptop:w-[700px] desktop:w-[800px] aspect-[8/5]" />
                     {:else if localcard === 2}
-                        <enhanced:img src="$lib/assets/cardimg/6N0BXf2.png" alt="card show img" transition:fade={{duration: 300, easing: quadOut}} class="object-cover absolute top-0 left-0 bg-white rounded-2xl w-[400px] tablet:w-[550px] laptop:w-[700px] desktop:w-[800px] aspect-[8/5]" />
+                        <enhanced:img src="$lib/assets/cardimg/6N0BXf2.png" alt="card show img" transition:fade={{duration: 300, easing: quadOut}} draggable="false" class="object-cover blur-xs absolute top-0 left-0 bg-white rounded-2xl w-[400px] tablet:w-[550px] laptop:w-[700px] desktop:w-[800px] aspect-[8/5]" />
                     {:else if localcard === 3}
-                        <enhanced:img src="$lib/assets/cardimg/ZePLSCW.png" alt="card show img" transition:fade={{duration: 300, easing: quadOut}} class="object-cover absolute top-0 left-0 bg-white rounded-2xl w-[400px] tablet:w-[550px] laptop:w-[700px] desktop:w-[800px] aspect-[8/5]" />
+                        <enhanced:img src="$lib/assets/cardimg/ZePLSCW.png" alt="card show img" transition:fade={{duration: 300, easing: quadOut}} draggable="false" class="object-cover blur-xs absolute top-0 left-0 bg-white rounded-2xl w-[400px] tablet:w-[550px] laptop:w-[700px] desktop:w-[800px] aspect-[8/5]" />
                     {:else if localcard === 4}
-                        <enhanced:img src="$lib/assets/cardimg/wQAul6y.png" alt="card show img" transition:fade={{duration: 300, easing: quadOut}} class="object-cover absolute top-0 left-0 bg-white rounded-2xl w-[400px] tablet:w-[550px] laptop:w-[700px] desktop:w-[800px] aspect-[8/5]" />
+                        <enhanced:img src="$lib/assets/cardimg/wQAul6y.png" alt="card show img" transition:fade={{duration: 300, easing: quadOut}} draggable="false" class="object-cover blur-xs absolute top-0 left-0 bg-white rounded-2xl w-[400px] tablet:w-[550px] laptop:w-[700px] desktop:w-[800px] aspect-[8/5]" />
                     {:else if localcard === 5}
-                        <enhanced:img src="$lib/assets/cardimg/MYLIq7U.png" alt="card show img" transition:fade={{duration: 300, easing: quadOut}} class="object-cover absolute top-0 left-0 bg-white rounded-2xl w-[400px] tablet:w-[550px] laptop:w-[700px] desktop:w-[800px] aspect-[8/5]" />
+                        <enhanced:img src="$lib/assets/cardimg/MYLIq7U.png" alt="card show img" transition:fade={{duration: 300, easing: quadOut}} draggable="false" class="object-cover blur-xs absolute top-0 left-0 bg-white rounded-2xl w-[400px] tablet:w-[550px] laptop:w-[700px] desktop:w-[800px] aspect-[8/5]" />
                     {:else if localcard === 6}
-                        <enhanced:img src="$lib/assets/cardimg/er5QHYU.png" alt="card show img" transition:fade={{duration: 300, easing: quadOut}} class="object-cover absolute top-0 left-0 bg-white rounded-2xl w-[400px] tablet:w-[550px] laptop:w-[700px] desktop:w-[800px] aspect-[8/5]" />
+                        <enhanced:img src="$lib/assets/cardimg/er5QHYU.png" alt="card show img" transition:fade={{duration: 300, easing: quadOut}} draggable="false" class="object-cover blur-xs absolute top-0 left-0 bg-white rounded-2xl w-[400px] tablet:w-[550px] laptop:w-[700px] desktop:w-[800px] aspect-[8/5]" />
                     {:else if localcard === 7}
-                        <enhanced:img src="$lib/assets/cardimg/BCw3R2V.png" alt="card show img" transition:fade={{duration: 300, easing: quadOut}} class="object-cover absolute top-0 left-0 bg-white rounded-2xl w-[400px] tablet:w-[550px] laptop:w-[700px] desktop:w-[800px] aspect-[8/5]" />
+                        <enhanced:img src="$lib/assets/cardimg/BCw3R2V.png" alt="card show img" transition:fade={{duration: 300, easing: quadOut}} draggable="false" class="object-cover blur-xs absolute top-0 left-0 bg-white rounded-2xl w-[400px] tablet:w-[550px] laptop:w-[700px] desktop:w-[800px] aspect-[8/5]" />
                     {:else if localcard === 8}
-                        <enhanced:img src="$lib/assets/cardimg/394b52e0.png" alt="card show img" transition:fade={{duration: 300, easing: quadOut}} class="object-cover absolute top-0 left-0 bg-white rounded-2xl w-[400px] tablet:w-[550px] laptop:w-[700px] desktop:w-[800px] aspect-[8/5]" />
+                        <enhanced:img src="$lib/assets/cardimg/394b52e0.png" alt="card show img" transition:fade={{duration: 300, easing: quadOut}} draggable="false" class="object-cover blur-xs absolute top-0 left-0 bg-white rounded-2xl w-[400px] tablet:w-[550px] laptop:w-[700px] desktop:w-[800px] aspect-[8/5]" />
                     {:else if localcard === 9}
-                        <enhanced:img src="$lib/assets/cardimg/0kTFlR5.jpeg" alt="card show img" transition:fade={{duration: 300, easing: quadOut}} class="object-cover absolute top-0 left-0 bg-white rounded-2xl w-[400px] tablet:w-[550px] laptop:w-[700px] desktop:w-[800px] aspect-[8/5]" />
+                        <enhanced:img src="$lib/assets/cardimg/0kTFlR5.jpeg" alt="card show img" transition:fade={{duration: 300, easing: quadOut}} draggable="false" class="object-cover blur-xs absolute top-0 left-0 bg-white rounded-2xl w-[400px] tablet:w-[550px] laptop:w-[700px] desktop:w-[800px] aspect-[8/5]" />
                     {/if}
                 </div>
             </div>
@@ -351,18 +367,18 @@
                 <div class="absolute w-full left-0 bottom-0 flex justify-center">
                     <div class="bg-sky-400 aspect-[5/5] w-[calc(300px-4rem)] phone:w-[calc(400px-4rem)] tablet:w-[calc(300px-4rem)] laptop:w-[calc(400px-4rem)] rounded-t-2xl drop-shadow-xl/30"></div>
                 </div>
-                <h2 class="text-2xl laptop:text-[32px] font-outfit font-bold leading-none mb-2">Tired of the Chaos?</h2>
-                <p class="tracking-wide text-sm phone:text-base tablet:text-sm laptop:text-base text-slate-700 leading-normal align-middle">Trust me, u wont made it if <br> you not organize ur things.</p>
+                <h2 class="text-2xl laptop:text-[32px] font-outfit font-bold leading-none mb-2">Feeling lost in mess?</h2>
+                <p class="tracking-wide text-sm phone:text-base tablet:text-sm laptop:text-base text-slate-700 leading-normal align-middle">Trust me, staying unorganized will cost you more than time.</p>
             </div>
             <div class="relative w-full max-w-[300px] phone:max-w-[400px] tablet:max-w-[300px] laptop:max-w-[400px] rounded-2xl p-8 aspect-[4/5] bg-gradient-to-br from-zinc-800 to-slate-900">
                 <div class="absolute w-full left-0 bottom-0 flex justify-center">
                     <div class="bg-sky-400 aspect-[5/4] w-[calc(300px-4rem)] phone:w-[calc(400px-4rem)] tablet:w-[calc(300px-4rem)] laptop:w-[calc(400px-4rem)] rounded-t-2xl"></div>
                 </div>
                 <h2 class="text-2xl laptop:text-[32px] font-outfit font-bold leading-none mb-2 text-white">Let's Organize It</h2>
-                <p class="tracking-wide text-sm phone:text-base tablet:text-sm laptop:text-base text-slate-300 leading-normal align-middle">With this website, let me help <br>you to organize your thing</p>
+                <p class="tracking-wide text-sm phone:text-base tablet:text-sm laptop:text-base text-slate-300 leading-normal align-middle">Let’s turn chaos into clarity.<br>Manage everything in one place.</p>
                 <div class="flex items-center space-x-2 mt-6">
                     <button onclick={openSigninModal} class="agerrbggradient button rounded-lg py-2 px-3 text-sm phone:text-base tablet:text-sm laptop:text-base font-outfit font-semibold cursor-pointer">
-                        Try it now it' free!
+                        Try now — it' free!
                     </button>
                     <div class="text-white text-[10px] phone:text-xs tablet:text-[10px] laptop:text-xs">converge over 50+ <br> different apps</div>
                 </div>
@@ -374,9 +390,9 @@
             <!-- Title  -->
             <section class="agerrlongercontainer z-15 flex flex-col justify-center items-center">
                 <p class="agerrh4 text-[16px] text-center z-5 text-slate-500">Features</p>
-                <h2 class="text-2xl tablet:text-[32px] font-outfit font-bold tracking-tight leading-none mb-4 text-center">For now i dont think to <br class="phone:hidden"> make complex feature <br> beacuse its just portfolio</h2>
-                <p class="text-xs tablet:text-base tracking-wide text-slate-700 text-center">but who knows, idk tho if ill make feature <br class="phone:hidden"> in the future. but not for now.</p>
-                <button onclick={openSigninModal} class="my-4 button agerrbggradient text-lg font-outfit px-3 py-2 font-semibold text-white cursor-pointer rounded-lg">Please try it :<div class="inline-block translate-y-[0.07em] ml-[0.025em] font-bebas font-medium">0</div></button>
+                <h2 class="text-2xl tablet:text-[32px] font-outfit font-bold tracking-tight leading-none mb-4 text-center">No complex features for now <br> this is just my lil’ todo portfolio.</h2>
+                <p class="text-xs tablet:text-base tracking-wide text-slate-700 text-center">But hey, who knows? <br class="phone:hidden"> Future me might get bored 👀</p>
+                <button onclick={openSigninModal} class="my-4 button agerrbggradient text-lg font-outfit px-3 py-2 font-semibold text-white cursor-pointer rounded-lg">Give it a try :<div class="inline-block translate-y-[0.07em] ml-[0.025em] font-bebas font-medium">0</div></button>
             </section>
         </section>
 

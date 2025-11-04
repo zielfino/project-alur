@@ -122,12 +122,12 @@
 
         <!-- STRAIGHT -->
         <div class="straightline">
-            <div class="notlast"><a href="/"><div class="w-full">Privacy</div></a></div>
-            <div class="notlast"><a href="/"><div class="w-full">Terms</div></a></div>
+            <div class="notlast opacity-50"><div class="w-full">Privacy</div></div>
+            <div class="notlast opacity-50"><div class="w-full">Terms</div></div>
             <div class="notlast"><a href="/login"><div class="w-full">Log In</div></a></div>
-            <div class="notlast"><a href="/"><div class="w-full">Feedback</div></a></div>
-            <div class="notlast"><a href="/"><div class="w-full">Disclaimer</div></a></div>
-            <div class="max-tablet:my-4"><a href="/"><div class="w-full">Contact</div></a></div>
+            <div class="notlast opacity-50"><div class="w-full">Feedback</div></div>
+            <div class="notlast opacity-50"><div class="w-full">Disclaimer</div></div>
+            <div class="max-tablet:my-4 opacity-50"><div class="w-full">Contact</div></div>
         </div>
 
         <!-- COPYRIGTH -->

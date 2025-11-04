@@ -410,7 +410,7 @@
 							<button type="button" tabindex="-1" onclick={() => { if (oldPasswordInput) oldPasswordInput.focus(); }} class="agerrh5 absolute -top-4.5 duration-300 ease-in-out
 							{oldPassword !== '' ? '' : ' text-slate-400 translate-y-[calc(2.2em-2px)] translate-x-[calc(1em-2px)]'}">Old Password</button>
 							<div class="button bg-slate-200 py-2 px-3 rounded-lg w-full flex items-center gap-2 mt-5">
-								<input type="text" bind:this={oldPasswordInput} bind:value={oldPassword} class="w-full h-full" />
+								<input type="password" bind:this={oldPasswordInput} bind:value={oldPassword} class="w-full h-full" />
 							</div>
 						</div>
 					{/if}
@@ -419,14 +419,14 @@
 						<button type="button" tabindex="-1" onclick={() => { if (newPasswordInput) newPasswordInput.focus(); }} class="agerrh5 absolute -top-4.5 duration-300 ease-in-out
 						{newPassword !== '' ? '' : ' text-slate-400 translate-y-[calc(2.2em-2px)] translate-x-[calc(1em-2px)]'}">New Password</button>
 						<div class="button bg-slate-200 py-2 px-3 rounded-lg w-full flex items-center gap-2 mt-5">
-							<input type="text" bind:this={newPasswordInput} bind:value={newPassword} class="w-full h-full" />
+							<input type="password" bind:this={newPasswordInput} bind:value={newPassword} class="w-full h-full" />
 						</div>
 					</div>
 					<div class="relative group w-full max-w-[300px]">
 						<button type="button" tabindex="-1" onclick={() => { if (confirmPasswordInput) confirmPasswordInput.focus(); }} class="agerrh5 absolute -top-4.5 duration-300 ease-in-out
 						{confirmPassword !== '' ? '' : ' text-slate-400 translate-y-[calc(2.2em-2px)] translate-x-[calc(1em-2px)]'}">Confirm Password</button>
 						<div class="button bg-slate-200 py-2 px-3 rounded-lg w-full flex items-center gap-2 mt-5">
-							<input type="text" bind:this={confirmPasswordInput} bind:value={confirmPassword} class="w-full h-full" />
+							<input type="password" bind:this={confirmPasswordInput} bind:value={confirmPassword} class="w-full h-full" />
 						</div>
 					</div>
 					<!-- <input type="password" bind:value={newPassword} placeholder="New Password" required minlength="6" />
